@@ -3,89 +3,13 @@
     padding: 0;
     box-sizing: border-box;
     font-family: sans-serif;
-    transition: all 0.2s linear;
+    /* transition: all 0.2s linear; */
 }
 body {
     display: flex;
     height: 100vh;
     width: 100vw;
     overflow: hidden;
-}
-aside {
-    position: relative;
-    overflow: hidden;
-    width: 19vw;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    background: #f6f6f6;
-    padding: 10px;
-    gap: 10px;
-    transform: translateX(0);
-}
-aside > div:nth-of-type(1) {
-    display: flex;
-    width: 100%;
-    height: 130px;
-    justify-content: center;
-    align-items: center;
-    user-select: none;
-    background-image: url("images/logo.webp");
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-}
-aside > div:nth-child(1) > i {
-    font-size: 25px;
-}
-aside > div:nth-of-type(2) {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-.strength {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-.strength > div {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    justify-content: space-between;   
-}
-.strength > div > div {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.strength > div:nth-of-type(1) > div:nth-of-type(1) {
-    font-weight: bold;
-    font-size: 14px;
-}
-.strength > div:nth-of-type(1) > div:nth-of-type(1):before {
-    font: var(--fa-font-solid);
-    content: "\f51c";
-}
-.strength2 > div:nth-of-type(1) > div:nth-of-type(1):before {
-    font: var(--fa-font-solid);
-    content: "\f19d";
-}
-.strength .fa-chevron-down::before, .strength .fa-plus::before, .fa-xmark::before {
-    cursor: pointer;
-    width: 15px;
-    height: 15px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.strength .fa-chevron-down, .strength .fa-plus, .fa-xmark {
-    padding: 3px;
-    border-radius: 50%;
-    transition: all 0.2s linear;
-}
-.strength i:hover {
-    background: #c4c4c4;
 }
 #strength_content, #weakness_content {
     transition: opacity 0.5s ease;
@@ -95,46 +19,6 @@ aside > div:nth-of-type(2) {
 }
 .fa-circle {
     font-size: 5px;
-}
-.strength_subject {
-    display: flex;
-    gap: 10px;
-    width: 100%;
-    justify-content: start;
-}
-.strength_subject p {
-    font-size: 12px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-    width: 100%;
-}
-.strength2 {
-    margin-top: 30px;
-}
-.user {
-    display: flex;
-    align-items: center;
-    font-size: 16px;
-    cursor: pointer;
-    gap: 10px;
-    padding: 5px;
-    transition: all 0.2s linear;
-    border-radius: 10px;
-    user-select: none;
-}
-.user:hover {
-    background: #c4c4c4;
-}
-.user_img {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    border: 1px solid black;
-    background: url("images/pfp.webp") center/cover no-repeat;
-}
-.strength .fa-xmark {
-    flex-shrink: 0;
 }
 .search {
     display: flex;
@@ -175,87 +59,6 @@ body > main {
     overflow-y: hidden;
     height: 100vh;
 }
-.tabs {
-    display: flex;
-    background: white;
-    width: max-content;
-    border-radius: 5px;
-    gap: 30px;
-    padding: 0 20px;
-    margin-top: 20px;
-}
-.tabs * {
-    display: flex;
-    transition: all 0.2s linear;
-    user-select: none;
-    color: #767676;
-}
-.tabs input {
-    display: none;
-}
-.tabs label {
-    cursor: pointer;
-    white-space: nowrap;
-    align-items: center;
-    padding-bottom: 5px;
-    border-bottom: 3px solid transparent;
-    gap: 10px;
-}
-.tabs input[type="radio"]:checked + label {
-    color: black !important;
-}
-.tabs > input[type="radio"] + label::before {
-    width: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.tabs > input[type="radio"] + label:nth-of-type(1)::before {
-    font: var(--fa-font-solid);
-    content: "\f135";
-}
-.tabs > input[type="radio"] + label:nth-of-type(2)::before {
-    font: var(--fa-font-solid);
-    content: "\f252";
-}
-.tabs > input[type="radio"] + label:nth-of-type(3)::before {
-    font: var(--fa-font-solid);
-    content: "\e533";
-}
-.tabs > input[type="radio"] + label:nth-of-type(4)::before {
-    font: var(--fa-font-solid);
-    content: "\f073";
-}
-.tabs > input[type="radio"] + label:nth-of-type(5)::before {
-    font: var(--fa-font-solid);
-    content: "\f1da";
-}
-.tabs > input[type="radio"]:checked + label {
-    border-bottom: 3px solid black !important;
-}
-.student {
-    display: flex;
-    align-items: center;
-    width: calc(100% / 3 - 20px);
-    height: 100px;
-    gap: 10px;
-    padding: 10px;
-    transition: all 0.2s linear;
-    border-radius: 10px;
-    user-select: none;
-    overflow: hidden;
-    border: 1px solid black;
-    flex-flow: row;
-    flex-grow: 0;
-    row-gap: 0 !important;
-}
-.student i {
-    font-size: 50px;
-    flex-shrink: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
 .student1 {
     height: unset;
     flex-direction: column !important;
@@ -287,27 +90,16 @@ body > main {
 .student1 > div {
     flex-direction: row !important;
 }
-.student > div:nth-of-type(1), .student1 > div:nth-of-type(1) > div:nth-of-type(1) {
+/* .student > div:nth-of-type(1), .student1 > div:nth-of-type(1) > div:nth-of-type(1) {
     display: flex;
     flex-direction: column;
     gap: 10px;
     justify-content: start;
     overflow: hidden;
     width: 100%;
-}
-
+} */
 .student1 > div:nth-of-type(1) > div:nth-of-type(1) {
     gap: 3px;
-}
-.student p:nth-of-type(1) {
-    font-size: 18px;
-    text-align: left !important;
-}
-.student p:not(:nth-of-type(1)) {
-    font-size: 10px;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
 }
 .student_container {
     margin: 20px;
@@ -949,17 +741,6 @@ body > main > div:nth-of-type(1) {
     background: red;
     height: 1px;
 }
-#pending_container {
-    flex-direction: row;
-    gap: 0;
-    height: 100%;
-    overflow: hidden;
-}
-#pending_container > div:nth-of-type(1) {
-    padding-right: 10px;
-    overflow: auto;
-    border-right: 1px solid black;
-}
 .student2 > div:nth-of-type(3) > p {
     font-size: 14px;
     color: grey;
@@ -967,41 +748,9 @@ body > main > div:nth-of-type(1) {
     padding: 5px;
     text-align: center !important;
 }
-#pending_container > div {
-    flex: 1;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    height: 100%;
-    width: 100%;
-}
-#pending_container > div::-webkit-scrollbar {
-    display: none;
-}
-#pending_container > div:nth-of-type(2) {
-    padding-left: 10px;
-}
 .student2 {
     flex-shrink: 0;
     width: 100%;
-}
-.student2 button {
-    border: 1px solid black;
-    border-radius: 10px;
-    cursor: pointer;
-    padding: 5px;
-    background: white;
-    flex: 8;
-}
-.student2 button:nth-of-type(1) {
-    background-color: #77c277;
-    color: white;
-}
-.student2 button:nth-of-type(2) {
-    flex: 2 !important;
-    background: #eb3939;
-    color: white;
 }
 .student2 > div:nth-of-type(3) {
     display: flex;
@@ -1139,40 +888,6 @@ input[type="time"] {
     display: unset !important;
     flex: 1;
 }
-.sidebar_collapse {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    cursor: pointer;
-    width: 20px;
-    height: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: url("images/collapse_sidebar.svg") center/cover no-repeat;
-}
-
-aside[sidebar-collapsed = "true"] {
-    width: 60px !important;
-}
-aside[sidebar-collapsed = "true"] .user > p {
-    display: none;
-}
-aside[sidebar-collapsed = "true"] .user {
-    margin-top: auto;
-}
-aside[sidebar-collapsed = "true"] > div:nth-of-type(1) {
-    background: url("images/favicon.webp");
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-}
-aside[sidebar-collapsed = "true"] > span {
-    transform: rotate(180deg);
-}
-aside[sidebar-collapsed = "true"] hr, aside[sidebar-collapsed = "true"] div:not(:nth-of-type(1)):not(.user) {
-    display: none;
-}
 #related + label {
     white-space: nowrap;
 }
@@ -1191,10 +906,6 @@ aside[sidebar-collapsed = "true"] hr, aside[sidebar-collapsed = "true"] div:not(
 }
 .user_detailed > i:hover {
     transform: rotate(90deg) scale(1.2);
-}
-#pending_container > div > p:nth-of-type(1) {
-    font-weight: bold;
-    font-size: 18px;
 }
 @media screen and (max-width: 450px) {
     .search > div {

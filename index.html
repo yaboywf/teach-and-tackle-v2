@@ -4,7 +4,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="description" content="Teach & Tackle">
-	<meta http-equiv="Content-Security-Policy" content="
+	<!-- <meta http-equiv="Content-Security-Policy" content="
 		default-src 'self';
 		script-src 'self' 'unsafe-inline';
 		style-src 'self';
@@ -13,10 +13,13 @@
 		font-src 'self';
 		frame-src 'none';
 		object-src 'none';
-	">
-	<title>Teach & Tackle</title>
+	"> -->
+	<title>Teach & Tackle | Explore</title>
 	<link rel="shortcut icon" href="images/favicon.webp" type="image/x-icon">
 	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="styles/aside.css">
+	<link rel="stylesheet" href="styles/nav.css">
+	<link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/all.css">
 </head>
 <body>
 	<script>
@@ -28,88 +31,34 @@
 	</script>
 
 	<aside>
-		<div></div> <!-- Logo -->
-		<hr>
-		<div>
-			<div class="strength">
-				<div>
-					<div>Mentor Others</div>
-					<div>
-						<i class="fa-solid fa-plus" tabindex="0"></i>
-						<i class="fa-solid fa-chevron-down" id="strength_collapse" tabindex="0"></i>
-					</div>
-				</div>
-				<div id="strength_content">
-					<div class="strength_subject">
-						<i class="fa-solid fa-circle"></i>
-						<p title="Logic and Mathematics (LOMA)">Logic and Mathematics (LOMA)</p>
-						<i class="fa-solid fa-xmark" tabindex="0"></i>
-					</div>
-					<div class="strength_subject">
-						<i class="fa-solid fa-circle"></i>
-						<p title="Database Application Development (DBAV)">Database Application Development (DBAV)</p>
-						<i class="fa-solid fa-xmark" tabindex="0"></i>
-					</div>
-				</div>
-			</div>
-			<div class="strength strength2">
-				<div>
-					<div>Knowledge Wishlist</div>
-					<div>
-						<i class="fa-solid fa-plus" tabindex="0"></i>
-						<i class="fa-solid fa-chevron-down" id="weakness_collapse" tabindex="0"></i>
-					</div>
-				</div>
-				<div id="weakness_content">
-					<div class="strength_subject">
-						<i class="fa-solid fa-circle"></i>
-						<p title="Mobile Application Development (MBAP)">Mobile Application Development (MBAP)</p>
-						<i class="fa-solid fa-xmark" tabindex="0"></i>
-					</div>
-					<div class="strength_subject">
-						<i class="fa-solid fa-circle"></i>
-						<p title="Network and Cloud Technology (NECT)">Network and Cloud Technology (NECT)</p>
-						<i class="fa-solid fa-xmark" tabindex="0"></i>
-					</div>
-				</div>
-			</div>
-		</div>
+		<img src="images/logo.webp" alt="Logo">
+        <div>
+            <div class="category">
+                <div>
+                    <div id="strength">Mentor Others</div>
+                    <i class="fa-solid fa-edit" tabindex="0"></i>
+                </div>
+                <ul>
+                    <li title="Logic and Mathematics (LOMA)">Logic and Mathematics (LOMA)</li>
+                    <li title="Database Application Development (DBAV)">Database Application Development (DBAV)</li>
+                </ul>
+            </div>
+            <div class="category">
+                <div>
+                    <div id="weakness">Knowledge Wishlist</div>
+                    <i class="fa-solid fa-edit" tabindex="0"></i>
+                </div>
+                <ul id="weakness_content">
+                    <li title="Mobile Application Development (MBAP)">Mobile Application Development (MBAP)</li>
+                    <li title="Network and Cloud Technology (NECT)">Network and Cloud Technology (NECT)</li>
+                </ul>
+            </div>
+        </div>
+        <div class="user" tabindex="0">Geng Yue</div>
 
 		<script>
 			// Javascript relating to the aside tag
 			const aside = document.querySelector("aside");
-			function toggle_modules(button_id, content_id, ls_key) {
-				const content = document.getElementById(content_id);
-				const button = document.getElementById(button_id);
-				if (!content) return;
-
-				const visible = window.getComputedStyle(content).display === "flex";
-				localStorage.setItem(ls_key, visible ? "hide" : "show");
-				content.style.opacity = visible ? "0" : "1";
-				content.style.display = visible ? "none" : "flex";
-				button.style.transform = `rotate(${visible ? "-90deg" : "0deg"})`;
-			}
-
-			document.getElementById("strength_collapse").addEventListener("click", () => {
-				toggle_modules("strength_collapse", "strength_content", "modules_strength");
-			});
-
-			document.getElementById("weakness_collapse").addEventListener("click", () => {
-				toggle_modules("weakness_collapse", "weakness_content", "modules_weakness");
-			});
-
-			document.querySelectorAll(".strength .fa-plus").forEach(plus => {
-				plus.addEventListener("click", (event) => {
-					const add_module = document.getElementById("add_module");
-					const message = add_module.querySelector("form > p:not(:first-of-type)");
-					add_module.style.display = "flex";
-					if (message) message.remove();
-					add_module.querySelector("form > select:nth-of-type(2)").value = "";
-					const click_from_module = event.target.nextElementSibling.id.split("_")[0];
-					document.getElementById("type").value = click_from_module;
-					setTimeout(() => { add_module.style.opacity = "1"; }, 200)
-				})
-			})
 
 			if (window.innerWidth <= 800) {
 				document.querySelector("aside").setAttribute("sidebar-collapsed", false);
@@ -174,19 +123,6 @@
 			}
 
 			document.addEventListener("DOMContentLoaded", () => {
-				document.querySelector(".sidebar_collapse").addEventListener("click", () => {
-					const collapsed = aside.getAttribute("sidebar-collapsed") === "true";
-					aside.setAttribute("sidebar-collapsed", !collapsed);
-					localStorage.setItem("sidebar-collapsed", !collapsed);
-					updateEventStyles(false);
-					setInterval(() => {
-						updateEventStyles(false);
-					}, 100);
-					aside.addEventListener("transitionend", () => {
-						user_detailed.style.left = (aside.offsetWidth + 20) + "px";
-					}, { once: true });
-				});
-
 				const radios = document.querySelectorAll('input[name="tabs"]');
 				const filter_options = document.querySelector("#related + label").parentElement;
 				const sections = Array.from(document.querySelectorAll('.student_container'));
@@ -212,15 +148,7 @@
 					});
 				})
 			})
-		</script>
 
-		<hr>
-		<div class="user" tabindex="0">
-			<div class="user_img"></div>
-			<p>Geng Yue</p>
-		</div>
-
-		<script>
 			let user_detailed;
 			document.addEventListener("DOMContentLoaded", () => {
 				user_detailed = document.getElementById("user");
@@ -233,8 +161,6 @@
 				user_detailed.style.transform = visible ? "translateY(110%)" : "translateY(0)";
 			});
 		</script>
-
-		<span class="sidebar_collapse"></span>
 	</aside>
 
 	<main>
@@ -250,32 +176,12 @@
 			</div>
 		</div>
 		<nav class="tabs">
-			<input type="radio" id="explore" name="tabs" checked>
-			<label for="explore" tabindex="0">Explore</label>
-
-			<input type="radio" id="pending" name="tabs">
-			<label for="pending" tabindex="0">Pending</label>
-
-			<input type="radio" id="current" name="tabs" >
-			<label for="current" tabindex="0">Pairing</label>
-
-			<input type="radio" id="schedule" name="tabs">
-			<label for="schedule" tabindex="0">My Schedule</label>
-
-			<input type="radio" id="history" name="tabs">
-			<label for="history" tabindex="0">History</label>
+			<a href="index.html" title="Explore Page" class="active">Explore</a>
+            <a href="pending.html" title="Pending Page">Pending</a>
+            <a href="pairing.html" title="Pairing Page">Pairing</a>
 		</nav>
 
 		<script>
-			const tabs = document.querySelectorAll('.tabs > div');
-
-			tabs.forEach(tab => {
-				tab.addEventListener('click', () => {
-					tabs.forEach(t => t.classList.remove('active'));
-					tab.classList.add('active');
-				});
-			})
-
 			document.getElementById("related").addEventListener("change", function() {
 				const my_modules = Array.from(document.querySelectorAll(".strength_subject > p")).map(p => p.textContent.trim().toLowerCase().split("(")[1].replace(")", ""));
 				const students = document.querySelectorAll(".student.student1");
@@ -724,277 +630,6 @@
 				</div>
 			</div>
 		</div>
-
-		<script>
-			function add_module(container, content, className) {
-				const module = document.createElement("div");
-				module.classList.add("module", className);
-				module.textContent = content;
-				container.appendChild(module);
-			}
-
-			document.querySelectorAll(".student2 button:nth-of-type(1)").forEach(button => {
-				button.addEventListener("click", () => {
-					const element_to_add = button.closest(".student2");
-					const student_name = element_to_add.querySelector("p").textContent;
-					const student_diploma = element_to_add.querySelector("p:nth-of-type(3)").textContent;
-					const student_schedule = element_to_add.querySelector("div:nth-of-type(2) > div").textContent;
-					const weaknesses = Array.from(element_to_add.querySelectorAll("div:nth-of-type(2) > div:nth-of-type(2) > .student_weakness")).map(element => element.textContent);
-					const strengths = Array.from(element_to_add.querySelectorAll("div:nth-of-type(2) > div:nth-of-type(2) > .student_strength")).map(element => element.textContent);
-					const clone = document.importNode(document.getElementById("event_template").content, true).querySelector(".event");
-					clone.querySelector("div > div").textContent = student_name;
-					clone.querySelector("div:nth-of-type(2)").textContent = `${student_name}@student.tp.edu.sg`;
-					strengths.forEach(strength => add_module(clone.querySelector("div:nth-of-type(3)"), strength, "event_strength"));
-					weaknesses.forEach(weakness => add_module(clone.querySelector("div:nth-of-type(3)"), weakness, "event_weakness"));
-					document.getElementById("schedule_container").insertBefore(clone, document.getElementById("timeline"));
-					const {day, start, duration} = time_conversion(student_schedule);
-					event_list.push({ day, time_start: start, duration });
-					const clone1 = document.importNode(document.getElementById("pair_template").content, true).querySelector(".pair");
-					clone1.querySelector("time").innerHTML = `${student_schedule.split(", ")[0]}<br>${student_schedule.split(", ")[1]}`;
-					const student_details = clone1.querySelector(":scope > div:nth-of-type(2) > div");
-					student_details.querySelector("p:nth-of-type(1)").textContent = student_name;
-					student_details.querySelector("p:nth-of-type(2)").textContent = `${student_name}@student.tp.edu.sg`;
-					student_details.querySelector("p:nth-of-type(3)").innerHTML = `${student_diploma.split("(")[0]}<span>${student_diploma.match(/\(Y\d\)/)[0]}</span>`;
-					strengths.forEach(strength => add_module(clone1.querySelector("div:nth-of-type(3)"), `${modules_full[modules.indexOf(strength)]} (${strength})`, "module_strength"));
-					weaknesses.forEach(weakness => add_module(clone1.querySelector("div:nth-of-type(4)"), `${modules_full[modules.indexOf(weakness)]} (${weakness})`, "module_weakness"));       
-					if (document.querySelector("#current_container #empty")) document.querySelector("#current_container #empty").style.display = "none";
-					document.getElementById("current_container").appendChild(clone1);
-					updateEventStyles(false);
-					element_to_add.style.opacity = "0";
-					element_to_add.addEventListener("transitionend", () => {
-						element_to_add.remove();
-						if (document.querySelectorAll("#pending_container > div:nth-of-type(1) .student2").length === 0) {
-							const message = document.createElement("p");
-							message.textContent = "No pending requests";
-							message.style.textAlign = "center";
-							document.querySelector("#pending_container > div:nth-of-type(1)").appendChild(message);
-						}
-					}, { once: true });
-				})
-			})
-
-			document.querySelectorAll(".student2 button:nth-of-type(2)").forEach(button => {
-				button.addEventListener("click", () => {
-					const request = button.closest(".student2")
-					request.style.opacity = "0";
-					request.addEventListener("transitionend", () => {
-						request.remove();
-						const pending_container = document.querySelector("#pending_container > div:first-of-type");
-						if (!pending_container.querySelector(".student2")) {
-							const message = document.createElement("p");
-							message.textContent = "No pending requests";
-							message.style.textAlign = "center";
-							pending_container.appendChild(message);
-						}
-					}, { once: true });
-				})
-			})
-		</script>
-
-		<div class="student_container" id="schedule_container" tabindex="-1">
-			<div class="schedule_timings">
-				<div class="day_header"></div>
-			</div>
-			<div class="schedule_day"></div>
-			<div class="schedule_day"></div>
-			<div class="schedule_day"></div>
-			<div class="schedule_day"></div>
-			<div class="schedule_day"></div>
-			<div class="schedule_day"></div>
-			<div class="schedule_day"></div>
-
-			<div class="event">
-				<div>Alex Taylor</div> <!-- Name -->
-				<div>Alex_Taylor@student.tp.edu.sg</div>
-				<div>
-					<div class="event_strength">DBAV</div> <!-- Time (Mentor) -->
-					<div class="event_weakness">NECT</div> <!-- Time (Learn) -->
-				</div>
-			</div>
-			<div class="event">
-				<div>Jordan Lee</div> <!-- Name -->
-				<div>Jordan_Lee@student.tp.edu.sg</div>
-				<div>
-					<div class="event_strength">LOMA</div>
-				</div>
-			</div>
-			<div class="event">
-				<div>Morgan Chen</div> <!-- Name -->
-				<div>Morgan_Chen@student.tp.edu.sg</div>
-				<div>
-					<div class="event_weakness">MBAP</div>
-				</div>
-			</div>
-			<div id="timeline"></div>
-		</div>
-
-		<script>
-			function update_timeline() {
-				const start = new Date();
-				start.setHours(8, 0, 0);
-				const now = new Date();
-				const rect = document.querySelector(".schedule_day > div:nth-of-type(2)").getBoundingClientRect();
-				const difference = Math.floor((now - start) / 60000);
-				const timeline_reminder = ((difference / 30) % Math.floor(difference / 30)) * rect.height;
-				const timeline = document.getElementById('timeline');
-				timeline.style.top = `${(rect.height + 5) * (Math.floor(difference / 30)) + timeline_reminder + rect.height + rect.height / 2 + 5}px`;
-			}
-
-			setInterval(update_timeline, 1000);
-
-			function updateEventStyles(change_color = true) {
-				document.querySelectorAll(".event").forEach((event, index) => {
-					const { day, time_start, duration } = event_list[index];
-					create_event(event, day, time_start, duration, change_color);
-				});
-			}
-
-			function time_conversion(input) {
-				const dayMapping = { 'Monday': 0, 'Tuesday': 1, 'Wednesday': 2, 'Thursday': 3, 'Friday': 4, 'Saturday': 5, 'Sunday': 6 };
-				const [day, timeRange] = input.split(", ");
-				const [startTime, endTime] = timeRange.split(" - ").map(time => parseInt(time, 10));
-				const dayNumber = dayMapping[day];
-				const startInterval = (startTime - 800) / 50 + 1;
-				const duration = (endTime - startTime) / 50;
-				return { day: dayNumber, start: startInterval, duration: duration };
-			}
-
-			let event_list = [
-				{ day: 4, time_start: 2, duration: 3 },
-				{ day: 0, time_start: 17, duration: 2 },
-				{ day: 2, time_start: 17, duration: 3 }
-			]
-
-			let hue = 0;
-
-			function create_event_color() {
-				const saturation = 70;
-				const lightness = 75;
-				hue = (hue + 60) % 360;
-				return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-			}
-
-			function create_event(event, day, time_start, duration, change_color=true) {
-				const rect = document.querySelector(".schedule_day > div").getBoundingClientRect();
-				const rect1 = document.querySelector(".schedule_day").getBoundingClientRect();
-				const schedule_rect = document.querySelector(".schedule_timings").getBoundingClientRect();
-				event.style.width = `${rect1.width}px`;
-				event.style.height = `${(rect.height + rect.height / 2 - 10) * duration}px`;
-				event.style.top = `${(rect.height + 5) * time_start + rect.height / 2}px`;
-				event.style.left = `${schedule_rect.width + rect1.width * day}px`;
-				if (change_color) event.style.background = create_event_color();
-			};
-
-			function update_names() {
-				const days = window.innerWidth < 800 ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-				const parents = document.querySelectorAll("#schedule_container > div:not(.schedule_timings):not(.event):not(#timeline)");
-				parents.forEach((parent, index) => {
-					const first_div = parent.querySelector(".day_header");
-					if (first_div) first_div.textContent = days[index % days.length];
-				});
-			}
-
-			async function create_divs() {
-				const parents = document.querySelectorAll("#schedule_container > div:not(.schedule_timings):not(.event):not(#timeline)");
-				const days = window.innerWidth < 800 ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-				
-				parents.forEach((parent, index) => {
-					for (let i = 0; i < 31; i++) {
-						let new_div = parent.children[i];
-						if (!new_div) {
-							new_div = document.createElement("div");
-							parent.appendChild(new_div);
-						}
-
-						if (i === 0 && !new_div.classList.contains("day_header")) {
-							new_div.textContent = days[index % days.length];
-							new_div.classList.add("day_header");
-						}
-					}
-				});
-			}
-
-			async function createTimeElements() {
-				for (let hour = 8; hour <= 22; hour++) {
-					for (let minute = 0; minute < 60; minute += 30) {
-						await new Promise(resolve => setTimeout(resolve, 0)); 
-						let formatted_hour = hour.toString().padStart(2, '0');
-						let formatted_minute = minute.toString().padStart(2, '0');
-						let time = `${formatted_hour}${formatted_minute}`;
-						let time_element = document.createElement("div");
-						time_element.textContent = time;
-						document.querySelector(".schedule_timings").appendChild(time_element);
-					}
-				}
-			}
-		</script>
-
-		<div class="student_container" id="history_container">
-			<p>No history to show</p>
-			<div class="pair">
-				<div class="student">
-					<img src="images/pfp.webp" alt="Profile picture">
-					<div>
-						<p>Geng Yue</p>
-						<p>Email@student.tp.edu.sg</p>
-						<p title="Diploma in Information Technology (Y1)">Diploma in Information Technology <span>(Y1)</span></p>
-					</div>
-				</div>
-	
-				<i class="fa-solid fa-link"></i>
-				<time>Wednesday<br>1600 - 1730</time>
-	
-				<div class="student">
-					<i class="fa-solid fa-circle-user"></i>
-					<div>
-						<p>Aisha Patel</p>
-						<p>Aisha_Patel@student.tp.edu.sg</p>
-						<p title="Diploma in Information Technology (Y3)">Diploma in Information Technology <span>(Y3)</span></p>
-					</div>
-				</div>
-
-				<div>	
-					<div class="module module_weakness" title="Mobile App Development (MBAP)">Mobile App Development (MBAP)</div>
-				</div>
-					
-				<div>	
-					<div class="module module_strength" title="Mobile App Development (MBAP)">Mobile App Development (MBAP)</div>
-				</div>
-			</div>
-
-			<div class="pair">
-				<div class="student">
-					<img src="images/pfp.webp" alt="Profile picture">
-					<div>
-						<p>Geng Yue</p>
-						<p>Email@student.tp.edu.sg</p>
-						<p title="Diploma in Information Technology (Y1)">Diploma in Information Technology <span>(Y1)</span></p>
-					</div>
-				</div>
-	
-				<i class="fa-solid fa-link"></i>
-				<time>Wednesday<br>1600 - 1730</time>
-	
-				<div class="student">
-					<i class="fa-solid fa-circle-user"></i>
-					<div>
-						<p>Liam Chen</p>
-						<p>Liam_Chen@student.tp.edu.sg</p>
-						<p title="Diploma in Big Data & Analytics (Y2)">Common ICT Programme <span>(Y1)</span></p>
-					</div>
-				</div>
-
-				<div>	
-					<div class="module module_strength" title="Data Visualisation and Analytics (DAVA)">Data Visualisation and Analytics (DAVA)</div>
-				</div>
-					
-				<div>	
-					<div class="module module_weakness" title="Data Visualisation and Analytics (DAVA)">Data Visualisation and Analytics (DAVA)</div>
-				</div>
-			</div>
-
-			<button>Clear History</button>
-		</div>
 	</main>
 
 	<div id="message">Request to be paired</div>
@@ -1070,33 +705,6 @@
 			const minute = i % 2 === 0 ? '00' : '30';
 			return `${hour}:${minute}`;
 		});
-
-		function create_schedule_grid() {
-			const header = document.createElement('div');
-			header.textContent = '';
-			header.className = 'grid_header';
-			schedule.appendChild(header);
-			week_days.forEach(day => {
-				const day_cell = document.createElement('div');
-				day_cell.textContent = day;
-				day_cell.className = 'grid_header';
-				schedule.appendChild(day_cell);
-			});
-			time_slots.forEach(time => {
-				const time_cell = document.createElement('time');
-				time_cell.textContent = time;
-				time_cell.className = 'grid_time';
-				schedule.appendChild(time_cell);
-				week_days.forEach(day => {
-					const checkboxCell = document.createElement('div');
-					const checkbox = document.createElement('input');
-					checkbox.type = 'checkbox';
-					checkbox.id = `${day}-${time}`;
-					checkboxCell.appendChild(checkbox);
-					schedule.appendChild(checkboxCell);
-				});
-			});
-		}
 
 		document.addEventListener("DOMContentLoaded", () => {
 			user_detailed.querySelector("i").addEventListener("click", () => {
@@ -1401,23 +1009,6 @@
 	</div>
 
 	<script>
-		document.querySelector("#history_container > button").addEventListener("click", () => {
-			const confirmation = document.querySelector(".confirmation");
-			const history = document.getElementById("history_container");
-			confirmation.style.display = "flex";
-			confirmation.querySelector("p").textContent = "Are you sure you want to delete all history?";
-			setTimeout(() => { confirmation.style.opacity = "1"; }, 200);
-			confirmation.querySelector("button").addEventListener("click", () => {
-				history.querySelectorAll(".pair").forEach(pair => {
-					pair.style.opacity = "0";
-					pair.addEventListener("transitionend", () => {
-						pair.remove();
-						if (history.querySelectorAll(".pair").length === 0) history.querySelector("p").style.display = "block";
-					}, { once: true })
-				})
-			})
-		})
-
 		const weakness_messages = ["Look who finally leveled up! Delete this weakness?", "Double-checking: Are you sure you're ready to say goodbye to this flaw?", "Deleting this weakness? Just think of the stories you’ll miss out on!", "Is it time to upgrade? Confirm to officially kick this weakness to the curb!", "Careful! Removing this weakness could make you unstoppable. Proceed?"];
 		const strength_messages = ["Whoa, hold up! Removing this module means giving up your status as a guru. Are you ready to surrender your sage wisdom?", "Thinking of ditching this module? But who will teach the young grasshoppers now?", "You’re about to retire from being the wise sensei in this subject. Shall we throw you a farewell party?"];
 
@@ -1596,13 +1187,10 @@
 				document.getElementById("module_selection").appendChild(option);
 			})
 			document.getElementById("current_container").style.display = "none";
-			["blur", "spinner", "schedule_container", "pending_container", "history_container"].forEach(id => document.getElementById(id).style.display = "none");
+			["blur", "spinner", "pending_container"].forEach(id => document.getElementById(id).style.display = "none");
 		
-			create_schedule_grid();
 			load();
 			document.querySelector("noscript").style.display = "none";
-			create_divs();
-			createTimeElements();
 		}
 
 		function toggleModuleVisibility(button, content, storage_key) {
@@ -1667,9 +1255,6 @@
 			tutorial(localStorage.getItem("last_step"));
 		} else {
 			document.querySelector("dialog").style.display = "none";
-			const container2 = document.getElementById("history_container");
-			container2.style.zIndex = 1;
-			container2.querySelectorAll("*").forEach(element => element.style.pointerEvents = "unset");
 		}
 
 		const issue = document.querySelector(".issues > div:nth-of-type(1)");
