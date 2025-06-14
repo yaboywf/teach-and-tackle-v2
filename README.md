@@ -4,4 +4,15 @@ Teach & Tackle is a website that will allow students to input the modules they a
 # What is the purpose of this website?
 The purpose of the website is to facilitate peer-to-peer learning by pairing students based on their strengths and weaknesses when lecturers are temporarily unavailable. This would allow students to improve academically, and mentors being able to hone their communication and problem-solving skills, thus improving their personal growth.
 
-### Temasek Polytechnic Application Development Project (ADEV) Project 1
+# Project Difference
+This repository is similar to https://github.com/yaboywf/teach-and-tackle, but with some adjustments. In addition, this repository would have the addition of backend logic via AWS services.
+
+## AWS Services Used
+- Amazon API Gateway
+- AWS Cognito
+- AWS S3
+- AWS Lambda
+- Amazon DynamoDB
+- Amazon Simple Email Service (SES)
+
+### Temasek Polytechnic Cloud Application Development (CADV) Project
