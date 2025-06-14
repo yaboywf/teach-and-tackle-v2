@@ -1,0 +1,1737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="Teach & Tackle">
+	<meta http-equiv="Content-Security-Policy" content="
+		default-src 'self';
+		script-src 'self' 'unsafe-inline';
+		style-src 'self';
+		img-src 'self';
+		connect-src 'self';
+		font-src 'self';
+		frame-src 'none';
+		object-src 'none';
+	">
+	<title>Teach & Tackle</title>
+	<link rel="shortcut icon" href="images/favicon.webp" type="image/x-icon">
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<script>
+		const names = ["John Doe", "Jane Smith", "Bob Brown", "Charlie White", "Max Power", "Patty Cake", "Sammy Syntax", "Ella Vator", "Wade Wilson"];
+		const diplomas = ["Diploma in Information Technology", "Diploma in Big Data & Analytics", "Common ICT Programme", "Diploma in Applied Artificial Intelligence", "Diploma in Cyber Security & Digital Forensics", "Diploma in Immersive Media & Game Development"];
+		const modules = ["COMT", "UXID", "DAVA", "LOMA", "CYFUN", "ADEV", "DBAV", "DSAG", "NECT", "MBAP", "CADV", "AMDT", "FWEB", "DEVOPS", "MLDP", "ITAD"]
+		const modules_full = ["Computational Thinking", "User Experience and Interface Design", "Data Visualisation and Analytics", "Logic and Mathematics", "Cybersecurity Fundamentals", "Application Development Project", "Database Application Development", "Data Structure and Algorithms", "Network and Cloud Technology", "Mobile App Development", "Cloud Application Development", "Agile Methodology and Design Thinking", "Full Stack Web Development", "DevOps Essentials", "Machine Learning for Developers", "IoT Application Development"];
+		let request_diploma;
+	</script>
+
+	<aside>
+		<div></div> <!-- Logo -->
+		<hr>
+		<div>
+			<div class="strength">
+				<div>
+					<div>Mentor Others</div>
+					<div>
+						<i class="fa-solid fa-plus" tabindex="0"></i>
+						<i class="fa-solid fa-chevron-down" id="strength_collapse" tabindex="0"></i>
+					</div>
+				</div>
+				<div id="strength_content">
+					<div class="strength_subject">
+						<i class="fa-solid fa-circle"></i>
+						<p title="Logic and Mathematics (LOMA)">Logic and Mathematics (LOMA)</p>
+						<i class="fa-solid fa-xmark" tabindex="0"></i>
+					</div>
+					<div class="strength_subject">
+						<i class="fa-solid fa-circle"></i>
+						<p title="Database Application Development (DBAV)">Database Application Development (DBAV)</p>
+						<i class="fa-solid fa-xmark" tabindex="0"></i>
+					</div>
+				</div>
+			</div>
+			<div class="strength strength2">
+				<div>
+					<div>Knowledge Wishlist</div>
+					<div>
+						<i class="fa-solid fa-plus" tabindex="0"></i>
+						<i class="fa-solid fa-chevron-down" id="weakness_collapse" tabindex="0"></i>
+					</div>
+				</div>
+				<div id="weakness_content">
+					<div class="strength_subject">
+						<i class="fa-solid fa-circle"></i>
+						<p title="Mobile Application Development (MBAP)">Mobile Application Development (MBAP)</p>
+						<i class="fa-solid fa-xmark" tabindex="0"></i>
+					</div>
+					<div class="strength_subject">
+						<i class="fa-solid fa-circle"></i>
+						<p title="Network and Cloud Technology (NECT)">Network and Cloud Technology (NECT)</p>
+						<i class="fa-solid fa-xmark" tabindex="0"></i>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			// Javascript relating to the aside tag
+			const aside = document.querySelector("aside");
+			function toggle_modules(button_id, content_id, ls_key) {
+				const content = document.getElementById(content_id);
+				const button = document.getElementById(button_id);
+				if (!content) return;
+
+				const visible = window.getComputedStyle(content).display === "flex";
+				localStorage.setItem(ls_key, visible ? "hide" : "show");
+				content.style.opacity = visible ? "0" : "1";
+				content.style.display = visible ? "none" : "flex";
+				button.style.transform = `rotate(${visible ? "-90deg" : "0deg"})`;
+			}
+
+			document.getElementById("strength_collapse").addEventListener("click", () => {
+				toggle_modules("strength_collapse", "strength_content", "modules_strength");
+			});
+
+			document.getElementById("weakness_collapse").addEventListener("click", () => {
+				toggle_modules("weakness_collapse", "weakness_content", "modules_weakness");
+			});
+
+			document.querySelectorAll(".strength .fa-plus").forEach(plus => {
+				plus.addEventListener("click", (event) => {
+					const add_module = document.getElementById("add_module");
+					const message = add_module.querySelector("form > p:not(:first-of-type)");
+					add_module.style.display = "flex";
+					if (message) message.remove();
+					add_module.querySelector("form > select:nth-of-type(2)").value = "";
+					const click_from_module = event.target.nextElementSibling.id.split("_")[0];
+					document.getElementById("type").value = click_from_module;
+					setTimeout(() => { add_module.style.opacity = "1"; }, 200)
+				})
+			})
+
+			if (window.innerWidth <= 800) {
+				document.querySelector("aside").setAttribute("sidebar-collapsed", false);
+				swipe_gesture();
+			}
+
+			window.addEventListener("resize", () => {
+    			update_names();
+
+				if (window.innerWidth <= 800) {
+					aside.setAttribute("sidebar-collapsed", false);
+					aside.style.transform = "translateX(-110%)";
+					swipe_gesture();
+
+					if (document.getElementById("schedule").checked) {
+						document.querySelector("#explore + label").click();
+					}
+				} else {
+					aside.style.transform = "translateX(0)";
+				}
+			});
+
+			function swipe_gesture() {
+				let startX = 0;
+				let endX = 0;
+
+				function handle_touch(event, isStart = true) {
+					if (window.innerWidth > 800) return;
+					const touchX = event.touches[0].clientX;
+					isStart ? startX = touchX : endX = touchX;
+				}
+
+				function handle_swipe() {
+					const blur = document.getElementById("blur");
+					if (window.innerWidth > 800) return;
+					
+					const deltaX = endX - startX;
+					if (deltaX > 100) {
+						blur.style.display = "block";
+						setTimeout(() => {
+							blur.style.opacity = "1";
+							aside.style.zIndex = "3";
+							aside.style.transform = "translateX(0)";
+						}, 200);
+					} else {
+						if (window.getComputedStyle(blur).display === "block") {
+							blur.style.opacity = "0";
+							blur.addEventListener("transitionend", () => {
+								blur.style.display = "none";
+								aside.style.zIndex = "1";
+								aside.style.transform = "translateX(-110%)";
+							}, { once: true });
+						}
+					}
+
+					startX = endX = 0;
+				}
+
+				window.addEventListener("touchstart", (e) => handle_touch(e, true));
+				window.addEventListener("touchmove", (e) => handle_touch(e, false));
+				window.addEventListener("touchend", handle_swipe);
+			}
+
+			document.addEventListener("DOMContentLoaded", () => {
+				document.querySelector(".sidebar_collapse").addEventListener("click", () => {
+					const collapsed = aside.getAttribute("sidebar-collapsed") === "true";
+					aside.setAttribute("sidebar-collapsed", !collapsed);
+					localStorage.setItem("sidebar-collapsed", !collapsed);
+					updateEventStyles(false);
+					setInterval(() => {
+						updateEventStyles(false);
+					}, 100);
+					aside.addEventListener("transitionend", () => {
+						user_detailed.style.left = (aside.offsetWidth + 20) + "px";
+					}, { once: true });
+				});
+
+				const radios = document.querySelectorAll('input[name="tabs"]');
+				const filter_options = document.querySelector("#related + label").parentElement;
+				const sections = Array.from(document.querySelectorAll('.student_container'));
+				radios.forEach(radio => {
+					radio.addEventListener("change", () => {
+						sections.forEach(section => {
+							section.style.display = 'none';
+							section.style.opacity = '0';
+						});
+						const selected = document.getElementById(`${radio.id}_container`);
+						if (!selected) return;
+						selected.style.display = 'flex';
+						requestAnimationFrame(() => (selected.style.opacity = '1'));
+						if (radio.id === "explore") {
+							filter_options.style.display = "flex";
+							requestAnimationFrame(() => (filter_options.style.opacity = "1"));
+						} else if (radio.id === "schedule") {
+							updateEventStyles();
+						} else {
+							filter_options.style.opacity = "0";
+							filter_options.addEventListener("transitionend", () => { filter_options.style.display = "none"; }, { once: true });
+						}
+					});
+				})
+			})
+		</script>
+
+		<hr>
+		<div class="user" tabindex="0">
+			<div class="user_img"></div>
+			<p>Geng Yue</p>
+		</div>
+
+		<script>
+			let user_detailed;
+			document.addEventListener("DOMContentLoaded", () => {
+				user_detailed = document.getElementById("user");
+			})
+
+			document.querySelector(".user").addEventListener("click", () => {
+				const section_width = document.querySelector("aside").offsetWidth;
+				user_detailed.style.left = (section_width + 20) + "px";
+				const visible = window.getComputedStyle(user_detailed).transform.includes('matrix(1, 0, 0, 1, 0, 0)');
+				user_detailed.style.transform = visible ? "translateY(110%)" : "translateY(0)";
+			});
+		</script>
+
+		<span class="sidebar_collapse"></span>
+	</aside>
+
+	<main>
+		<div>
+			<div class="search" tabindex="0">
+				<i class="fa-solid fa-magnifying-glass"></i>
+				<input type="search" placeholder="Search something..." tabindex="0" id="searchBar" autocomplete="off">
+				<div>Ctrl + F</div>
+			</div>
+			<div>
+				<input type="checkbox" id="related">
+				<label for="related" tabindex="0">Filter</label>
+			</div>
+		</div>
+		<nav class="tabs">
+			<input type="radio" id="explore" name="tabs" checked>
+			<label for="explore" tabindex="0">Explore</label>
+
+			<input type="radio" id="pending" name="tabs">
+			<label for="pending" tabindex="0">Pending</label>
+
+			<input type="radio" id="current" name="tabs" >
+			<label for="current" tabindex="0">Pairing</label>
+
+			<input type="radio" id="schedule" name="tabs">
+			<label for="schedule" tabindex="0">My Schedule</label>
+
+			<input type="radio" id="history" name="tabs">
+			<label for="history" tabindex="0">History</label>
+		</nav>
+
+		<script>
+			const tabs = document.querySelectorAll('.tabs > div');
+
+			tabs.forEach(tab => {
+				tab.addEventListener('click', () => {
+					tabs.forEach(t => t.classList.remove('active'));
+					tab.classList.add('active');
+				});
+			})
+
+			document.getElementById("related").addEventListener("change", function() {
+				const my_modules = Array.from(document.querySelectorAll(".strength_subject > p")).map(p => p.textContent.trim().toLowerCase().split("(")[1].replace(")", ""));
+				const students = document.querySelectorAll(".student.student1");
+				if (this.checked) {
+					students.forEach(student => {
+						let match_found = false;
+						student.querySelectorAll("div:nth-of-type(2) > div").forEach(div => {
+							console.log(div.textContent.trim().toLowerCase())
+							if (my_modules.includes(div.textContent.trim().toLowerCase())) {
+								match_found = true;
+							}
+						});
+
+						if (!match_found) {
+							student.style.opacity = "0";
+							student.addEventListener("transitionend", () => {
+								student.style.display = "none";
+							}, { once: true });
+						} else {
+							student.style.display = "flex";
+							setTimeout(() => {
+								student.style.opacity = "1";
+							}, 200)
+						}
+					})
+				} else {
+					students.forEach(student => {
+						student.style.display = "flex";
+						setTimeout(() => {
+							student.style.opacity = "1";
+						}, 200)
+					})
+				}
+			})
+
+			async function filterItems() {
+				const searchValue = search_bar.value.toLowerCase();
+				const tab = document.querySelector('nav input[type="radio"]:checked + label').textContent.trim().toLowerCase();
+
+				function matchesSearch(element) {
+					const textElements = Array.from(element.querySelectorAll('p'));
+					const divElements = Array.from(element.querySelectorAll('div')).filter(div => div.children.length === 0);
+					const combinedText = [...textElements, ...divElements].map(el => el.textContent.trim().toLowerCase()).join(' ');
+					return combinedText.includes(searchValue);
+				}
+
+				function handleDisplay(element, matchFound, display = 'flex') {
+					if (matchFound) {
+						element.style.display = display;
+						setTimeout(() => { element.style.opacity = '1'; }, 200);
+					} else {
+						element.style.opacity = '0';
+						element.addEventListener("transitionend", () => { element.style.display = 'none'; }, { once: true });
+					}
+				}
+
+				switch (tab) {
+					case 'pairing':
+					case 'history': {
+						const pairs = document.querySelectorAll('.pair');
+						pairs.forEach(pair => {
+							const matchFound = matchesSearch(pair);
+							handleDisplay(pair, matchFound, "grid");
+						});
+						break;
+					}
+					case 'explore': {
+						const students = document.querySelectorAll('.student');
+						students.forEach(student => {
+							const matchFound = matchesSearch(student);
+							handleDisplay(student, matchFound);
+						});
+						break;
+					}
+					case 'my schedule': {
+						const events = document.querySelectorAll('.event');
+						let found = false;
+						events.forEach(event => {
+							if (!found) {
+								const matchFound = Array.from(event.querySelectorAll('div')).map(div => div.textContent.trim().toLowerCase()).join(' ').includes(searchValue);
+								if (matchFound) {
+									const event_offsetTop = event.offsetTop;
+									const rect = document.querySelector(".schedule_day > div").getBoundingClientRect();
+									found = true;
+									document.getElementById("schedule_container").scrollTo({
+										top: event_offsetTop - rect.height - 5,
+										behavior: 'smooth'
+									});
+								}
+							}
+						});
+						break;
+					}
+					case 'pending': {
+						const requests = document.querySelectorAll('.student.student1.student2');
+						requests.forEach(request => {
+							const matchFound = matchesSearch(request);
+							handleDisplay(request, matchFound);
+						});
+						break;
+					}
+				}
+			}
+
+			const search_bar = document.getElementById('searchBar');
+			document.addEventListener('keydown', function(event) {
+				if (event.ctrlKey && event.key === 'f') {
+					event.preventDefault();
+					search_bar.style.display = 'block';
+					search_bar.focus();
+				}
+			});
+
+			function debounce(func, delay) {
+				let timeoutId;
+				return function (...args) {
+					clearTimeout(timeoutId);
+					timeoutId = setTimeout(() => { func.apply(this, args); }, delay);
+				};
+			}
+
+			document.getElementById("searchBar").addEventListener("input", debounce(filterItems, 100));
+		</script>
+
+		<br><hr>
+
+		<div class="student_container" id="explore_container" tabindex="-1">
+			<div class="student student1">
+				<div>
+					<i class="fa-solid fa-circle-user"></i>
+					<div>
+						<p>Alice Johnson</p>
+						<p>Alice_Johnson@student.tp.edu.sg</p>
+						<p>Diploma in Information Technology <span>(Y1)</span></p>
+					</div>
+				</div>
+				<div>
+					<div class="student_strength">ADEV</div>
+					<div class="student_strength">DBAV</div>
+					<div class="student_weakness">DSAG</div>
+					
+					<i class="fa-solid fa-link"></i>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			document.querySelector("#explore_container").addEventListener("click", (event) => {
+				if (event.target.tagName.toLowerCase() === "i" && event.target.classList.contains("fa-link")) {
+					const request = document.querySelector(".request_container");
+					const form = document.querySelector(".request_form");
+					const student = event.target.closest(".student");
+					const name = student.querySelector("p:nth-of-type(1)").textContent;
+					const email = student.querySelector("p:nth-of-type(2)").textContent;
+					request.style.display = "flex";
+					setTimeout(() => request.style.opacity = "1", 200);
+					request_diploma = student.querySelector("p:nth-of-type(3)").innerHTML;
+					document.getElementById("request_name").value = name;
+					document.getElementById("request_email").value = email;
+					const create_module = (container_id, class_name) => {
+						const container = document.getElementById(container_id);
+						const inputs = container.querySelectorAll("input");
+    					const labels = container.querySelectorAll("label");
+						inputs.forEach((input, index) => {
+							if (index > 0) container.removeChild(input);
+							if (index === 0) input.checked = true;
+						});
+
+						labels.forEach((label, index) => {
+							if (index > 0) container.removeChild(label);
+						});
+						student.querySelectorAll(`:scope > div:nth-of-type(2) > div.${class_name}`).forEach(module => {
+							const input = document.createElement("input");
+							const label = document.createElement("label");
+							input.type = "checkbox";
+							input.id = module.textContent;
+							label.htmlFor = module.textContent;
+							label.textContent = module.textContent;
+							container.append(input, label);
+						});
+					};
+
+					create_module("module_weakness_checkboxes", "student_strength");
+					create_module("module_strength_checkboxes", "student_weakness");
+					const nil_cb_change = (group, nil_id) => {
+						const nil = document.getElementById(nil_id);
+						group.forEach(input => {
+							input.addEventListener("change", () => {
+								nil.checked = !Array.from(group).some(cb => cb.checked);
+								hide_error(document.querySelector(".fr1"));
+								hide_error(document.querySelector(".fr2"));
+							})
+						})
+
+						nil.addEventListener("change", () => {
+							group.forEach(input => {
+								input.checked = false;
+								hide_error(document.querySelector(".fr1"));
+								hide_error(document.querySelector(".fr2"));
+							})
+						})
+					}
+
+					nil_cb_change(form.querySelectorAll("div:nth-of-type(2) > input[type='checkbox']:not(#nil)"), "nil");
+					nil_cb_change(form.querySelectorAll("div:nth-of-type(3) > input[type='checkbox']:not(#nil1)"), "nil1");
+				}
+			})
+
+			function hide_error(element) {
+				if (window.getComputedStyle(element).display === "block") element.style.display = "none";
+			}
+
+			document.getElementById("explore_container").addEventListener("mouseover", (event) => {
+				if (event.target.classList.contains("fa-link")) {
+					const position = event.target.getBoundingClientRect();
+					const message = document.getElementById("message")
+					message.style.display = "block";
+					message.style.top = (position.top + 30) + "px";
+					message.style.left = (position.left + (position.width / 2) - (message.offsetWidth / 2)) + "px";
+					
+					event.target.addEventListener("mouseout", () => {
+						message.style.display = 'none';
+					});
+				}
+			})
+		</script>
+
+		<div class="student_container" id="current_container" tabindex="-1">
+			<div class="pair">
+				<span>Unlink</span>
+				<div class="student">
+					<img>
+					<div>
+						<p>Geng Yue</p>
+						<p>Email@student.tp.edu.sg</p>
+						<p title="Diploma in Information Technology (Y1)">Diploma in Information Technology <span>(Y1)</span></p>
+					</div>
+				</div>
+	
+				<i class="fa-solid fa-link"></i>
+				<time>Friday<br>0830 - 1000</time>
+	
+				<div class="student">
+					<i class="fa-solid fa-circle-user"></i>
+					<div>
+						<p>Alex Taylor</p>
+						<p>Alex_Taylor@student.tp.edu.sg</p>
+						<p title="Diploma in Applied Artificial Intelligence (Y1)">Diploma in Applied Artificial Intelligence <span>(Y1)</span></p>
+					</div>
+				</div>
+
+				<div>	
+					<div class="module module_strength" title="Database Application Development (DBAV)">Database Application Development (DBAV)</div>
+					<div class="module module_weakness" title="Network and Cloud Technology (NECT)">Network and Cloud Technology (NECT)</div>
+				</div>
+					
+				<div>	
+					<div class="module module_weakness" title="Database Application Development (DBAV)">Database Application Development (DBAV)</div>
+					<div class="module module_strength" title="Network and Cloud Technology (NECT)">Network and Cloud Technology (NECT)</div>
+				</div>
+			</div>
+
+			<div class="pair">
+				<span>Unlink</span>
+				<div class="student">
+					<img>
+					<div>
+						<p>Geng Yue</p>
+						<p>Email@student.tp.edu.sg</p>
+						<p title="Diploma in Information Technology (Y1)">Diploma in Information Technology <span>(Y1)</span></p>
+					</div>
+				</div>
+	
+				<i class="fa-solid fa-link"></i>
+				<time>Monday<br>1600 - 1700</time>
+	
+				<div class="student">
+					<i class="fa-solid fa-circle-user"></i>
+					<div>
+						<p>Jordan Lee</p>
+						<p>Jordan_Lee@student.tp.edu.sg</p>
+						<p title="Diploma in Big Data & Analytics (Y1)">Diploma in Big Data & Analytics <span>(Y1)</span></p>
+					</div>
+				</div>
+
+				<div>	
+					<div class="module module_strength" title="Logic and Mathematics (LOMA)">Logic and Mathematics (LOMA)</div>
+				</div>
+					
+				<div>	
+					<div class="module module_weakness" title="Logic and Mathematics (LOMA)">Logic and Mathematics (LOMA)</div>
+				</div>
+			</div>
+
+			<div class="pair">
+				<span>Unlink</span>
+				<div class="student">
+					<img>
+					<div>
+						<p>Geng Yue</p>
+						<p>Email@student.tp.edu.sg</p>
+						<p title="Diploma in Information Technology (Y1)">Diploma in Information Technology <span>(Y1)</span></p>
+					</div>
+				</div>
+	
+				<i class="fa-solid fa-link"></i>
+				<time>Wednesday<br>1600 - 1730</time>
+	
+				<div class="student">
+					<i class="fa-solid fa-circle-user"></i>
+					<div>
+						<p>Morgan Chen</p>
+						<p>Morgan_Chen@student.tp.edu.sg</p>
+						<p title="Diploma in Big Data & Analytics (Y2)">Diploma in Big Data & Analytics <span>(Y2)</span></p>
+					</div>
+				</div>
+
+				<div>	
+					<div class="module module_weakness" title="Mobile App Development (MBAP)">Mobile App Development (MBAP)</div>
+				</div>
+					
+				<div>	
+					<div class="module module_strength" title="Mobile App Development (MBAP)">Mobile App Development (MBAP)</div>
+				</div>
+			</div>
+
+			<div id="empty">
+				<p>No pairs. Find one!</p>
+			</div>
+		</div>
+
+		<script>
+			function arrays_equal(arr1, arr2) {
+				if (arr1.length !== arr2.length) return false;
+				return arr1.every((value, index) => value === arr2[index]);
+			}
+
+			document.getElementById("current_container").addEventListener('click', (event) => {
+				const button = event.target;
+				const confirmation = document.querySelector(".confirmation");
+				if (button.tagName.toLowerCase() !== "span") return;
+
+				confirmation.style.display = "flex";
+				setTimeout(() => {
+					confirmation.querySelector("p").textContent = "Confirm unlink? This cannot be undone.";
+					confirmation.style.opacity = "1";
+				}, 200)
+
+				confirmation.querySelector("button:first-of-type").addEventListener("click", () => {
+					const pair_element = button.closest(".pair");
+					if (!pair_element) return;
+					const index = Array.from(document.querySelectorAll(".pair")).indexOf(pair_element);
+					const student_name = pair_element.querySelectorAll(".student p:nth-of-type(1)")[1].textContent.trim();
+					const pair_module = Array.from(pair_element.querySelectorAll(":scope > div:not(.student) > div")).map(div => div.textContent.match(/\(([^)]+)\)/)?.[1].trim().toLowerCase()).filter(Boolean).filter((value, index, self) => self.indexOf(value) === index);
+					const history_container = document.getElementById("history_container");
+					pair_element.style.opacity = "0";
+					pair_element.addEventListener("transitionend", () => {
+						const new_pair_history = document.createElement("div");
+						new_pair_history.classList.add("pair");
+						new_pair_history.innerHTML = pair_element.innerHTML;
+						new_pair_history.querySelector("span").remove();
+						history_container.insertBefore(new_pair_history, document.querySelector("#history_container > button"));
+						if (history_container.querySelector("p")) history_container.querySelector("p").style.display = "none";
+						pair_element.remove();
+						event_list.splice(index, 1);
+						if (document.querySelectorAll('#current_container > .pair').length === 0) {
+							document.getElementById("empty").style.display = "flex";
+							document.getElementById("empty").style.opacity = "1";
+						}
+					}, { once: true });
+					document.querySelectorAll(".event").forEach(event_element => {
+						if (event_element.querySelector("div").textContent.trim().toLowerCase() === student_name.toLowerCase() && arrays_equal(Array.from(event_element.querySelectorAll(":scope > div:last-of-type > div")).map(div => div.textContent.trim().toLowerCase()), pair_module)) {
+							event_element.remove();
+						}
+					})
+				})
+			});
+		</script>
+
+		<div class="student_container" id="pending_container" tabindex="-1">
+			<div>
+				<p>Received</p>
+				<div class="student student1 student2">
+					<div>
+						<i class="fa-solid fa-circle-user"></i>
+						<div>
+							<p>Sammy Syntax</p>
+							<p>Sammy_Syntax@student.tp.edu.sg</p>
+							<p>Diploma in Information Technology <span>(Y1)</span></p>
+						</div>
+					</div>
+					<div>
+						<div>Tuesday, 1400 - 1600</div>
+						<div>
+							<div class="student_strength">DBAV</div>
+							<div class="student_weakness">NECT</div>
+						</div>
+					</div>
+					<div>
+						<button>Accept</button>
+						<button>Decline</button>
+					</div>
+				</div>
+
+				<div class="student student1 student2">
+					<div>
+						<i class="fa-solid fa-circle-user"></i>
+						<div>
+							<p>Wade Wilson</p>
+							<p>Wade_Wilson@student.tp.edu.sg</p>
+							<p>Diploma in Big Data & Analytics <span>(Y1)</span></p>
+						</div>
+					</div>
+					<div>
+						<div>Friday, 1000 - 1200</div>
+						<div>
+							<div class="student_strength">LOMA</div>
+						</div>
+					</div>
+					<div>
+						<button>Accept</button>
+						<button>Decline</button>
+					</div>
+				</div>
+			</div>
+			<div>
+				<p>Sent</p>
+				<div class="student student1 student2">
+					<div>
+						<i class="fa-solid fa-circle-user"></i>
+						<div>
+							<p>Patty Cake</p>
+							<p>Patty_Cake@student.tp.edu.sg</p>
+							<p>Diploma in Information Technology <span>(Y2)</span></p>
+						</div>
+					</div>
+					<div>
+						<div>Monday, 1600 - 1700</div>
+						<div>
+							<div class="student_weakness">MBAP</div>
+						</div>
+					</div>
+					<div>
+						<p>Request sent. Pending response.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			function add_module(container, content, className) {
+				const module = document.createElement("div");
+				module.classList.add("module", className);
+				module.textContent = content;
+				container.appendChild(module);
+			}
+
+			document.querySelectorAll(".student2 button:nth-of-type(1)").forEach(button => {
+				button.addEventListener("click", () => {
+					const element_to_add = button.closest(".student2");
+					const student_name = element_to_add.querySelector("p").textContent;
+					const student_diploma = element_to_add.querySelector("p:nth-of-type(3)").textContent;
+					const student_schedule = element_to_add.querySelector("div:nth-of-type(2) > div").textContent;
+					const weaknesses = Array.from(element_to_add.querySelectorAll("div:nth-of-type(2) > div:nth-of-type(2) > .student_weakness")).map(element => element.textContent);
+					const strengths = Array.from(element_to_add.querySelectorAll("div:nth-of-type(2) > div:nth-of-type(2) > .student_strength")).map(element => element.textContent);
+					const clone = document.importNode(document.getElementById("event_template").content, true).querySelector(".event");
+					clone.querySelector("div > div").textContent = student_name;
+					clone.querySelector("div:nth-of-type(2)").textContent = `${student_name}@student.tp.edu.sg`;
+					strengths.forEach(strength => add_module(clone.querySelector("div:nth-of-type(3)"), strength, "event_strength"));
+					weaknesses.forEach(weakness => add_module(clone.querySelector("div:nth-of-type(3)"), weakness, "event_weakness"));
+					document.getElementById("schedule_container").insertBefore(clone, document.getElementById("timeline"));
+					const {day, start, duration} = time_conversion(student_schedule);
+					event_list.push({ day, time_start: start, duration });
+					const clone1 = document.importNode(document.getElementById("pair_template").content, true).querySelector(".pair");
+					clone1.querySelector("time").innerHTML = `${student_schedule.split(", ")[0]}<br>${student_schedule.split(", ")[1]}`;
+					const student_details = clone1.querySelector(":scope > div:nth-of-type(2) > div");
+					student_details.querySelector("p:nth-of-type(1)").textContent = student_name;
+					student_details.querySelector("p:nth-of-type(2)").textContent = `${student_name}@student.tp.edu.sg`;
+					student_details.querySelector("p:nth-of-type(3)").innerHTML = `${student_diploma.split("(")[0]}<span>${student_diploma.match(/\(Y\d\)/)[0]}</span>`;
+					strengths.forEach(strength => add_module(clone1.querySelector("div:nth-of-type(3)"), `${modules_full[modules.indexOf(strength)]} (${strength})`, "module_strength"));
+					weaknesses.forEach(weakness => add_module(clone1.querySelector("div:nth-of-type(4)"), `${modules_full[modules.indexOf(weakness)]} (${weakness})`, "module_weakness"));       
+					if (document.querySelector("#current_container #empty")) document.querySelector("#current_container #empty").style.display = "none";
+					document.getElementById("current_container").appendChild(clone1);
+					updateEventStyles(false);
+					element_to_add.style.opacity = "0";
+					element_to_add.addEventListener("transitionend", () => {
+						element_to_add.remove();
+						if (document.querySelectorAll("#pending_container > div:nth-of-type(1) .student2").length === 0) {
+							const message = document.createElement("p");
+							message.textContent = "No pending requests";
+							message.style.textAlign = "center";
+							document.querySelector("#pending_container > div:nth-of-type(1)").appendChild(message);
+						}
+					}, { once: true });
+				})
+			})
+
+			document.querySelectorAll(".student2 button:nth-of-type(2)").forEach(button => {
+				button.addEventListener("click", () => {
+					const request = button.closest(".student2")
+					request.style.opacity = "0";
+					request.addEventListener("transitionend", () => {
+						request.remove();
+						const pending_container = document.querySelector("#pending_container > div:first-of-type");
+						if (!pending_container.querySelector(".student2")) {
+							const message = document.createElement("p");
+							message.textContent = "No pending requests";
+							message.style.textAlign = "center";
+							pending_container.appendChild(message);
+						}
+					}, { once: true });
+				})
+			})
+		</script>
+
+		<div class="student_container" id="schedule_container" tabindex="-1">
+			<div class="schedule_timings">
+				<div class="day_header"></div>
+			</div>
+			<div class="schedule_day"></div>
+			<div class="schedule_day"></div>
+			<div class="schedule_day"></div>
+			<div class="schedule_day"></div>
+			<div class="schedule_day"></div>
+			<div class="schedule_day"></div>
+			<div class="schedule_day"></div>
+
+			<div class="event">
+				<div>Alex Taylor</div> <!-- Name -->
+				<div>Alex_Taylor@student.tp.edu.sg</div>
+				<div>
+					<div class="event_strength">DBAV</div> <!-- Time (Mentor) -->
+					<div class="event_weakness">NECT</div> <!-- Time (Learn) -->
+				</div>
+			</div>
+			<div class="event">
+				<div>Jordan Lee</div> <!-- Name -->
+				<div>Jordan_Lee@student.tp.edu.sg</div>
+				<div>
+					<div class="event_strength">LOMA</div>
+				</div>
+			</div>
+			<div class="event">
+				<div>Morgan Chen</div> <!-- Name -->
+				<div>Morgan_Chen@student.tp.edu.sg</div>
+				<div>
+					<div class="event_weakness">MBAP</div>
+				</div>
+			</div>
+			<div id="timeline"></div>
+		</div>
+
+		<script>
+			function update_timeline() {
+				const start = new Date();
+				start.setHours(8, 0, 0);
+				const now = new Date();
+				const rect = document.querySelector(".schedule_day > div:nth-of-type(2)").getBoundingClientRect();
+				const difference = Math.floor((now - start) / 60000);
+				const timeline_reminder = ((difference / 30) % Math.floor(difference / 30)) * rect.height;
+				const timeline = document.getElementById('timeline');
+				timeline.style.top = `${(rect.height + 5) * (Math.floor(difference / 30)) + timeline_reminder + rect.height + rect.height / 2 + 5}px`;
+			}
+
+			setInterval(update_timeline, 1000);
+
+			function updateEventStyles(change_color = true) {
+				document.querySelectorAll(".event").forEach((event, index) => {
+					const { day, time_start, duration } = event_list[index];
+					create_event(event, day, time_start, duration, change_color);
+				});
+			}
+
+			function time_conversion(input) {
+				const dayMapping = { 'Monday': 0, 'Tuesday': 1, 'Wednesday': 2, 'Thursday': 3, 'Friday': 4, 'Saturday': 5, 'Sunday': 6 };
+				const [day, timeRange] = input.split(", ");
+				const [startTime, endTime] = timeRange.split(" - ").map(time => parseInt(time, 10));
+				const dayNumber = dayMapping[day];
+				const startInterval = (startTime - 800) / 50 + 1;
+				const duration = (endTime - startTime) / 50;
+				return { day: dayNumber, start: startInterval, duration: duration };
+			}
+
+			let event_list = [
+				{ day: 4, time_start: 2, duration: 3 },
+				{ day: 0, time_start: 17, duration: 2 },
+				{ day: 2, time_start: 17, duration: 3 }
+			]
+
+			let hue = 0;
+
+			function create_event_color() {
+				const saturation = 70;
+				const lightness = 75;
+				hue = (hue + 60) % 360;
+				return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+			}
+
+			function create_event(event, day, time_start, duration, change_color=true) {
+				const rect = document.querySelector(".schedule_day > div").getBoundingClientRect();
+				const rect1 = document.querySelector(".schedule_day").getBoundingClientRect();
+				const schedule_rect = document.querySelector(".schedule_timings").getBoundingClientRect();
+				event.style.width = `${rect1.width}px`;
+				event.style.height = `${(rect.height + rect.height / 2 - 10) * duration}px`;
+				event.style.top = `${(rect.height + 5) * time_start + rect.height / 2}px`;
+				event.style.left = `${schedule_rect.width + rect1.width * day}px`;
+				if (change_color) event.style.background = create_event_color();
+			};
+
+			function update_names() {
+				const days = window.innerWidth < 800 ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+				const parents = document.querySelectorAll("#schedule_container > div:not(.schedule_timings):not(.event):not(#timeline)");
+				parents.forEach((parent, index) => {
+					const first_div = parent.querySelector(".day_header");
+					if (first_div) first_div.textContent = days[index % days.length];
+				});
+			}
+
+			async function create_divs() {
+				const parents = document.querySelectorAll("#schedule_container > div:not(.schedule_timings):not(.event):not(#timeline)");
+				const days = window.innerWidth < 800 ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+				
+				parents.forEach((parent, index) => {
+					for (let i = 0; i < 31; i++) {
+						let new_div = parent.children[i];
+						if (!new_div) {
+							new_div = document.createElement("div");
+							parent.appendChild(new_div);
+						}
+
+						if (i === 0 && !new_div.classList.contains("day_header")) {
+							new_div.textContent = days[index % days.length];
+							new_div.classList.add("day_header");
+						}
+					}
+				});
+			}
+
+			async function createTimeElements() {
+				for (let hour = 8; hour <= 22; hour++) {
+					for (let minute = 0; minute < 60; minute += 30) {
+						await new Promise(resolve => setTimeout(resolve, 0)); 
+						let formatted_hour = hour.toString().padStart(2, '0');
+						let formatted_minute = minute.toString().padStart(2, '0');
+						let time = `${formatted_hour}${formatted_minute}`;
+						let time_element = document.createElement("div");
+						time_element.textContent = time;
+						document.querySelector(".schedule_timings").appendChild(time_element);
+					}
+				}
+			}
+		</script>
+
+		<div class="student_container" id="history_container">
+			<p>No history to show</p>
+			<div class="pair">
+				<div class="student">
+					<img src="images/pfp.webp" alt="Profile picture">
+					<div>
+						<p>Geng Yue</p>
+						<p>Email@student.tp.edu.sg</p>
+						<p title="Diploma in Information Technology (Y1)">Diploma in Information Technology <span>(Y1)</span></p>
+					</div>
+				</div>
+	
+				<i class="fa-solid fa-link"></i>
+				<time>Wednesday<br>1600 - 1730</time>
+	
+				<div class="student">
+					<i class="fa-solid fa-circle-user"></i>
+					<div>
+						<p>Aisha Patel</p>
+						<p>Aisha_Patel@student.tp.edu.sg</p>
+						<p title="Diploma in Information Technology (Y3)">Diploma in Information Technology <span>(Y3)</span></p>
+					</div>
+				</div>
+
+				<div>	
+					<div class="module module_weakness" title="Mobile App Development (MBAP)">Mobile App Development (MBAP)</div>
+				</div>
+					
+				<div>	
+					<div class="module module_strength" title="Mobile App Development (MBAP)">Mobile App Development (MBAP)</div>
+				</div>
+			</div>
+
+			<div class="pair">
+				<div class="student">
+					<img src="images/pfp.webp" alt="Profile picture">
+					<div>
+						<p>Geng Yue</p>
+						<p>Email@student.tp.edu.sg</p>
+						<p title="Diploma in Information Technology (Y1)">Diploma in Information Technology <span>(Y1)</span></p>
+					</div>
+				</div>
+	
+				<i class="fa-solid fa-link"></i>
+				<time>Wednesday<br>1600 - 1730</time>
+	
+				<div class="student">
+					<i class="fa-solid fa-circle-user"></i>
+					<div>
+						<p>Liam Chen</p>
+						<p>Liam_Chen@student.tp.edu.sg</p>
+						<p title="Diploma in Big Data & Analytics (Y2)">Common ICT Programme <span>(Y1)</span></p>
+					</div>
+				</div>
+
+				<div>	
+					<div class="module module_strength" title="Data Visualisation and Analytics (DAVA)">Data Visualisation and Analytics (DAVA)</div>
+				</div>
+					
+				<div>	
+					<div class="module module_weakness" title="Data Visualisation and Analytics (DAVA)">Data Visualisation and Analytics (DAVA)</div>
+				</div>
+			</div>
+
+			<button>Clear History</button>
+		</div>
+	</main>
+
+	<div id="message">Request to be paired</div>
+
+	<div class="user_detailed" id="user">
+		<i class="fa-solid fa-xmark"></i>
+		<div></div>
+		<hr>
+		<div>
+			<p>Geng Yue</p>
+			<p>Geng_Yue@student.tp.edu.sg</p>
+			<p>Diploma in Information Technology</p>
+		</div>
+		
+		<hr>
+		<button tabindex="-1">Manage Availability</button>
+		<button tabindex="-1">Log out</button>
+	</div>
+
+	<form class="user_availability">
+		<div>
+			<i class="fa-solid fa-xmark"></i>
+			<p>My Available Timings</p>
+			<div>
+				<p>Legend: </p>
+				<div>
+					<input type="checkbox" disabled checked id="legend_available">
+					<p>Available</p>
+				</div>
+				<div>
+					<input type="checkbox" disabled id="legend_unavailable">
+					<p>Unavailable</p>
+				</div>
+			</div>
+			<hr>
+			<div id="schedule_table"></div>
+		</div>
+	</form>
+
+	<script>
+		const avail = document.querySelector(".user_availability");
+		document.querySelector("#user button:first-of-type").addEventListener("click", () => {
+			avail.style.display = "flex";
+			setTimeout(() => { avail.style.opacity = "1" }, 200);
+		})
+
+		avail.querySelector(".fa-xmark").addEventListener("click", () => {
+			avail.style.opacity = "0";
+			avail.addEventListener("transitionend", () => { avail.style.display = "none"; }, { once: true });
+		})
+
+		const schedule = document.querySelector("#schedule_table");
+		schedule.addEventListener("input", (event) => {
+			if (event.target.tagName.toLowerCase() === "input") {
+				const states = {};
+				schedule.querySelectorAll("input").forEach((cb) => {
+					states[cb.id] = cb.checked;
+				});
+				localStorage.setItem("availability", JSON.stringify(states));
+			}
+		});
+
+		function load() {
+			const availability = JSON.parse(localStorage.getItem("availability")) || {};
+			schedule.querySelectorAll("input").forEach((cb) => {
+				cb.checked = availability[cb.id] || false;
+			});
+		}
+
+		const week_days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+		const time_slots = Array.from({length: 30}, (_, i) => {
+			const hour = String(Math.floor(i / 2) + 8).padStart(2, '0');
+			const minute = i % 2 === 0 ? '00' : '30';
+			return `${hour}:${minute}`;
+		});
+
+		function create_schedule_grid() {
+			const header = document.createElement('div');
+			header.textContent = '';
+			header.className = 'grid_header';
+			schedule.appendChild(header);
+			week_days.forEach(day => {
+				const day_cell = document.createElement('div');
+				day_cell.textContent = day;
+				day_cell.className = 'grid_header';
+				schedule.appendChild(day_cell);
+			});
+			time_slots.forEach(time => {
+				const time_cell = document.createElement('time');
+				time_cell.textContent = time;
+				time_cell.className = 'grid_time';
+				schedule.appendChild(time_cell);
+				week_days.forEach(day => {
+					const checkboxCell = document.createElement('div');
+					const checkbox = document.createElement('input');
+					checkbox.type = 'checkbox';
+					checkbox.id = `${day}-${time}`;
+					checkboxCell.appendChild(checkbox);
+					schedule.appendChild(checkboxCell);
+				});
+			});
+		}
+
+		document.addEventListener("DOMContentLoaded", () => {
+			user_detailed.querySelector("i").addEventListener("click", () => {
+				user_detailed.style.transform = "translateY(110%)";
+			})
+		})
+	</script>
+
+	<div class="add_module" id="add_module">
+		<form method="post" action="" novalidate> <!-- Link to backend to add module to database -->
+			<i class="fa-solid fa-xmark"></i>
+			<p>Add Module</p>
+			<label for="type">Add to:</label>
+			<select id="type" required>
+				<option value="strength">Strength</option>
+				<option value="weakness">Weakness</option>
+			</select>
+
+			<label for="module_selection">Module:</label>
+			<select id="module_selection" required>
+				<option value="" disabled selected>Select an option</option>
+			</select>
+
+			<button type="submit">Add</button>
+		</form>
+	</div>
+
+	<script>
+		document.querySelector("#add_module > form").addEventListener("submit", (event) => {
+			event.preventDefault();
+
+			const form = event.currentTarget;
+			const message_element = form.querySelector("p:not(:nth-of-type(1))");
+			const module_selection = document.getElementById("module_selection");
+			const add_module = document.getElementById("add_module");
+			const module_name = modules_full[modules.indexOf(module_selection.value)]
+			const parent = document.getElementById("type").value.toLowerCase() === "weakness" ? "weakness" : "strength";
+			const module_text = `${module_name} (${module_selection.value})`;
+			const html_string = `
+				<div class="strength_subject">
+					<i class="fa-solid fa-circle"></i>
+					<p>${module_text}</p>
+					<i class="fa-solid fa-xmark"></i>
+				</div>
+			`;
+
+			function show_element(text) {
+				let message = message_element || document.createElement("p");
+				message.textContent = text;
+
+				if (!message_element) {
+					form.insertBefore(message, form.querySelector("button"));
+					module_selection.addEventListener("change", () => message.remove());
+				}
+			}
+
+			if (!form.checkValidity() || !module_selection.checkValidity()) {
+				show_element("Please select a valid option");
+				return;
+			}
+
+			if ([...document.querySelectorAll('.strength_subject > p')].some(item => item.textContent === module_text)) {
+				show_element("Module already exists");
+			} else {
+				document.getElementById(`${parent}_content`).insertAdjacentHTML("beforeend", html_string);
+				add_module.style.opacity = 0;
+				add_module.addEventListener("transitionend", () => {
+					add_module.style.display = "none";
+				}, { once: true });
+			}
+		})
+	</script>
+
+	<div class="request_container">
+		<form action="" id="request_form" class="request_form" method="post" novalidate> <!-- Link to backend to request to student (client) -->
+			<i class="fa-solid fa-xmark"></i>
+			<p>Request Pair</p>
+	
+			<strong><p>Basic Information (Mentor)</p></strong>
+			<label for="request_name">Name</label>
+			<input type="text" name="name" id="request_name" required readonly autocomplete="off">
+	
+			<label for="request_email">Email</label>
+			<input type="email" name="email" id="request_email" required readonly autocomplete="off">
+	
+			<strong><p>Basic Information (Mentee)</p></strong>
+			<label for="request_name1">Name</label>
+			<input type="text" name="name1" id="request_name1" required readonly value="Geng Yue">
+	
+			<label for="request_email1">Email</label>
+			<input type="email" name="email1" id="request_email1" required readonly value="Geng_Yue@student.tp.edu.sg">
+	
+			<strong><p>Time Slot</p></strong>
+			<select id="request_day" required>
+				<option value="Monday">Monday</option>
+				<option value="Tuesday">Tuesday</option>
+				<option value="Wednesday">Wednesday</option>
+				<option value="Thursday">Thursday</option>
+				<option value="Friday">Friday</option>
+				<option value="Saturday">Saturday</option>
+				<option value="Sunday">Sunday</option>
+			</select>
+			<div>
+				<input type="time" id="request_time_start" value="08:00" min="08:00" max="22:30" step="1800">
+				<p>to</p>
+				<input type="time" id="request_time_end" value="09:00" min="08:00" max="22:30" step="1800">
+			</div>
+			<p class="form_error fr3"></p>
+	
+			<strong><p>I Want to Mentor</p></strong>
+	
+			<div id="module_strength_checkboxes">
+				<input type="checkbox" id="nil" checked>
+				<label for="nil">None</label>
+			</div>
+			<p class="form_error fr1"></p>
+	
+			<strong><p>I Want to Learn</p></strong>
+			<div id="module_weakness_checkboxes">
+				<input type="checkbox" id="nil1" checked>
+				<label for="nil1">None</label>
+			</div>
+			<p class="form_error fr2"></p>
+	
+			<button type="submit">Request</button>
+		</form>
+	</div>
+
+	<script>
+		function validate_time(time) {
+			const [hours, minutes] = time.split(":").map(Number);
+			return (hours >= 8 && hours <= 22) && (minutes === 0 || minutes === 30);
+		}
+
+		document.querySelector("#request_form").addEventListener("submit", (event) => {
+			event.preventDefault();
+			let pass_check = true;
+
+			const show_error = (id, message) => {
+				const error = document.querySelector(id);
+				error.textContent = message;
+				error.style.display = "block";
+			}
+
+			const strength = event.target.querySelectorAll("div:nth-of-type(2) > input[type='checkbox']:not(#nil)");
+			const weakness = event.target.querySelectorAll("div:nth-of-type(3) > input[type='checkbox']:not(#nil1)");
+			const start = document.getElementById("request_time_start").value;
+			const end = document.getElementById("request_time_end").value;
+
+			if (!document.getElementById("nil").checked && !Array.from(strength).some(checkbox => checkbox.checked)) {
+				show_error(".fr1", "Please select at least one option");
+				pass_check = false;
+			}
+
+			if (!document.getElementById("nil1").checked && !Array.from(weakness).some(checkbox => checkbox.checked)) {
+				show_error(".fr2", "Please select at least one option");
+				pass_check = false;
+			}
+
+			if (!validate_time(start) || !validate_time(end)) {
+				show_error(".fr3", "Time must be between 08:00 and 22:30 and in 30 minute intervals");
+				pass_check = false;
+			}
+
+			if (start >= end) {
+				show_error(".fr3", "Invalid time range");
+				pass_check = false;
+			}
+
+			if (document.getElementById("nil").checked && document.getElementById("nil1").checked) {
+				show_error(".fr1", "Select at least one module from strength or weakness");
+				show_error(".fr2", "Select at least one module from strength or weakness");
+				pass_check = false;
+			}
+
+			if (pass_check) {
+				const get_value = (id) => document.getElementById(id).value;
+				const [name, email, day] = ["request_name", "request_email", "request_day"].map(get_value);
+				const mentor = Array.from(document.querySelectorAll("#module_strength_checkboxes > input:not(#nil):checked")).map(checkbox => checkbox.id);
+				const mentee = Array.from(document.querySelectorAll("#module_weakness_checkboxes > input:not(#nil1):checked")).map(checkbox => checkbox.id);
+				const clone = document.importNode(document.getElementById("pending_template").content, true).querySelector(".student2");;
+				clone.querySelector("p:nth-of-type(1)").textContent = name;
+				clone.querySelector("p:nth-of-type(2)").textContent = email;
+				clone.querySelector("p:nth-of-type(3)").innerHTML = request_diploma;
+				clone.querySelector("div:nth-of-type(2) > div:nth-of-type(1)").textContent = `${day}, ${start} - ${end}`;
+				const modules = (type, class_name) => {
+					type.forEach(module => {
+						const div = document.createElement("div");
+						div.classList.add(class_name);
+						div.textContent = module;
+						clone.querySelector("div:nth-of-type(2) > div:nth-of-type(2)").appendChild(div);
+					})   
+				}
+				modules(mentor, "student_strength");
+				modules(mentee, "student_weakness");
+				const container = document.querySelector(".request_container");
+				document.querySelector("#pending_container > div:nth-of-type(2)").appendChild(clone);
+				container.style.opacity = "0";
+				container.addEventListener("transitionend", () => { container.style.display = "none"; }, { once: true })
+			}
+		})
+
+		document.querySelector(".request_form > div:nth-of-type(1) > input").addEventListener("change", () => {
+			document.querySelector(".request_form > .form_error.fr3").style.display = "none";
+		})
+
+		document.querySelector("#request_form > .fa-xmark").addEventListener("click", () => {
+			const container = document.querySelector(".request_container");
+			const errors = document.querySelectorAll(".form_error");
+			const checkboxesHTML = "<input type='checkbox' id='{id}' checked><label for='{id}'>None</label>";
+			container.style.opacity = "0";
+			document.getElementById("module_weakness_checkboxes").innerHTML = checkboxesHTML.replace(/{id}/g, "nil1");
+			document.getElementById("module_strength_checkboxes").innerHTML = checkboxesHTML.replace(/{id}/g, "nil");
+			["request_time_start", "request_time_end"].forEach(id => document.getElementById(id).value = "08:00");
+			errors.forEach(error => error.style.display = "none");
+			container.addEventListener("transitionend", () => container.style.display = "none", { once: true });
+		})
+	</script>
+
+	<template id="popular_template">
+		<div class="student student1">
+			<div>
+				<i class="fa-solid fa-circle-user"></i>
+				<div>
+					<p></p>
+					<p></p>
+					<p></p>
+				</div>
+			</div>
+			<div>
+				<i class="fa-solid fa-link"></i>
+			</div>
+		</div>
+	</template>
+
+	<template id="event_template">
+		<div class="event">
+			<div></div>
+			<div></div>
+			<div></div>
+		</div>
+	</template>
+
+	<template id="pair_template">
+		<div class="pair">
+			<span>Unlink</span>
+			<div class="student">
+				<img src="images/pfp.webp" alt="Profile picture">
+				<div>
+					<p>Geng Yue</p>
+					<p>Email@student.tp.edu.sg</p>
+					<p title="Diploma in Information Technology (Y1)">Diploma in Information Technology <span>(Y1)</span></p>
+				</div>
+			</div>
+
+			<i class="fa-solid fa-link"></i>
+			<time></time>
+
+			<div class="student">
+				<i class="fa-solid fa-circle-user"></i>
+				<div>
+					<p></p>
+					<p></p>
+					<p></p>
+				</div>
+			</div>
+
+			<div></div>
+			<div></div>
+		</div>
+	</template>
+
+	<template id="pending_template">
+		<div class="student student1 student2">
+			<div>
+				<i class="fa-solid fa-circle-user"></i>
+				<div>
+					<p></p>
+					<p></p>
+					<p></p>
+				</div>
+			</div>
+			<div>
+				<div></div>
+				<div></div>
+			</div>
+			<div>
+				<p>Request sent. Pending response.</p>
+			</div>
+		</div>
+	</template>
+
+	<div class="confirmation">
+		<div>
+			<i class="fa-solid fa-exclamation-triangle"></i>
+			<p></p>
+			<div>
+				<button>Yes</button>
+				<button>No</button>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		document.querySelector("#history_container > button").addEventListener("click", () => {
+			const confirmation = document.querySelector(".confirmation");
+			const history = document.getElementById("history_container");
+			confirmation.style.display = "flex";
+			confirmation.querySelector("p").textContent = "Are you sure you want to delete all history?";
+			setTimeout(() => { confirmation.style.opacity = "1"; }, 200);
+			confirmation.querySelector("button").addEventListener("click", () => {
+				history.querySelectorAll(".pair").forEach(pair => {
+					pair.style.opacity = "0";
+					pair.addEventListener("transitionend", () => {
+						pair.remove();
+						if (history.querySelectorAll(".pair").length === 0) history.querySelector("p").style.display = "block";
+					}, { once: true })
+				})
+			})
+		})
+
+		const weakness_messages = ["Look who finally leveled up! Delete this weakness?", "Double-checking: Are you sure you're ready to say goodbye to this flaw?", "Deleting this weakness? Just think of the stories you’ll miss out on!", "Is it time to upgrade? Confirm to officially kick this weakness to the curb!", "Careful! Removing this weakness could make you unstoppable. Proceed?"];
+		const strength_messages = ["Whoa, hold up! Removing this module means giving up your status as a guru. Are you ready to surrender your sage wisdom?", "Thinking of ditching this module? But who will teach the young grasshoppers now?", "You’re about to retire from being the wise sensei in this subject. Shall we throw you a farewell party?"];
+
+		document.querySelectorAll("#weakness_content .fa-xmark").forEach(xmark => confirmation_element(xmark, weakness_messages));
+		document.querySelectorAll("#strength_content .fa-xmark").forEach(xmark => confirmation_element(xmark, strength_messages));
+
+		function confirmation_element(xmark, messages) {
+			let module_to_delete;
+			const element = document.querySelector(".confirmation");
+			const content_elements = { strength: document.getElementById("strength_content"), weakness: document.getElementById("weakness_content") };
+
+			xmark.addEventListener("click", () => {
+				module_to_delete = xmark.previousElementSibling.textContent;
+				element.style.display = "flex";
+				setTimeout(() => {
+					element.style.opacity = "1";
+					element.querySelector("p").textContent = messages[Math.floor(Math.random() * messages.length)];
+				}, 200);
+			});
+
+			element.querySelector("button:nth-of-type(1)").addEventListener("click", () => {
+				element.style.opacity = "0";
+				element.addEventListener("transitionend", () => { element.style.display = "none"; }, { once: true });
+				if (module_to_delete) {
+					document.querySelectorAll(".strength_subject > p").forEach(p => {
+						console.log(p.textContent.trim().toLowerCase() , module_to_delete.toLowerCase())
+						if (p.textContent.trim().toLowerCase() === module_to_delete.toLowerCase()) p.parentElement.remove();
+					});
+				}
+				module_to_delete = null;
+				["strength", "weakness"].forEach(key => update_empty_state(content_elements[key], `No wishlist. Add one!`, `#${key}_content`));
+			})
+
+			element.querySelector("button:nth-of-type(2)").addEventListener("click", () => {
+				element.style.opacity = "0";
+				module_to_delete = null;
+				element.addEventListener("transitionend", () => { element.style.display = "none"; }, { once: true });
+			})
+		}
+
+		document.querySelector("#add_module .fa-xmark").addEventListener("click", () => {
+			document.getElementById("add_module").style.opacity = "0";
+			document.getElementById("add_module").addEventListener("transitionend", () => { document.querySelector("#add_module").style.display = "none"; }, { once: true });
+		})
+
+		function update_empty_state(content_element, message, selector) {
+			if (content_element.querySelectorAll(".strength_subject").length === 0 && !content_element.querySelector("p")) {
+				const new_element = document.createElement("p");
+				new_element.textContent = message;
+				document.querySelector(selector).appendChild(new_element);
+			}
+		}
+	</script>
+
+	<div class="issues">
+		<div>
+			<img src="images/wifi.webp" alt="Wifi Icon">
+			Offline
+		</div>
+		<noscript>Javascript disabled</noscript>
+	</div>
+
+	<div class="blur" id="blur"></div>
+	<div class="spinner" id="spinner"></div>
+	<div class="small-screen-message"></div>
+
+	<dialog>
+		<div id="d1" class="introduction">
+			<i class="fa-solid fa-xmark"></i>
+			<p>Here, you can input the modules that you are strong/find difficult in. Your profile can also be seen here.</p>
+			<div>
+				<span>1/8</span>
+				<button>Next</button>
+			</div>
+		</div>
+		<div id="d2" class="introduction">
+			<i class="fa-solid fa-xmark"></i>
+			<p>This is a search bar - type in anything you’re looking for, and it’ll help you find it!</p>
+			<div>
+				<span>2/8</span>
+				<button>Next</button>
+			</div>
+		</div>
+		<div id="d3" class="introduction">
+			<i class="fa-solid fa-xmark"></i>
+			<p>Each tab is like a separate section you can click on to see different content. Just click on one to view what's inside.</p>
+			<div>
+				<span>3/8</span>
+				<button>Next</button>
+			</div>
+		</div>
+		<div id="d4" class="introduction">
+			<i class="fa-solid fa-xmark"></i>
+			<p>Here, you can see others who wish to <span>mentor</span> / <span>learn</span> certain modules. Why not help/learn from them?</p>
+			<div>
+				<span>4/8</span>
+				<button>Next</button>
+			</div>
+		</div>
+		<div id="d5" class="introduction">
+			<i class="fa-solid fa-xmark"></i>
+			<p>Here, you can check out the requests you’ve sent or received. You can also accept or decline them right here!</p>
+			<div>
+				<span>5/8</span>
+				<button>Next</button>
+			</div>
+		</div>
+		<div id="d6" class="introduction">
+			<i class="fa-solid fa-xmark"></i>
+			<p>You can check out all your current pairings here. This shows who you're paired with right now. You may choose to end the pair by clicking on the "Unlink" button.</p>
+			<div>
+				<span>6/8</span>
+				<button>Next</button>
+			</div>
+		</div>
+		<div id="d7" class="introduction">
+			<i class="fa-solid fa-xmark"></i>
+			<p>For better visualisation, this schedule can give you a visual representation of your current pairs.</p>
+			<div>
+				<span>7/8</span>
+				<button>Next</button>
+			</div>
+		</div>
+		<div id="d8" class="introduction">
+			<i class="fa-solid fa-xmark"></i>
+			<p>Lastly, you can check out past pairs by clicking the the "history" tab. <br><br>Hope this introduction gives you a better intoduction of Teach & Tackle. Happy teaching and tackling!</p>
+			<div>
+				<span>8/8</span>
+				<button>Finish</button>
+			</div>
+		</div>
+	</dialog>
+
+	<script>
+		document.querySelectorAll("dialog button").forEach(button => {
+			button.addEventListener("click", () => {
+				let last_step = parseInt(localStorage.getItem("last_step") || 0);
+				if (last_step == 8) {
+					localStorage.setItem("tutorial", "complete");
+					document.querySelector("dialog").style.display = "none";
+					const container2 = document.getElementById("history_container");
+					container2.style.zIndex = 1;
+					container2.style.pointerEvents = "unset";
+					container2.querySelectorAll("*").forEach(element => { element.style.pointerEvents = "unset"; });
+				} else {
+					localStorage.setItem("last_step", ++last_step);
+					tutorial(last_step);
+				}
+			})
+		})
+
+		document.querySelectorAll("dialog i").forEach(button => {
+			button.addEventListener("click", () => {
+				localStorage.setItem("tutorial", "complete");
+				const dialog = document.querySelector("dialog");
+				dialog.style.opacity = 0;
+				dialog.addEventListener("transitionend", () => { dialog.style.display = "none"; }, { once: true });
+			})
+		})
+	</script>
+
+	<script>
+		window.onload = () => {
+			const empty = document.getElementById("empty");
+			aside.setAttribute("sidebar-collapsed", window.innerWidth > 800 ? (localStorage.getItem("sidebar-collapsed") === "true") : "false");
+			toggleModuleVisibility(document.getElementById("strength_collapse"), document.getElementById("strength_content"), "modules_strength");
+			toggleModuleVisibility(document.getElementById("weakness_collapse"), document.getElementById("weakness_content"), "modules_weakness");
+			if (document.querySelectorAll(".pair").length === 0) {
+				empty.style.display = "flex";
+				empty.textContent = "You have not paired anyone yet.";
+			}
+			modules.forEach(module => {
+				const option = document.createElement("option");
+				option.value = module;
+				option.textContent = module;
+				document.getElementById("module_selection").appendChild(option);
+			})
+			document.getElementById("current_container").style.display = "none";
+			["blur", "spinner", "schedule_container", "pending_container", "history_container"].forEach(id => document.getElementById(id).style.display = "none");
+		
+			create_schedule_grid();
+			load();
+			document.querySelector("noscript").style.display = "none";
+			create_divs();
+			createTimeElements();
+		}
+
+		function toggleModuleVisibility(button, content, storage_key) {
+			if (localStorage.getItem(storage_key) === "hide") {
+				button.style.transform = "rotate(-90deg)";
+				content.style.opacity = "0";
+				content.addEventListener("transitionend", () => {
+					content.style.display = "none";
+				}, { once: true });
+			}
+		}
+
+		let resize_timeout;
+		const debounceResize = () => {
+			clearTimeout(resize_timeout);
+			resize_timeout = setTimeout(() => {
+				updateEventStyles(false);
+			}, 200);
+		};
+
+		window.addEventListener("resize", debounceResize);
+
+		function tutorial(step) {
+			let last_step = parseInt(localStorage.getItem("last_step") || 1);
+			if (step === null) localStorage.setItem("last_step", 1);
+			const current = document.getElementById(`d${last_step}`);
+			const previous = document.getElementById(`d${last_step - 1}`);
+			if (previous) previous.style.display = "none";
+			current.style.display = "block";
+
+			function set_pos(top, left) {
+				if (top !== null) current.style.top = `${top}px`;
+				if (left !== null) current.style.left = `${left}px`;
+			}
+
+			function set_styles(element, zIndex, pointerEvents = "unset") {
+				element.style.zIndex = zIndex;
+				element.style.pointerEvents = pointerEvents;
+				element.querySelector("*").style.pointerEvents = pointerEvents;
+			}
+
+			const search_bar = document.querySelector(".search");
+			const tabs = document.querySelector("nav");
+			const container_map = { 1: aside, 2: search_bar, 3: tabs, 4: document.getElementById("explore_container"), 5: document.getElementById("pending_container"), 6: document.getElementById("current_container"), 7: document.getElementById("schedule_container"), 8: document.getElementById("history_container")};
+			const tab_map = { 5: "pending", 6: "current", 7: "schedule", 8: "history"};
+			const position_map = {
+				1: () => { set_pos(null, aside.getBoundingClientRect().width + 20); },
+				2: () => { const rect = search_bar.getBoundingClientRect(); set_pos(rect.top + rect.height + 20, rect.left + rect.width / 2 - current.getBoundingClientRect().width / 2); },
+				3: () => { const rect = tabs.getBoundingClientRect(); set_pos(rect.top + rect.height + 20, rect.left + rect.width / 2 - current.getBoundingClientRect().width / 2); }
+			};
+
+			if (last_step <= 8) {
+				Object.values(container_map).forEach(el => set_styles(el, 1, "unset"));
+				set_styles(container_map[last_step], 4, "none");
+				if (position_map[last_step]) position_map[last_step]();
+				if (tab_map[last_step]) document.querySelector(`#${tab_map[last_step]} + label`).click();
+			}
+		}
+
+		if (localStorage.getItem("tutorial") !== "complete") {
+			localStorage.setItem("tutorial", "incomplete");
+			tutorial(localStorage.getItem("last_step"));
+		} else {
+			document.querySelector("dialog").style.display = "none";
+			const container2 = document.getElementById("history_container");
+			container2.style.zIndex = 1;
+			container2.querySelectorAll("*").forEach(element => element.style.pointerEvents = "unset");
+		}
+
+		const issue = document.querySelector(".issues > div:nth-of-type(1)");
+		function connection_change() {
+			if (navigator.onLine) {
+				issue.style.display = "none";
+				issue.classList.remove("flashAnimation");
+			} else {
+				issue.style.display = "flex";
+				issue.classList.add("flashAnimation");
+			}
+		}
+		window.addEventListener("offline", connection_change);
+		window.addEventListener("online", connection_change);
+
+		// The following code are only the purposes of this assignment, and do not exist in a real-world application.
+
+		function duplicate_elements(template, container, total_count = Number(names.length)) {
+			let count = 0;
+			let total_iterations = total_count;
+
+			function get_modules() {
+				const modules1 = [...modules];
+				const shuffledModules = modules1.sort(() => Math.random() - 0.5);
+				const strengthsCount = Math.floor(Math.random() * 3);
+				const weaknessesCount = (Math.floor(Math.random() * 3) + 1) - strengthsCount;
+				const selectedModules = shuffledModules.slice(0, strengthsCount + weaknessesCount);
+				const selectedStrengths = selectedModules.slice(0, strengthsCount);
+				const selectedWeaknesses = selectedModules.slice(strengthsCount, strengthsCount + weaknessesCount);
+				return { strengths: selectedStrengths, weaknesses: selectedWeaknesses };
+			}
+
+			function appendChunk() {
+				if (count < total_iterations) {
+					const clonedNode = template.content.cloneNode(true);
+					const name = clonedNode.querySelector('p:nth-of-type(1)');
+					const email = clonedNode.querySelector('p:nth-of-type(2)');
+					const diploma = clonedNode.querySelector('p:nth-of-type(3)');
+					const modules = clonedNode.querySelector('div:nth-of-type(2)');
+					const diploma_index = Math.floor(Math.random() * 6);
+					if (name) name.textContent = names[count % names.length];
+					if (email) email.textContent = name.textContent.replace(" ", "_") + "@student.tp.edu.sg";
+					if (diploma) diploma.textContent = diplomas[diploma_index];
+					if (modules) {
+						const results = get_modules();
+						results.strengths.concat(results.weaknesses).forEach((moduleText, index) => {
+							const moduleDiv = document.createElement("div");
+							moduleDiv.classList.add(index < results.strengths.length ? "student_strength" : "student_weakness");
+							moduleDiv.textContent = moduleText;
+							modules.insertBefore(moduleDiv, modules.querySelector(".fa-link"));
+						});
+					}
+					container.appendChild(clonedNode);
+					count++;
+					setTimeout(appendChunk, 0);
+				}
+			}
+
+			appendChunk();
+		}
+
+		duplicate_elements(document.getElementById("popular_template"), document.getElementById("explore_container"));
+	</script>
+</body>
+</html>
