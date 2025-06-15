@@ -1,0 +1,63 @@
+.profile_container {
+    padding: 10px 20px 10px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow: auto;
+    flex: 1;
+}
+.profile_container > div {
+    border: 1px solid black;
+    border-radius: 20px;
+    padding: 15px;
+    transition: box-shadow 0.2s ease;
+}
+.profile_container > div:hover {
+    box-shadow: 1px 1px 10px black;
+}
+.profile_container h2 {
+    font-size: 20px;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid black;
+}
+.profile_container h3 {
+    font-size: 17px;
+}
+.profile_container > div > div {
+    display: grid;
+    grid-template-columns: max-content max-content;
+    gap: 10px;
+    align-items: center;
+}
+.profile_container > div p:nth-child(odd), .profile_container > div > div > label {
+    font-weight: bold;
+}
+.profile_container input {
+    border: none;
+    border-bottom: 1px solid black;
+    padding: 8px 0;
+    outline: none;
+    width: 500px;
+}
+.profile_container input[type='radio'] {
+    display: none;
+}
+.profile_container input[type='radio'] + label {
+    border: 1px solid black;
+    padding: 3px 8px;
+    cursor: pointer;
+    border-radius: 10px;
+    font-size: 13px;
+}
+.profile_container input[type='radio']:checked + label {
+    background: lightgrey;
+}
+.profile_container button {
+    padding: 5px 10px;
+    margin-left: auto;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 1px solid black;
+    width: 100px;
+}

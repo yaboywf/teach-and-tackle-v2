@@ -33,7 +33,7 @@ aside ul {
 aside li {
     margin-bottom: 8px;
 }
-aside .user {
+aside > .user {
     font-size: 16px;
     cursor: pointer;
     padding: 5px;

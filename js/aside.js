@@ -1,8 +1,8 @@
 const aside = document.querySelector("aside");
+let startX, endX = 0;
 
 // Function for swipe gestures
 function swipe_gesture() {
-    let startX, endX = 0;
     window.addEventListener("touchstart", (e) => handle_touch(e, true));
     window.addEventListener("touchmove", (e) => handle_touch(e, false));
     window.addEventListener("touchend", handle_swipe);
@@ -36,3 +36,5 @@ function checkSwipeGesture() {
 // Check swipe gesture on initial load and resizing
 checkSwipeGesture();
 window.addEventListener("resize", checkSwipeGesture);
+
+aside.querySelectorAll(".fa-edit").forEach(icon => icon.addEventListener("click", () => window.location.href = "profile.html"));

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teach & Tackle | Profile</title>
+    <link rel="shortcut icon" href="images/favicon.webp" type="image/x-icon">
+    <link rel="stylesheet" href="styles/aside.css">
+    <link rel="stylesheet" href="styles/general.css">
+    <link rel="stylesheet" href="styles/nav.css">
+    <link rel="stylesheet" href="styles/icons.css">
+    <link rel="stylesheet" href="styles/profile.css">
+
+    <script src="js/aside.js" defer></script>
+</head>
+<body>
+    <aside>
+        <img src="images/logo.webp" alt="Logo">
+        <div>
+            <div class="category">
+                <div>
+                    <div id="strength">Mentor Others</div>
+                    <i class="fa-solid fa-edit" tabindex="0"></i>
+                </div>
+                <ul>
+                    <li title="Logic and Mathematics (LOMA)">Logic and Mathematics (LOMA)</li>
+                    <li title="Database Application Development (DBAV)">Database Application Development (DBAV)</li>
+                </ul>
+            </div>
+            <div class="category">
+                <div>
+                    <div id="weakness">Knowledge Wishlist</div>
+                    <i class="fa-solid fa-edit" tabindex="0"></i>
+                </div>
+                <ul id="weakness_content">
+                    <li title="Mobile Application Development (MBAP)">Mobile Application Development (MBAP)</li>
+                    <li title="Network and Cloud Technology (NECT)">Network and Cloud Technology (NECT)</li>
+                </ul>
+            </div>
+        </div>
+        <a href="profile.html" class="user">Geng Yue</a>
+    </aside>
+
+    <main>
+        <nav>
+            <a href="index.html" title="Explore Page">Explore</a>
+            <a href="pending.html" title="Pending Page">Pending</a>
+            <a href="pairing.html" title="Pairing Page">Pairing</a>
+        </nav>
+
+        <form class="profile_container">
+            <div>
+                <h2>User Profile</h2>
+                <div>
+                    <p>Name:</p>
+                    <p>Geng Yue</p>
+                    <p>Admission Number:</p>
+                    <p>1234567A</p>
+                </div>
+            </div>
+
+            <div>
+                <h2>General</h2>
+                <div>
+                    <label for="diploma">Diploma</label>
+                    <input type="text" name="diploma" id="diploma" placeholder="Enter Your Diploma" value="Diploma in Information Technology">
+                    <p>Year of Study</p>
+                    <div>
+                        <input type="radio" name="year" id="y1" checked>
+                        <label for="y1">Year 1</label>
+                        <input type="radio" name="year" id="y2">
+                        <label for="y2">Year 2</label>
+                        <input type="radio" name="year" id="y3">
+                        <label for="y3">Year 3</label>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h2>Modules Proficiency</h2>
+                <h3>Mentor Others</h3>
+                <div></div>
+
+                <h3>Knowledge Wishlist</h3>
+                <div></div>
+            </div>
+
+            <div>
+                <h2>Change Password</h2>
+                <div>
+                    <label for="new_password">New Password</label>
+                    <input type="password" name="new_password" id="new_password" placeholder="Enter New Password">
+                    <label for="confirm_password">Confirm Password</label>
+                    <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm New Password">
+                </div>
+            </div>
+
+            <button type="submit">Save</button>
+        </form>
+    </main>
+</body>
+</html>
