@@ -1,0 +1,69 @@
+.search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 0;
+    border-bottom: 1px solid black;
+    width: max-content;
+    margin: 10px 20px;
+}
+.search::before {
+    font: var(--fa-font-solid);
+    content: "\f002";
+}
+.search input {
+    outline: none;
+    height: 100%;
+    background: transparent;
+    border: none;
+    font-size: 16px;
+    width: 350px;
+}
+.search input::-webkit-search-cancel-button{
+    display: none;  
+}
+.explore_container {
+    flex-wrap: wrap;
+    overflow: auto;
+    display: flex;
+    gap: 10px;
+    padding: 0 20px 10px 20px;
+}
+.explore_container .weakness {
+    background: #cec080;
+}
+.explore_container .strength {
+    background: #accbdf;
+}
+.explore_container > div {
+    padding: 15px;
+    width: 320px;
+    border-radius: 20px;
+    border: 1px solid black;
+}
+.student_skills {
+    display: flex;
+    gap: 5px;
+    font-size: 12px;
+    border-top: 1px solid black;
+    padding-top: 8px;
+    margin-top: 8px;
+}
+.student_skills div {
+    display: flex;
+    align-items: center;
+    padding: 3px 5px;
+    border-radius: 10px;
+    border: 1px solid black;
+}
+.student_skills i {
+    aspect-ratio: 1;
+    margin-left: auto;
+    display: flex;
+    cursor: pointer;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    padding: 5px;
+    background: lightgrey;
+}

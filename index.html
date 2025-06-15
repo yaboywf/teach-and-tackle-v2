@@ -17,9 +17,13 @@
 	<title>Teach & Tackle | Explore</title>
 	<link rel="shortcut icon" href="images/favicon.webp" type="image/x-icon">
 	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="styles/student.css">
 	<link rel="stylesheet" href="styles/aside.css">
 	<link rel="stylesheet" href="styles/nav.css">
-	<link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/all.css">
+	<link rel="stylesheet" href="styles/icons.css">
+	<link rel="stylesheet" href="styles/explore.css">
+
+	<script src="js/aside.js" defer></script>
 </head>
 <body>
 	<script>
@@ -54,282 +58,38 @@
                 </ul>
             </div>
         </div>
-        <div class="user" tabindex="0">Geng Yue</div>
-
-		<script>
-			// Javascript relating to the aside tag
-			const aside = document.querySelector("aside");
-
-			if (window.innerWidth <= 800) {
-				document.querySelector("aside").setAttribute("sidebar-collapsed", false);
-				swipe_gesture();
-			}
-
-			window.addEventListener("resize", () => {
-    			update_names();
-
-				if (window.innerWidth <= 800) {
-					aside.setAttribute("sidebar-collapsed", false);
-					aside.style.transform = "translateX(-110%)";
-					swipe_gesture();
-
-					if (document.getElementById("schedule").checked) {
-						document.querySelector("#explore + label").click();
-					}
-				} else {
-					aside.style.transform = "translateX(0)";
-				}
-			});
-
-			function swipe_gesture() {
-				let startX = 0;
-				let endX = 0;
-
-				function handle_touch(event, isStart = true) {
-					if (window.innerWidth > 800) return;
-					const touchX = event.touches[0].clientX;
-					isStart ? startX = touchX : endX = touchX;
-				}
-
-				function handle_swipe() {
-					const blur = document.getElementById("blur");
-					if (window.innerWidth > 800) return;
-					
-					const deltaX = endX - startX;
-					if (deltaX > 100) {
-						blur.style.display = "block";
-						setTimeout(() => {
-							blur.style.opacity = "1";
-							aside.style.zIndex = "3";
-							aside.style.transform = "translateX(0)";
-						}, 200);
-					} else {
-						if (window.getComputedStyle(blur).display === "block") {
-							blur.style.opacity = "0";
-							blur.addEventListener("transitionend", () => {
-								blur.style.display = "none";
-								aside.style.zIndex = "1";
-								aside.style.transform = "translateX(-110%)";
-							}, { once: true });
-						}
-					}
-
-					startX = endX = 0;
-				}
-
-				window.addEventListener("touchstart", (e) => handle_touch(e, true));
-				window.addEventListener("touchmove", (e) => handle_touch(e, false));
-				window.addEventListener("touchend", handle_swipe);
-			}
-
-			document.addEventListener("DOMContentLoaded", () => {
-				const radios = document.querySelectorAll('input[name="tabs"]');
-				const filter_options = document.querySelector("#related + label").parentElement;
-				const sections = Array.from(document.querySelectorAll('.student_container'));
-				radios.forEach(radio => {
-					radio.addEventListener("change", () => {
-						sections.forEach(section => {
-							section.style.display = 'none';
-							section.style.opacity = '0';
-						});
-						const selected = document.getElementById(`${radio.id}_container`);
-						if (!selected) return;
-						selected.style.display = 'flex';
-						requestAnimationFrame(() => (selected.style.opacity = '1'));
-						if (radio.id === "explore") {
-							filter_options.style.display = "flex";
-							requestAnimationFrame(() => (filter_options.style.opacity = "1"));
-						} else if (radio.id === "schedule") {
-							updateEventStyles();
-						} else {
-							filter_options.style.opacity = "0";
-							filter_options.addEventListener("transitionend", () => { filter_options.style.display = "none"; }, { once: true });
-						}
-					});
-				})
-			})
-
-			let user_detailed;
-			document.addEventListener("DOMContentLoaded", () => {
-				user_detailed = document.getElementById("user");
-			})
-
-			document.querySelector(".user").addEventListener("click", () => {
-				const section_width = document.querySelector("aside").offsetWidth;
-				user_detailed.style.left = (section_width + 20) + "px";
-				const visible = window.getComputedStyle(user_detailed).transform.includes('matrix(1, 0, 0, 1, 0, 0)');
-				user_detailed.style.transform = visible ? "translateY(110%)" : "translateY(0)";
-			});
-		</script>
+        <a href="profile.html" class="user">Geng Yue</div>
 	</aside>
 
 	<main>
-		<div>
-			<div class="search" tabindex="0">
-				<i class="fa-solid fa-magnifying-glass"></i>
-				<input type="search" placeholder="Search something..." tabindex="0" id="searchBar" autocomplete="off">
-				<div>Ctrl + F</div>
-			</div>
-			<div>
-				<input type="checkbox" id="related">
-				<label for="related" tabindex="0">Filter</label>
-			</div>
-		</div>
-		<nav class="tabs">
+		<nav>
 			<a href="index.html" title="Explore Page" class="active">Explore</a>
             <a href="pending.html" title="Pending Page">Pending</a>
             <a href="pairing.html" title="Pairing Page">Pairing</a>
 		</nav>
-
-		<script>
-			document.getElementById("related").addEventListener("change", function() {
-				const my_modules = Array.from(document.querySelectorAll(".strength_subject > p")).map(p => p.textContent.trim().toLowerCase().split("(")[1].replace(")", ""));
-				const students = document.querySelectorAll(".student.student1");
-				if (this.checked) {
-					students.forEach(student => {
-						let match_found = false;
-						student.querySelectorAll("div:nth-of-type(2) > div").forEach(div => {
-							console.log(div.textContent.trim().toLowerCase())
-							if (my_modules.includes(div.textContent.trim().toLowerCase())) {
-								match_found = true;
-							}
-						});
-
-						if (!match_found) {
-							student.style.opacity = "0";
-							student.addEventListener("transitionend", () => {
-								student.style.display = "none";
-							}, { once: true });
-						} else {
-							student.style.display = "flex";
-							setTimeout(() => {
-								student.style.opacity = "1";
-							}, 200)
-						}
-					})
-				} else {
-					students.forEach(student => {
-						student.style.display = "flex";
-						setTimeout(() => {
-							student.style.opacity = "1";
-						}, 200)
-					})
-				}
-			})
-
-			async function filterItems() {
-				const searchValue = search_bar.value.toLowerCase();
-				const tab = document.querySelector('nav input[type="radio"]:checked + label').textContent.trim().toLowerCase();
-
-				function matchesSearch(element) {
-					const textElements = Array.from(element.querySelectorAll('p'));
-					const divElements = Array.from(element.querySelectorAll('div')).filter(div => div.children.length === 0);
-					const combinedText = [...textElements, ...divElements].map(el => el.textContent.trim().toLowerCase()).join(' ');
-					return combinedText.includes(searchValue);
-				}
-
-				function handleDisplay(element, matchFound, display = 'flex') {
-					if (matchFound) {
-						element.style.display = display;
-						setTimeout(() => { element.style.opacity = '1'; }, 200);
-					} else {
-						element.style.opacity = '0';
-						element.addEventListener("transitionend", () => { element.style.display = 'none'; }, { once: true });
-					}
-				}
-
-				switch (tab) {
-					case 'pairing':
-					case 'history': {
-						const pairs = document.querySelectorAll('.pair');
-						pairs.forEach(pair => {
-							const matchFound = matchesSearch(pair);
-							handleDisplay(pair, matchFound, "grid");
-						});
-						break;
-					}
-					case 'explore': {
-						const students = document.querySelectorAll('.student');
-						students.forEach(student => {
-							const matchFound = matchesSearch(student);
-							handleDisplay(student, matchFound);
-						});
-						break;
-					}
-					case 'my schedule': {
-						const events = document.querySelectorAll('.event');
-						let found = false;
-						events.forEach(event => {
-							if (!found) {
-								const matchFound = Array.from(event.querySelectorAll('div')).map(div => div.textContent.trim().toLowerCase()).join(' ').includes(searchValue);
-								if (matchFound) {
-									const event_offsetTop = event.offsetTop;
-									const rect = document.querySelector(".schedule_day > div").getBoundingClientRect();
-									found = true;
-									document.getElementById("schedule_container").scrollTo({
-										top: event_offsetTop - rect.height - 5,
-										behavior: 'smooth'
-									});
-								}
-							}
-						});
-						break;
-					}
-					case 'pending': {
-						const requests = document.querySelectorAll('.student.student1.student2');
-						requests.forEach(request => {
-							const matchFound = matchesSearch(request);
-							handleDisplay(request, matchFound);
-						});
-						break;
-					}
-				}
-			}
-
-			const search_bar = document.getElementById('searchBar');
-			document.addEventListener('keydown', function(event) {
-				if (event.ctrlKey && event.key === 'f') {
-					event.preventDefault();
-					search_bar.style.display = 'block';
-					search_bar.focus();
-				}
-			});
-
-			function debounce(func, delay) {
-				let timeoutId;
-				return function (...args) {
-					clearTimeout(timeoutId);
-					timeoutId = setTimeout(() => { func.apply(this, args); }, delay);
-				};
-			}
-
-			document.getElementById("searchBar").addEventListener("input", debounce(filterItems, 100));
-		</script>
-
-		<br><hr>
-
-		<div class="student_container" id="explore_container" tabindex="-1">
-			<div class="student student1">
-				<div>
-					<i class="fa-solid fa-circle-user"></i>
-					<div>
-						<p>Alice Johnson</p>
-						<p>Alice_Johnson@student.tp.edu.sg</p>
-						<p>Diploma in Information Technology <span>(Y1)</span></p>
-					</div>
+		
+		<div class="search">
+			<input type="search" placeholder="Search for a student" id="searchBar" autocomplete="off">
+		</div>
+		
+		<div class="explore_container">
+			<div>
+				<div class="student_info">
+					<p style="--year: '1'">Alice Johnson</p>
+					<p>1234567A@student.tp.edu.sg</p>
+					<p>Diploma in <b>Information Technology</b></p>
 				</div>
-				<div>
-					<div class="student_strength">ADEV</div>
-					<div class="student_strength">DBAV</div>
-					<div class="student_weakness">DSAG</div>
-					
+				<div class="student_skills">
+					<div class="strength">ADEV</div>
+					<div class="strength">DBAV</div>
+					<div class="weakness">DSAG</div>
 					<i class="fa-solid fa-link"></i>
 				</div>
 			</div>
 		</div>
 
 		<script>
-			document.querySelector("#explore_container").addEventListener("click", (event) => {
+			document.querySelector(".explore_container").addEventListener("click", (event) => {
 				if (event.target.tagName.toLowerCase() === "i" && event.target.classList.contains("fa-link")) {
 					const request = document.querySelector(".request_container");
 					const form = document.querySelector(".request_form");
@@ -393,246 +153,8 @@
 			function hide_error(element) {
 				if (window.getComputedStyle(element).display === "block") element.style.display = "none";
 			}
-
-			document.getElementById("explore_container").addEventListener("mouseover", (event) => {
-				if (event.target.classList.contains("fa-link")) {
-					const position = event.target.getBoundingClientRect();
-					const message = document.getElementById("message")
-					message.style.display = "block";
-					message.style.top = (position.top + 30) + "px";
-					message.style.left = (position.left + (position.width / 2) - (message.offsetWidth / 2)) + "px";
-					
-					event.target.addEventListener("mouseout", () => {
-						message.style.display = 'none';
-					});
-				}
-			})
 		</script>
-
-		<div class="student_container" id="current_container" tabindex="-1">
-			<div class="pair">
-				<span>Unlink</span>
-				<div class="student">
-					<img>
-					<div>
-						<p>Geng Yue</p>
-						<p>Email@student.tp.edu.sg</p>
-						<p title="Diploma in Information Technology (Y1)">Diploma in Information Technology <span>(Y1)</span></p>
-					</div>
-				</div>
-	
-				<i class="fa-solid fa-link"></i>
-				<time>Friday<br>0830 - 1000</time>
-	
-				<div class="student">
-					<i class="fa-solid fa-circle-user"></i>
-					<div>
-						<p>Alex Taylor</p>
-						<p>Alex_Taylor@student.tp.edu.sg</p>
-						<p title="Diploma in Applied Artificial Intelligence (Y1)">Diploma in Applied Artificial Intelligence <span>(Y1)</span></p>
-					</div>
-				</div>
-
-				<div>	
-					<div class="module module_strength" title="Database Application Development (DBAV)">Database Application Development (DBAV)</div>
-					<div class="module module_weakness" title="Network and Cloud Technology (NECT)">Network and Cloud Technology (NECT)</div>
-				</div>
-					
-				<div>	
-					<div class="module module_weakness" title="Database Application Development (DBAV)">Database Application Development (DBAV)</div>
-					<div class="module module_strength" title="Network and Cloud Technology (NECT)">Network and Cloud Technology (NECT)</div>
-				</div>
-			</div>
-
-			<div class="pair">
-				<span>Unlink</span>
-				<div class="student">
-					<img>
-					<div>
-						<p>Geng Yue</p>
-						<p>Email@student.tp.edu.sg</p>
-						<p title="Diploma in Information Technology (Y1)">Diploma in Information Technology <span>(Y1)</span></p>
-					</div>
-				</div>
-	
-				<i class="fa-solid fa-link"></i>
-				<time>Monday<br>1600 - 1700</time>
-	
-				<div class="student">
-					<i class="fa-solid fa-circle-user"></i>
-					<div>
-						<p>Jordan Lee</p>
-						<p>Jordan_Lee@student.tp.edu.sg</p>
-						<p title="Diploma in Big Data & Analytics (Y1)">Diploma in Big Data & Analytics <span>(Y1)</span></p>
-					</div>
-				</div>
-
-				<div>	
-					<div class="module module_strength" title="Logic and Mathematics (LOMA)">Logic and Mathematics (LOMA)</div>
-				</div>
-					
-				<div>	
-					<div class="module module_weakness" title="Logic and Mathematics (LOMA)">Logic and Mathematics (LOMA)</div>
-				</div>
-			</div>
-
-			<div class="pair">
-				<span>Unlink</span>
-				<div class="student">
-					<img>
-					<div>
-						<p>Geng Yue</p>
-						<p>Email@student.tp.edu.sg</p>
-						<p title="Diploma in Information Technology (Y1)">Diploma in Information Technology <span>(Y1)</span></p>
-					</div>
-				</div>
-	
-				<i class="fa-solid fa-link"></i>
-				<time>Wednesday<br>1600 - 1730</time>
-	
-				<div class="student">
-					<i class="fa-solid fa-circle-user"></i>
-					<div>
-						<p>Morgan Chen</p>
-						<p>Morgan_Chen@student.tp.edu.sg</p>
-						<p title="Diploma in Big Data & Analytics (Y2)">Diploma in Big Data & Analytics <span>(Y2)</span></p>
-					</div>
-				</div>
-
-				<div>	
-					<div class="module module_weakness" title="Mobile App Development (MBAP)">Mobile App Development (MBAP)</div>
-				</div>
-					
-				<div>	
-					<div class="module module_strength" title="Mobile App Development (MBAP)">Mobile App Development (MBAP)</div>
-				</div>
-			</div>
-
-			<div id="empty">
-				<p>No pairs. Find one!</p>
-			</div>
-		</div>
-
-		<script>
-			function arrays_equal(arr1, arr2) {
-				if (arr1.length !== arr2.length) return false;
-				return arr1.every((value, index) => value === arr2[index]);
-			}
-
-			document.getElementById("current_container").addEventListener('click', (event) => {
-				const button = event.target;
-				const confirmation = document.querySelector(".confirmation");
-				if (button.tagName.toLowerCase() !== "span") return;
-
-				confirmation.style.display = "flex";
-				setTimeout(() => {
-					confirmation.querySelector("p").textContent = "Confirm unlink? This cannot be undone.";
-					confirmation.style.opacity = "1";
-				}, 200)
-
-				confirmation.querySelector("button:first-of-type").addEventListener("click", () => {
-					const pair_element = button.closest(".pair");
-					if (!pair_element) return;
-					const index = Array.from(document.querySelectorAll(".pair")).indexOf(pair_element);
-					const student_name = pair_element.querySelectorAll(".student p:nth-of-type(1)")[1].textContent.trim();
-					const pair_module = Array.from(pair_element.querySelectorAll(":scope > div:not(.student) > div")).map(div => div.textContent.match(/\(([^)]+)\)/)?.[1].trim().toLowerCase()).filter(Boolean).filter((value, index, self) => self.indexOf(value) === index);
-					const history_container = document.getElementById("history_container");
-					pair_element.style.opacity = "0";
-					pair_element.addEventListener("transitionend", () => {
-						const new_pair_history = document.createElement("div");
-						new_pair_history.classList.add("pair");
-						new_pair_history.innerHTML = pair_element.innerHTML;
-						new_pair_history.querySelector("span").remove();
-						history_container.insertBefore(new_pair_history, document.querySelector("#history_container > button"));
-						if (history_container.querySelector("p")) history_container.querySelector("p").style.display = "none";
-						pair_element.remove();
-						event_list.splice(index, 1);
-						if (document.querySelectorAll('#current_container > .pair').length === 0) {
-							document.getElementById("empty").style.display = "flex";
-							document.getElementById("empty").style.opacity = "1";
-						}
-					}, { once: true });
-					document.querySelectorAll(".event").forEach(event_element => {
-						if (event_element.querySelector("div").textContent.trim().toLowerCase() === student_name.toLowerCase() && arrays_equal(Array.from(event_element.querySelectorAll(":scope > div:last-of-type > div")).map(div => div.textContent.trim().toLowerCase()), pair_module)) {
-							event_element.remove();
-						}
-					})
-				})
-			});
-		</script>
-
-		<div class="student_container" id="pending_container" tabindex="-1">
-			<div>
-				<p>Received</p>
-				<div class="student student1 student2">
-					<div>
-						<i class="fa-solid fa-circle-user"></i>
-						<div>
-							<p>Sammy Syntax</p>
-							<p>Sammy_Syntax@student.tp.edu.sg</p>
-							<p>Diploma in Information Technology <span>(Y1)</span></p>
-						</div>
-					</div>
-					<div>
-						<div>Tuesday, 1400 - 1600</div>
-						<div>
-							<div class="student_strength">DBAV</div>
-							<div class="student_weakness">NECT</div>
-						</div>
-					</div>
-					<div>
-						<button>Accept</button>
-						<button>Decline</button>
-					</div>
-				</div>
-
-				<div class="student student1 student2">
-					<div>
-						<i class="fa-solid fa-circle-user"></i>
-						<div>
-							<p>Wade Wilson</p>
-							<p>Wade_Wilson@student.tp.edu.sg</p>
-							<p>Diploma in Big Data & Analytics <span>(Y1)</span></p>
-						</div>
-					</div>
-					<div>
-						<div>Friday, 1000 - 1200</div>
-						<div>
-							<div class="student_strength">LOMA</div>
-						</div>
-					</div>
-					<div>
-						<button>Accept</button>
-						<button>Decline</button>
-					</div>
-				</div>
-			</div>
-			<div>
-				<p>Sent</p>
-				<div class="student student1 student2">
-					<div>
-						<i class="fa-solid fa-circle-user"></i>
-						<div>
-							<p>Patty Cake</p>
-							<p>Patty_Cake@student.tp.edu.sg</p>
-							<p>Diploma in Information Technology <span>(Y2)</span></p>
-						</div>
-					</div>
-					<div>
-						<div>Monday, 1600 - 1700</div>
-						<div>
-							<div class="student_weakness">MBAP</div>
-						</div>
-					</div>
-					<div>
-						<p>Request sent. Pending response.</p>
-					</div>
-				</div>
-			</div>
-		</div>
 	</main>
-
-	<div id="message">Request to be paired</div>
 
 	<div class="user_detailed" id="user">
 		<i class="fa-solid fa-xmark"></i>
@@ -645,73 +167,8 @@
 		</div>
 		
 		<hr>
-		<button tabindex="-1">Manage Availability</button>
 		<button tabindex="-1">Log out</button>
 	</div>
-
-	<form class="user_availability">
-		<div>
-			<i class="fa-solid fa-xmark"></i>
-			<p>My Available Timings</p>
-			<div>
-				<p>Legend: </p>
-				<div>
-					<input type="checkbox" disabled checked id="legend_available">
-					<p>Available</p>
-				</div>
-				<div>
-					<input type="checkbox" disabled id="legend_unavailable">
-					<p>Unavailable</p>
-				</div>
-			</div>
-			<hr>
-			<div id="schedule_table"></div>
-		</div>
-	</form>
-
-	<script>
-		const avail = document.querySelector(".user_availability");
-		document.querySelector("#user button:first-of-type").addEventListener("click", () => {
-			avail.style.display = "flex";
-			setTimeout(() => { avail.style.opacity = "1" }, 200);
-		})
-
-		avail.querySelector(".fa-xmark").addEventListener("click", () => {
-			avail.style.opacity = "0";
-			avail.addEventListener("transitionend", () => { avail.style.display = "none"; }, { once: true });
-		})
-
-		const schedule = document.querySelector("#schedule_table");
-		schedule.addEventListener("input", (event) => {
-			if (event.target.tagName.toLowerCase() === "input") {
-				const states = {};
-				schedule.querySelectorAll("input").forEach((cb) => {
-					states[cb.id] = cb.checked;
-				});
-				localStorage.setItem("availability", JSON.stringify(states));
-			}
-		});
-
-		function load() {
-			const availability = JSON.parse(localStorage.getItem("availability")) || {};
-			schedule.querySelectorAll("input").forEach((cb) => {
-				cb.checked = availability[cb.id] || false;
-			});
-		}
-
-		const week_days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-		const time_slots = Array.from({length: 30}, (_, i) => {
-			const hour = String(Math.floor(i / 2) + 8).padStart(2, '0');
-			const minute = i % 2 === 0 ? '00' : '30';
-			return `${hour}:${minute}`;
-		});
-
-		document.addEventListener("DOMContentLoaded", () => {
-			user_detailed.querySelector("i").addEventListener("click", () => {
-				user_detailed.style.transform = "translateY(110%)";
-			})
-		})
-	</script>
 
 	<div class="add_module" id="add_module">
 		<form method="post" action="" novalidate> <!-- Link to backend to add module to database -->
@@ -925,74 +382,15 @@
 	</script>
 
 	<template id="popular_template">
-		<div class="student student1">
-			<div>
-				<i class="fa-solid fa-circle-user"></i>
-				<div>
-					<p></p>
-					<p></p>
-					<p></p>
-				</div>
+		<div>
+			<div class="student_info">
+				<p style="--year: '1'">Alice Johnson</p>
+				<p>1234567A@student.tp.edu.sg</p>
+				<p>Diploma in <b>Information Technology</b></p>
 			</div>
-			<div>
+			<div class="student_skills">
+				
 				<i class="fa-solid fa-link"></i>
-			</div>
-		</div>
-	</template>
-
-	<template id="event_template">
-		<div class="event">
-			<div></div>
-			<div></div>
-			<div></div>
-		</div>
-	</template>
-
-	<template id="pair_template">
-		<div class="pair">
-			<span>Unlink</span>
-			<div class="student">
-				<img src="images/pfp.webp" alt="Profile picture">
-				<div>
-					<p>Geng Yue</p>
-					<p>Email@student.tp.edu.sg</p>
-					<p title="Diploma in Information Technology (Y1)">Diploma in Information Technology <span>(Y1)</span></p>
-				</div>
-			</div>
-
-			<i class="fa-solid fa-link"></i>
-			<time></time>
-
-			<div class="student">
-				<i class="fa-solid fa-circle-user"></i>
-				<div>
-					<p></p>
-					<p></p>
-					<p></p>
-				</div>
-			</div>
-
-			<div></div>
-			<div></div>
-		</div>
-	</template>
-
-	<template id="pending_template">
-		<div class="student student1 student2">
-			<div>
-				<i class="fa-solid fa-circle-user"></i>
-				<div>
-					<p></p>
-					<p></p>
-					<p></p>
-				</div>
-			</div>
-			<div>
-				<div></div>
-				<div></div>
-			</div>
-			<div>
-				<p>Request sent. Pending response.</p>
 			</div>
 		</div>
 	</template>
@@ -1071,8 +469,7 @@
 		<noscript>Javascript disabled</noscript>
 	</div>
 
-	<div class="blur" id="blur"></div>
-	<div class="spinner" id="spinner"></div>
+	<!-- <div class="blur" id="blur"></div> -->
 	<div class="small-screen-message"></div>
 
 	<dialog>
@@ -1171,47 +568,27 @@
 	</script>
 
 	<script>
-		window.onload = () => {
-			const empty = document.getElementById("empty");
-			aside.setAttribute("sidebar-collapsed", window.innerWidth > 800 ? (localStorage.getItem("sidebar-collapsed") === "true") : "false");
-			toggleModuleVisibility(document.getElementById("strength_collapse"), document.getElementById("strength_content"), "modules_strength");
-			toggleModuleVisibility(document.getElementById("weakness_collapse"), document.getElementById("weakness_content"), "modules_weakness");
-			if (document.querySelectorAll(".pair").length === 0) {
-				empty.style.display = "flex";
-				empty.textContent = "You have not paired anyone yet.";
-			}
-			modules.forEach(module => {
-				const option = document.createElement("option");
-				option.value = module;
-				option.textContent = module;
-				document.getElementById("module_selection").appendChild(option);
-			})
-			document.getElementById("current_container").style.display = "none";
-			["blur", "spinner", "pending_container"].forEach(id => document.getElementById(id).style.display = "none");
+		// window.onload = () => {
+		// 	const empty = document.getElementById("empty");
+		// 	aside.setAttribute("sidebar-collapsed", window.innerWidth > 800 ? (localStorage.getItem("sidebar-collapsed") === "true") : "false");
+		// 	toggleModuleVisibility(document.getElementById("strength_collapse"), document.getElementById("strength_content"), "modules_strength");
+		// 	toggleModuleVisibility(document.getElementById("weakness_collapse"), document.getElementById("weakness_content"), "modules_weakness");
+		// 	if (document.querySelectorAll(".pair").length === 0) {
+		// 		empty.style.display = "flex";
+		// 		empty.textContent = "You have not paired anyone yet.";
+		// 	}
+		// 	modules.forEach(module => {
+		// 		const option = document.createElement("option");
+		// 		option.value = module;
+		// 		option.textContent = module;
+		// 		document.getElementById("module_selection").appendChild(option);
+		// 	})
+		// 	document.getElementById("current_container").style.display = "none";
+		// 	["blur", "spinner", "pending_container"].forEach(id => document.getElementById(id).style.display = "none");
 		
-			load();
-			document.querySelector("noscript").style.display = "none";
-		}
-
-		function toggleModuleVisibility(button, content, storage_key) {
-			if (localStorage.getItem(storage_key) === "hide") {
-				button.style.transform = "rotate(-90deg)";
-				content.style.opacity = "0";
-				content.addEventListener("transitionend", () => {
-					content.style.display = "none";
-				}, { once: true });
-			}
-		}
-
-		let resize_timeout;
-		const debounceResize = () => {
-			clearTimeout(resize_timeout);
-			resize_timeout = setTimeout(() => {
-				updateEventStyles(false);
-			}, 200);
-		};
-
-		window.addEventListener("resize", debounceResize);
+		// 	load();
+		// 	document.querySelector("noscript").style.display = "none";
+		// }
 
 		function tutorial(step) {
 			let last_step = parseInt(localStorage.getItem("last_step") || 1);
@@ -1296,13 +673,13 @@
 					const modules = clonedNode.querySelector('div:nth-of-type(2)');
 					const diploma_index = Math.floor(Math.random() * 6);
 					if (name) name.textContent = names[count % names.length];
-					if (email) email.textContent = name.textContent.replace(" ", "_") + "@student.tp.edu.sg";
+					if (email) email.textContent = '1234567A@student.tp.edu.sg';
 					if (diploma) diploma.textContent = diplomas[diploma_index];
 					if (modules) {
 						const results = get_modules();
 						results.strengths.concat(results.weaknesses).forEach((moduleText, index) => {
 							const moduleDiv = document.createElement("div");
-							moduleDiv.classList.add(index < results.strengths.length ? "student_strength" : "student_weakness");
+							moduleDiv.classList.add(index < results.strengths.length ? "strength" : "weakness");
 							moduleDiv.textContent = moduleText;
 							modules.insertBefore(moduleDiv, modules.querySelector(".fa-link"));
 						});
@@ -1316,7 +693,7 @@
 			appendChunk();
 		}
 
-		duplicate_elements(document.getElementById("popular_template"), document.getElementById("explore_container"));
+		duplicate_elements(document.getElementById("popular_template"), document.querySelector(".explore_container"));
 	</script>
 </body>
 </html>
