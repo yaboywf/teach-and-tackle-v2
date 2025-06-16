@@ -67,3 +67,14 @@
     padding: 5px;
     background: lightgrey;
 }
+.module_strength {
+    background: #accbdf;
+}
+.module_weakness {
+    background: #cec080;
+}
+@media screen and (max-width: 450px) {
+    .search {
+        width: unset;
+    }
+}

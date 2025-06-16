@@ -25,3 +25,17 @@ body > main {
     background: #c4c4c4;
     border-radius: 10px;
 }
+@media screen and (max-width: 250px) {
+    body *:not(main), main * {
+        display: none !important;
+    }
+    main::before {
+        content: "We are unable to display this page on your screen as is too small";
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 15px;
+        text-align: center;
+    }
+}

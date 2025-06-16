@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teach & Tackle | Pairing</title>
-    <link rel="stylesheet" href="style.css">
+    <!-- <link rel="stylesheet" href="style.css"> -->
     <link rel="stylesheet" href="styles/aside.css">
     <link rel="stylesheet" href="styles/nav.css">
     <link rel="stylesheet" href="styles/student.css">
@@ -14,6 +14,7 @@
     <link rel="shortcut icon" href="images/favicon.webp" type="image/x-icon">
 
     <script src="js/aside.js" defer></script>
+    <script src="js/pairing.js" defer></script>
 </head>
 <body>
     <aside>
@@ -56,7 +57,7 @@
 				<div class="student_info">
                     <p style="--year: '2'">Geng Yue</p>
                     <p>1234567A@student.tp.edu.sg</p>
-                    <p>Diploma in <b>Information Technology</b></p>
+                    <p>Diploma in Information Technology</p>
 				</div>
 	
 				<div class="pair_info">
@@ -69,7 +70,7 @@
 				<div class="student_info">
 					<p style="--year: '1'">Alex Taylor</p>
                     <p>Alex_Taylor@student.tp.edu.sg</p>
-                    <p>Diploma in <b>Applied Artificial Intelligence</b></p>
+                    <p>Diploma in Applied Artificial Intelligence</p>
 				</div>
 			</div>
 
@@ -78,7 +79,7 @@
 				<div class="student_info">
 					<p style="--year: '2'">Geng Yue</p>
                     <p>1234567A@student.tp.edu.sg</p>
-                    <p>Diploma in <b>Information Technology</b></p>
+                    <p>Diploma in Information Technology</p>
 				</div>
 	
 				<div class="pair_info">
@@ -91,7 +92,7 @@
 				<div class="student_info">
 					<p style="--year: '1'">Jordan Lee</p>
                     <p>1234567A@student.tp.edu.sg</p>
-                    <p>Diploma in <b>Big Data & Analytics</b></p>
+                    <p>Diploma in Big Data & Analytics</p>
 				</div>
 			</div>
 
@@ -100,7 +101,7 @@
 				<div class="student_info">
 					<p style="--year: '2'">Geng Yue</p>
                     <p>1234567A@student.tp.edu.sg</p>
-                    <p>Diploma in <b>Information Technology</b></p>
+                    <p>Diploma in Information Technology</p>
 				</div>
 	
 				<div class="pair_info">
@@ -113,14 +114,21 @@
 				<div class="student_info">
 					<p style="--year: '2'">Morgan Chen</p>
                     <p>1234567A@student.tp.edu.sg</p>
-                    <p>Diploma in <b>Big Data & Analytics</b></p>
+                    <p>Diploma in Big Data & Analytics</p>
 				</div>
-			</div>
-
-			<div id="empty">
-				<p>No pairs. Find one!</p>
 			</div>
 		</div>
     </main>
+
+    <div class="confirmation">
+        <div>
+            <i class="fa-solid fa-exclamation-triangle"></i>
+            <p>Are you sure you want to unlink?</p>
+            <div>
+                <button>Yes</button>
+                <button>No</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

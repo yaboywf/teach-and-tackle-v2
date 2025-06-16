@@ -77,3 +77,18 @@
     flex: 8;
     background-color: lightgrey;
 }
+@media screen and (max-width: 800px) {
+    .pending_container {
+        flex-direction: column !important;
+        overflow-y: auto;
+    }
+    .pending_container > div {
+        overflow: visible !important;
+    }
+    .pending_container .line {
+        height: 1px;
+        width: 100%;
+        border-top: 1px solid black;
+        border-left: none;
+    }
+}

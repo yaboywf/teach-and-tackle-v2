@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="request_container">
+		<form action="" id="request_form" class="request_form" method="post" novalidate> <!-- Link to backend to request to student (client) -->
+			<i class="fa-solid fa-xmark"></i>
+			<p>Request Pair</p>
+	
+			<strong><p>Basic Information (Mentor)</p></strong>
+			<label for="request_name">Name</label>
+			<input type="text" name="name" id="request_name" required readonly autocomplete="off">
+	
+			<label for="request_email">Email</label>
+			<input type="email" name="email" id="request_email" required readonly autocomplete="off">
+	
+			<strong><p>Basic Information (Mentee)</p></strong>
+			<label for="request_name1">Name</label>
+			<input type="text" name="name1" id="request_name1" required readonly value="Geng Yue">
+	
+			<label for="request_email1">Email</label>
+			<input type="email" name="email1" id="request_email1" required readonly value="Geng_Yue@student.tp.edu.sg">
+	
+			<strong><p>Time Slot</p></strong>
+			<select id="request_day" required>
+				<option value="Monday">Monday</option>
+				<option value="Tuesday">Tuesday</option>
+				<option value="Wednesday">Wednesday</option>
+				<option value="Thursday">Thursday</option>
+				<option value="Friday">Friday</option>
+				<option value="Saturday">Saturday</option>
+				<option value="Sunday">Sunday</option>
+			</select>
+			<div>
+				<input type="time" id="request_time_start" value="08:00" min="08:00" max="22:30" step="1800">
+				<p>to</p>
+				<input type="time" id="request_time_end" value="09:00" min="08:00" max="22:30" step="1800">
+			</div>
+			<p class="form_error fr3"></p>
+	
+			<strong><p>I Want to Mentor</p></strong>
+	
+			<div id="module_strength_checkboxes">
+				<input type="checkbox" id="nil" checked>
+				<label for="nil">None</label>
+			</div>
+			<p class="form_error fr1"></p>
+	
+			<strong><p>I Want to Learn</p></strong>
+			<div id="module_weakness_checkboxes">
+				<input type="checkbox" id="nil1" checked>
+				<label for="nil1">None</label>
+			</div>
+			<p class="form_error fr2"></p>
+	
+			<button type="submit">Request</button>
+		</form>
+	</div>
+</body>
+</html>
