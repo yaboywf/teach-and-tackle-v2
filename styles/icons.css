@@ -40,3 +40,21 @@
 .fa-edit::before {
     content: "\f044"
 }
+.fa-user::before {
+    content: "\f007"
+}
+.fa-lock::before {
+    content: "\f023"
+}
+.fa-eye::before {
+    content: "\f06e"
+}
+.fa-eye-slash::before {
+    content: "\f070"
+}
+.fa-lock-open::before {
+    content: "\f3c1"
+}
+.fa-plus::before {
+    content: "\f067"
+}

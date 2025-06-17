@@ -25,6 +25,60 @@ body > main {
     background: #c4c4c4;
     border-radius: 10px;
 }
+.error_container {
+    position: absolute;
+    top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40vw;
+    pointer-events: none;
+    z-index: 2;
+}
+.error {
+    background: red;
+    border-radius: 10px;
+    width: 100%;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    color: white;
+    padding: 10px 15px;
+    animation: errorAnimation 5s ease-in-out forwards;
+}
+.error::before {
+    font: var(--fa-font-solid);
+    content: "\f06a";
+    color: white;
+}
+@keyframes errorAnimation {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px)
+    }
+
+    5% {
+        opacity: 1;
+        transform: translateY(0)
+    }
+
+    95% {
+        opacity: 1;
+        transform: translateY(0)
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(-10px)
+    }
+}
+@media screen and (max-width: 800px) {
+    .error_container {
+        width: 80vw;
+    }
+}
 @media screen and (max-width: 250px) {
     body *:not(main), main * {
         display: none !important;
