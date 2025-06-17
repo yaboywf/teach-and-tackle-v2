@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Teach & Tackle">
+    <title>Teach & Tackle | Login</title>
+    <link rel="shortcut icon" href="../images/favicon.ico" type="image/x-icon">
+    <link rel="manifest" href="../manifest.json">
+    <link rel="stylesheet" href="../styles/login.css">
+    <link rel="stylesheet" href="../styles/general.css">
+    <link rel="stylesheet" href="../styles/icons.css">
+    <link rel="preload" href="../images/logo.webp" as="image" type="image/webp" id="preload">
+
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1076.0.min.js"></script>
+    <script src="../js/login.js" defer></script>
+    <script src="../js/general.js" defer></script>
+</head>
+
+<body class="login">
+    <div class="error_container"></div>
+    <div class="bg"></div>
+    <form id="signInForm" novalidate>
+        <img src="../images/logo.webp" alt="Logo" id="image">
+        <label for="signInUsername">Admission Number:</label>
+        <div>
+            <i class="fa-solid fa-user"></i>
+            <input type="text" id="signInUsername" placeholder="Enter Admission Number" autocomplete="username" required>
+        </div>
+
+        <label for="signInUsername">Password:</label>
+        <div>
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="signInPassword" placeholder="Password" autocomplete="current-password" required>
+            <i class="fa-solid fa-eye-slash" id="eyeIcon"></i>
+        </div>
+        <button type="submit">Login</button>
+        <div>
+            <a href="reset.html">
+                <i class="fa-solid fa-lock-open"></i>
+                Reset password
+            </a>
+            <a href="register.html">
+                <i class="fa-solid fa-plus"></i>
+                Create account
+            </a>
+        </div>
+    </form>
+</body>
+
+</html>

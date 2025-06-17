@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Teach & Tackle">
+    <!-- <meta http-equiv="Content-Security-Policy" content="
+		default-src 'self';
+		script-src 'self' 'unsafe-inline';
+		style-src 'self';
+		img-src 'self';
+		connect-src 'self';
+		font-src 'self';
+		frame-src 'none';
+		object-src 'none';
+	"> -->
+    <title>Teach & Tackle | Explore</title>
+    <link rel="shortcut icon" href="../images/favicon.ico" type="image/x-icon">
+    <link rel="manifest" href="../manifest.json">
+    <link rel="stylesheet" href="../styles/student.css">
+    <link rel="stylesheet" href="../styles/aside.css">
+    <link rel="stylesheet" href="../styles/nav.css">
+    <link rel="stylesheet" href="../styles/icons.css">
+    <link rel="stylesheet" href="../styles/explore.css">
+    <link rel="stylesheet" href="../styles/general.css">
+
+    <script src="../js/aside.js" defer></script>
+    <script src="../js/explore.js" defer></script>
+</head>
+
+<body>
+    <aside>
+        <img src="../images/logo.webp" alt="Logo">
+        <div>
+            <div class="category">
+                <div>
+                    <div id="strength">Mentor Others</div>
+                    <i class="fa-solid fa-edit" tabindex="0"></i>
+                </div>
+                <ul>
+                    <li title="Logic and Mathematics (LOMA)">Logic and Mathematics (LOMA)</li>
+                    <li title="Database Application Development (DBAV)">Database Application Development (DBAV)</li>
+                </ul>
+            </div>
+            <div class="category">
+                <div>
+                    <div id="weakness">Knowledge Wishlist</div>
+                    <i class="fa-solid fa-edit" tabindex="0"></i>
+                </div>
+                <ul id="weakness_content">
+                    <li title="Mobile Application Development (MBAP)">Mobile Application Development (MBAP)</li>
+                    <li title="Network and Cloud Technology (NECT)">Network and Cloud Technology (NECT)</li>
+                </ul>
+            </div>
+        </div>
+        <a href="profile.html" class="user">Geng Yue</a>
+    </aside>
+
+    <main>
+        <nav>
+            <a href="explore.html" title="Explore Page" class="active">Explore</a>
+            <a href="pending.html" title="Pending Page">Pending</a>
+            <a href="pairing.html" title="Pairing Page">Pairing</a>
+        </nav>
+
+        <div class="search">
+            <input type="search" placeholder="Search for a student" id="searchBar" autocomplete="off">
+        </div>
+
+        <div class="explore_container">
+            <div id="explore_student">
+                <div class="student_info">
+                    <p style="--year: '1'">Alice Johnson</p>
+                    <p>1234567A@student.tp.edu.sg</p>
+                    <p>Diploma in Information Technology</p>
+                </div>
+                <div class="student_skills">
+                    <div class="strength">ADEV</div>
+                    <div class="strength">DBAV</div>
+                    <div class="weakness">DSAG</div>
+                    <i class="fa-solid fa-link"></i>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>
