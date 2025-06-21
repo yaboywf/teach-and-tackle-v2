@@ -46,3 +46,59 @@ function calculateSecretHash(username) {
                 });
         });
 }
+
+/**
+ * Function to check if the user is authenticated
+ * @returns {boolean} - True if the user is authenticated, false otherwise
+ */
+function isAuthenticated() {
+    const idToken = getCookie('id_token');
+    const accessToken = getCookie('access_token');
+
+    if (idToken || accessToken) return isTokenValid(idToken);
+    return false;
+}
+
+/**
+ * Helper function to retrieve cookies
+ * @param {*} name - The name of the cookie
+ * @returns {*}
+ */
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
+
+/**
+ * Function to check if a token is valid
+ * @param {*} token - The token to check
+ * @returns {bool}
+ */
+function isTokenValid(token) {
+    if (!token) return false;
+
+    const payload = decodeJWT(token);
+    if (!payload || !payload.exp) return false;
+    const now = Math.floor(Date.now() / 1000);
+    return payload.exp > now;
+}
+
+/**
+ * Function to decode a JWT
+ * @param {*} token - The token to decode
+ * @returns {object}
+ */
+function decodeJWT(token) {
+    if (!token) return null;
+
+    try {
+        const payload = token.split('.')[1];
+        const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+        return JSON.parse(decoded);
+    } catch (e) {
+        console.error('Failed to decode token:', e);
+        return null;
+    }
+}

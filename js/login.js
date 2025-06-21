@@ -1,6 +1,7 @@
 AWS.config.update({ region: 'us-east-1' });
 const cognitoidentityserviceprovider = new AWS.CognitoIdentityServiceProvider();
 
+// Initial call to attempt user sign-in
 async function signInUser(username, password) {
     calculateSecretHash(username)
         .then(secretHash => {
@@ -16,17 +17,16 @@ async function signInUser(username, password) {
 
             cognitoidentityserviceprovider.initiateAuth(params, (err, data) => {
                 if (err) {
-                    console.log(err);
                     showError('Error: ' + err.message);
                 } else {
-                    console.log(data); // successful login
                     if (data.ChallengeName === 'NEW_PASSWORD_REQUIRED') {
                         handleNewPasswordChallenge(data.Session, username, password);
+                    } else {
+                        document.cookie = `id_token=${data.AuthenticationResult.IdToken}; path=/; max-age=3600`;
+                        document.cookie = `access_token=${data.AuthenticationResult.AccessToken}; path=/; max-age=3600`;
+                        document.cookie = `refresh_token=${data.AuthenticationResult.RefreshToken}; path=/; max-age=86400`;
+                        window.location.href = '/pages/explore.html';
                     }
-
-                    document.cookie = `id_token=${data.AuthenticationResult.IdToken}; path=/; max-age=3600`;
-                    document.cookie = `access_token=${data.AuthenticationResult.AccessToken}; path=/; max-age=3600`;
-                    document.cookie = `refresh_token=${data.AuthenticationResult.RefreshToken}; path=/; max-age=86400`;
                 }
             });
         })
@@ -48,8 +48,13 @@ function handleNewPasswordChallenge(session, username, newPassword) {
             };
 
             cognitoidentityserviceprovider.respondToAuthChallenge(params, function (err, data) {
-                if (err) {
-                    console.error("Error responding to password change challenge:", err);
+                if (err) console.error("Error responding to password change challenge:", err);
+
+                if (data.AuthenticationResult) {
+                    document.cookie = `id_token=${data.AuthenticationResult.IdToken}; path=/; max-age=3600`;
+                    document.cookie = `access_token=${data.AuthenticationResult.AccessToken}; path=/; max-age=3600`;
+                    document.cookie = `refresh_token=${data.AuthenticationResult.RefreshToken}; path=/; max-age=86400`;
+                    window.location.href = '/pages/explore.html';
                 }
             });
         })
@@ -67,7 +72,7 @@ document.getElementById('signInForm').addEventListener('submit', function (event
 
     const username = document.getElementById('signInUsername').value;
     const password = document.getElementById('signInPassword').value;
-    const regex = '^\d{7}[A-Za-z]$';
+    const regex = /^\d{7}[A-Za-z]$/;
 
     if (!username) return showError('Please enter your admission number.');
     if (!password) return showError('Please enter your password.');

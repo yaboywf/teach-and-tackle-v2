@@ -38,3 +38,11 @@ checkSwipeGesture();
 window.addEventListener("resize", checkSwipeGesture);
 
 aside.querySelectorAll(".fa-edit").forEach(icon => icon.addEventListener("click", () => window.location.href = "profile.html"));
+
+const idToken = getCookie("id_token");
+const decodeToken = decodeJWT(idToken);
+
+if (decodeToken.name) {
+    document.querySelector(".user").textContent = decodeToken.name;
+}
+console.log(decodeToken);

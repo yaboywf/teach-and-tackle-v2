@@ -13,6 +13,8 @@ const exploreStudentTemplate = `
     </div>
 `
 
+if (!isAuthenticated()) window.location.href = "/pages/login.html";
+
 exploreContainer.addEventListener("click", (e) => {
     const target = e.target;
     if (target.classList.contains("fa-link")) {
