@@ -41,7 +41,7 @@ window.addEventListener("resize", checkSwipeGesture);
 aside.querySelectorAll(".fa-edit").forEach(icon => icon.addEventListener("click", () => window.location.href = "profile.html"));
 
 // check if user is authenticated
-if (!isAuthenticated()) window.location.href = "/pages/login.html";
+if (!isAuthenticated()) window.location.href = "../pages/login.html";
 
 // get user's id token
 const idToken = getCookie("id_token");
