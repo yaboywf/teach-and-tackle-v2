@@ -17,7 +17,7 @@ async function signInUser(username, password) {
 
             cognitoidentityserviceprovider.initiateAuth(params, (err, data) => {
                 if (err) {
-                    showError('Error: ' + err.message);
+                    showMessage('Error: ' + err.message);
                 } else {
                     if (data.ChallengeName === 'NEW_PASSWORD_REQUIRED') {
                         handleNewPasswordChallenge(data.Session, username, password);
@@ -74,9 +74,9 @@ document.getElementById('signInForm').addEventListener('submit', function (event
     const password = document.getElementById('signInPassword').value;
     const regex = /^\d{7}[A-Za-z]$/;
 
-    if (!username) return showError('Please enter your admission number.');
-    if (!password) return showError('Please enter your password.');
-    if (!username.match(regex)) return showError('Please enter a valid admission number.');
+    if (!username) return showMessage('Please enter your admission number.');
+    if (!password) return showMessage('Please enter your password.');
+    if (!username.match(regex)) return showMessage('Please enter a valid admission number.');
 
     signInUser(username, password);
 });

@@ -20,13 +20,13 @@ body.addEventListener("click", (e) => {
 
             // delete pair from backend
             axios.delete(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/pairs/delete-pair?id=${encodeURIComponent(deletingPairId)}`, { headers: { "authorization": `Bearer ${getCookie("id_token")}` } })
-            .then(resp => {
-                showError(resp.data.message, "success");
-            })
-            .catch(err => {
-                console.error(err);
-                showError("Failed to delete pair");
-            });
+                .then(resp => {
+                    showMessage(resp.data.message, "success");
+                })
+                .catch(err => {
+                    console.error(err);
+                    showMessage("Failed to delete pair");
+                });
 
             // delete pair from frontend
             confirmation.style.display = "none";
@@ -57,11 +57,11 @@ body.addEventListener("click", (e) => {
 const getUser = async (adminNum) => {
     try {
         // backend to ensure that the only peoplw who can delete the pair is user within the pair
-        const resp = await axios.get(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/account/account-information?id=${encodeURIComponent(adminNum.toUpperCase())}`, { headers: {"authorization": `Bearer ${getCookie("id_token")}`} });
+        const resp = await axios.get(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/account/account-information?id=${encodeURIComponent(adminNum.toUpperCase())}`, { headers: { "authorization": `Bearer ${getCookie("id_token")}` } });
         return resp.data;
     } catch (err) {
         console.error(err);
-        showError("Failed to fetch user");
+        showMessage("Failed to fetch user");
         return null;
     }
 }
@@ -129,6 +129,6 @@ const getUser = async (adminNum) => {
         }
     } catch (err) {
         console.error(err);
-        showError("Failed to fetch pairs");
+        showMessage("Failed to fetch pairs");
     }
 })();
