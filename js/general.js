@@ -103,3 +103,13 @@ function decodeJWT(token) {
         return null;
     }
 }
+
+/**
+ * Function to convert a day number to a day name
+ * @param {number} dayNumber - The day number to convert
+ * @returns {string} - The day name
+ */
+function dayNumberToName(dayNumber) {
+    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    return days[dayNumber] ?? "Invalid day";
+};

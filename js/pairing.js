@@ -56,7 +56,7 @@ body.addEventListener("click", (e) => {
  */
 const getUser = async (adminNum) => {
     try {
-        // backend to ensure that the only peoplw who can delete the pair is user within the pair
+        // backend to ensure that the only people who can delete the pair is user within the pair
         const resp = await axios.get(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/account/account-information?id=${encodeURIComponent(adminNum.toUpperCase())}`, { headers: { "authorization": `Bearer ${getCookie("id_token")}` } });
         return resp.data;
     } catch (err) {
@@ -73,12 +73,6 @@ const getUser = async (adminNum) => {
                 "authorization": `Bearer ${getCookie("id_token")}`
             }
         });
-
-        // convert day number to day name
-        const dayNumberToName = (dayNumber) => {
-            const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-            return days[dayNumber] ?? "Invalid day";
-        };
 
         // extract module short form from module name
         const extractModuleName = (moduleName) => {
