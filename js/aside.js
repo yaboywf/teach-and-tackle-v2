@@ -37,12 +37,42 @@ function checkSwipeGesture() {
 checkSwipeGesture();
 window.addEventListener("resize", checkSwipeGesture);
 
+// Add event listeners for editing user proficiency
 aside.querySelectorAll(".fa-edit").forEach(icon => icon.addEventListener("click", () => window.location.href = "profile.html"));
 
+// check if user is authenticated
+if (!isAuthenticated()) window.location.href = "/pages/login.html";
+
+// get user's id token
 const idToken = getCookie("id_token");
 const decodeToken = decodeJWT(idToken);
 
+// show the user's name in the aside
 if (decodeToken.name) {
     document.querySelector(".user").textContent = decodeToken.name;
 }
-console.log(decodeToken);
+
+// show the user's proficiency
+axios.get("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/proficiency/user-proficiency", { headers: { "authorization": `Bearer ${idToken}` } })
+.then(resp => {
+    const strength = resp.data.filter(record => record.type === 1);
+    const weakness = resp.data.filter(record => record.type === 2);
+    
+    const formattedHTML = (moduleName) => {
+        return `<li title='${moduleName}'>${moduleName}</li>`;
+    }
+    
+    strength.map(proficiency => {
+        const format = formattedHTML(proficiency.module);
+        document.getElementById("strength_content").insertAdjacentHTML("beforeend", format)
+    })
+
+    weakness.map(proficiency => {
+        const format = formattedHTML(proficiency.module);
+        document.getElementById("weakness_content").insertAdjacentHTML("beforeend", format)
+    })
+})
+.catch(err => {
+    showError("Failed to fetch user's proficiency");
+    console.error(err)
+});
