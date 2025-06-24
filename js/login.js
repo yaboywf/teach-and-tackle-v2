@@ -98,7 +98,7 @@ loginContainer.addEventListener("click", (e) => {
     }
 })
 
-if (isAuthenticated()) window.location.href = "../pages/explore.html";
+if (isAuthenticated()) window.location.href = "./explore.html";
 
 // login
 // username: dylanyeowf@gmail.com
