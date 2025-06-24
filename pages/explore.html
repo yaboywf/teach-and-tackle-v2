@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,11 +24,11 @@
     <link rel="stylesheet" href="../styles/explore.css">
     <link rel="stylesheet" href="../styles/general.css">
 
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="../js/general.js"></script>
     <script src="../js/aside.js" defer></script>
     <script src="../js/explore.js" defer></script>
 </head>
-
 <body>
     <aside>
         <img src="../images/logo.webp" alt="Logo">
@@ -39,23 +38,17 @@
                     <div id="strength">Mentor Others</div>
                     <i class="fa-solid fa-edit" tabindex="0"></i>
                 </div>
-                <ul>
-                    <li title="Logic and Mathematics (LOMA)">Logic and Mathematics (LOMA)</li>
-                    <li title="Database Application Development (DBAV)">Database Application Development (DBAV)</li>
-                </ul>
+                <ul id="strength_content"></ul>
             </div>
             <div class="category">
                 <div>
                     <div id="weakness">Knowledge Wishlist</div>
                     <i class="fa-solid fa-edit" tabindex="0"></i>
                 </div>
-                <ul id="weakness_content">
-                    <li title="Mobile Application Development (MBAP)">Mobile Application Development (MBAP)</li>
-                    <li title="Network and Cloud Technology (NECT)">Network and Cloud Technology (NECT)</li>
-                </ul>
+                <ul id="weakness_content"></ul>
             </div>
         </div>
-        <a href="profile.html" class="user">Geng Yue</a>
+        <a href="profile.html" class="user"></a>
     </aside>
 
     <main>
@@ -86,5 +79,4 @@
         </div>
     </main>
 </body>
-
 </html>
