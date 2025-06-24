@@ -14,11 +14,14 @@
     <link rel="stylesheet" href="../styles/general.css">
     <link rel="shortcut icon" href="../images/favicon.ico" type="image/x-icon">
 
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="../js/general.js"></script>
     <script src="../js/aside.js" defer></script>
     <script src="../js/pairing.js" defer></script>
 </head>
-
 <body>
+    <div class="error_container"></div>
+
     <aside>
         <img src="../images/logo.webp" alt="Logo">
         <div>
@@ -27,20 +30,14 @@
                     <div id="strength">Mentor Others</div>
                     <i class="fa-solid fa-edit" tabindex="0"></i>
                 </div>
-                <ul>
-                    <li title="Logic and Mathematics (LOMA)">Logic and Mathematics (LOMA)</li>
-                    <li title="Database Application Development (DBAV)">Database Application Development (DBAV)</li>
-                </ul>
+                <ul id="strength_content"></ul>
             </div>
             <div class="category">
                 <div>
                     <div id="weakness">Knowledge Wishlist</div>
                     <i class="fa-solid fa-edit" tabindex="0"></i>
                 </div>
-                <ul id="weakness_content">
-                    <li title="Mobile Application Development (MBAP)">Mobile Application Development (MBAP)</li>
-                    <li title="Network and Cloud Technology (NECT)">Network and Cloud Technology (NECT)</li>
-                </ul>
+                <ul id="weakness_content"></ul>
             </div>
         </div>
         <a href="profile.html" class="user">Geng Yue</a>
@@ -54,71 +51,7 @@
         </nav>
 
         <div class="pairing_container">
-            <div class="pair">
-                <span>Unlink</span>
-                <div class="student_info">
-                    <p style="--year: '2'">Geng Yue</p>
-                    <p>1234567A@student.tp.edu.sg</p>
-                    <p>Diploma in Information Technology</p>
-                </div>
-
-                <div class="pair_info">
-                    <i class="fa-solid fa-link"></i>
-                    <p>Friday</p>
-                    <p>0830 - 1000</p>
-                    <p>MBAP</p>
-                </div>
-
-                <div class="student_info">
-                    <p style="--year: '1'">Alex Taylor</p>
-                    <p>Alex_Taylor@student.tp.edu.sg</p>
-                    <p>Diploma in Applied Artificial Intelligence</p>
-                </div>
-            </div>
-
-            <div class="pair">
-                <span>Unlink</span>
-                <div class="student_info">
-                    <p style="--year: '2'">Geng Yue</p>
-                    <p>1234567A@student.tp.edu.sg</p>
-                    <p>Diploma in Information Technology</p>
-                </div>
-
-                <div class="pair_info">
-                    <i class="fa-solid fa-link"></i>
-                    <p>Monday</p>
-                    <p>1600 - 1700</p>
-                    <p>LOMA</p>
-                </div>
-
-                <div class="student_info">
-                    <p style="--year: '1'">Jordan Lee</p>
-                    <p>1234567A@student.tp.edu.sg</p>
-                    <p>Diploma in Big Data & Analytics</p>
-                </div>
-            </div>
-
-            <div class="pair">
-                <span>Unlink</span>
-                <div class="student_info">
-                    <p style="--year: '2'">Geng Yue</p>
-                    <p>1234567A@student.tp.edu.sg</p>
-                    <p>Diploma in Information Technology</p>
-                </div>
-
-                <div class="pair_info">
-                    <i class="fa-solid fa-link"></i>
-                    <p>Wednesday</p>
-                    <p>1600 - 1730</p>
-                    <p>MBAP</p>
-                </div>
-
-                <div class="student_info">
-                    <p style="--year: '2'">Morgan Chen</p>
-                    <p>1234567A@student.tp.edu.sg</p>
-                    <p>Diploma in Big Data & Analytics</p>
-                </div>
-            </div>
+            <div class="spinner"></div>
         </div>
     </main>
 
@@ -133,5 +66,4 @@
         </div>
     </div>
 </body>
-
 </html>

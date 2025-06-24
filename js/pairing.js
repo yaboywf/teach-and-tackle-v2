@@ -1,5 +1,6 @@
 const body = document.body;
 let deletingPair;
+let deletingPairId;
 
 body.addEventListener("click", (e) => {
     const target = e.target;
@@ -11,14 +12,23 @@ body.addEventListener("click", (e) => {
         case "unlink":
             deletingPair = target.closest(".pair");
             if (!deletingPair) break;
+            deletingPairId = deletingPair.getAttribute("id");
             confirmation.style.display = "flex";
             break;
         case "yes":
+            if (!deletingPair || !deletingPairId) break;
+
             // delete pair from backend
-            // insert fetch request for unlinking
+            axios.delete(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/pairs/delete-pair?id=${encodeURIComponent(deletingPairId)}`, { headers: { "authorization": `Bearer ${getCookie("id_token")}` } })
+            .then(resp => {
+                showError(resp.data.message, "success");
+            })
+            .catch(err => {
+                console.error(err);
+                showError("Failed to delete pair");
+            });
 
             // delete pair from frontend
-            if (!deletingPair) break;
             confirmation.style.display = "none";
             deletingPair.remove();
 
@@ -38,3 +48,87 @@ body.addEventListener("click", (e) => {
             break;
     }
 })
+
+/**
+ * Fetches user data
+ * @param {*} adminNum - Admin number of the user
+ * @returns {object | null}
+ */
+const getUser = async (adminNum) => {
+    try {
+        // backend to ensure that the only peoplw who can delete the pair is user within the pair
+        const resp = await axios.get(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/account/account-information?id=${encodeURIComponent(adminNum.toUpperCase())}`, { headers: {"authorization": `Bearer ${getCookie("id_token")}`} });
+        return resp.data;
+    } catch (err) {
+        console.error(err);
+        showError("Failed to fetch user");
+        return null;
+    }
+}
+
+(async () => {
+    try {
+        const resp = await axios.get("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/pairs/users-pairs", {
+            headers: {
+                "authorization": `Bearer ${getCookie("id_token")}`
+            }
+        });
+
+        // convert day number to day name
+        const dayNumberToName = (dayNumber) => {
+            const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            return days[dayNumber] ?? "Invalid day";
+        };
+
+        // extract module short form from module name
+        const extractModuleName = (moduleName) => {
+            const match = moduleName.match(/\(([^)]+)\)/);
+            const result = match ? match[1] : null;
+            return result;
+        }
+
+        // show a pair HTML via a template
+        const showPair = (currentUserData, otherUserData, pairInfo) => {
+            return `
+                <div class="pair" id="${pairInfo.pair_id}">
+                    <span>Unlink</span>
+                    <div class="student_info">
+                        <p style="--year: '${currentUserData?.year_of_study}'">${currentUserData?.name}</p>
+                        <p>${currentUserData?.student_id}@student.tp.edu.sg</p>
+                        <p>${currentUserData?.diploma}</p>
+                    </div>
+
+                    <div class="pair_info">
+                        <i class="fa-solid fa-link"></i>
+                        <p>${dayNumberToName(pairInfo.day)}</p>
+                        <p>${pairInfo.start_time} - ${pairInfo.end_time}</p>
+                        <p>${extractModuleName(pairInfo.module)}</p>
+                    </div>
+
+                    <div class="student_info">
+                        <p style="--year: '${otherUserData?.year_of_study}'">${otherUserData?.name}</p>
+                        <p>${otherUserData?.student_id}@student.tp.edu.sg</p>
+                        <p>${otherUserData?.diploma}</p>
+                    </div>
+                </div>
+            `;
+        };
+
+        const currentUsername = decodeToken["cognito:username"].toUpperCase();
+        document.querySelector(".pairing_container").innerHTML = '';
+
+        for (const pair of resp.data) {
+            const otherUser = pair.receiver_id.toUpperCase() === currentUsername ? pair.sender_id : pair.receiver_id;
+            const currentUserData = await getUser(currentUsername);
+            const otherUserData = await getUser(otherUser);
+
+            if (currentUserData && otherUserData) {
+                const html = showPair(currentUserData, otherUserData, pair);
+                document.querySelector(".pairing_container").innerHTML += html;
+            }
+        }
+    } catch (err) {
+        console.error(err);
+        showError("Failed to fetch pairs");
+    }
+})();
