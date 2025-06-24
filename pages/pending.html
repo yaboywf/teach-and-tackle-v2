@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,11 +14,14 @@
     <link rel="shortcut icon" href="../images/favicon.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="../images/favicon.ico">
 
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="../js/general.js"></script>
     <script src="../js/aside.js" defer></script>
     <script src="../js/pending.js" defer></script>
 </head>
-
 <body>
+    <div class="error_container"></div>
+
     <aside>
         <img src="../images/logo.webp" alt="Logo">
         <div>
@@ -28,23 +30,17 @@
                     <div id="strength">Mentor Others</div>
                     <i class="fa-solid fa-edit" tabindex="0"></i>
                 </div>
-                <ul>
-                    <li title="Logic and Mathematics (LOMA)">Logic and Mathematics (LOMA)</li>
-                    <li title="Database Application Development (DBAV)">Database Application Development (DBAV)</li>
-                </ul>
+                <ul id="strength_content"></ul>
             </div>
             <div class="category">
                 <div>
                     <div id="weakness">Knowledge Wishlist</div>
                     <i class="fa-solid fa-edit" tabindex="0"></i>
                 </div>
-                <ul id="weakness_content">
-                    <li title="Mobile Application Development (MBAP)">Mobile Application Development (MBAP)</li>
-                    <li title="Network and Cloud Technology (NECT)">Network and Cloud Technology (NECT)</li>
-                </ul>
+                <ul id="weakness_content"></ul>
             </div>
         </div>
-        <a href="profile.html" class="user">Geng Yue</a>
+        <a href="profile.html" class="user"></a>
     </aside>
 
     <main>
@@ -55,63 +51,16 @@
         </nav>
 
         <div class="pending_container">
-            <div>
+            <div id="received_container">
                 <p id="received">Received</p>
-                <div class="request">
-                    <div class="student_info">
-                        <p style="--year: '2'">Sammy Syntax</p>
-                        <p>1234567A@student.tp.edu.sg</p>
-                        <p>Diploma in Information Technology</p>
-                    </div>
-                    <div class="request_info">
-                        <p>Application Development Project (ADEV)</p>
-                        <p>Tuesday | 1400 - 1600</p>
-                    </div>
-                    <div class="request_button received">
-                        <button>Accept</button>
-                        <button>Decline</button>
-                    </div>
-                </div>
-
-                <div class="request">
-                    <div class="student_info">
-                        <p style="--year: '1'">Wade Wilson</p>
-                        <p>1234567A@student.tp.edu.sg</p>
-                        <p>Diploma in Big Data & Analytics</p>
-                    </div>
-                    <div class="request_info">
-                        <p>Logic and Mathematics (LOMA)</p>
-                        <p>Friday | 1000 - 1200</p>
-                    </div>
-                    <div class="request_button received">
-                        <button>Accept</button>
-                        <button>Decline</button>
-                    </div>
-                </div>
+                <div class="spinner"></div>
             </div>
             <div class="line"></div>
-            <div>
+            <div id="sent_container">
                 <p id="sent">Sent</p>
-                <div class="request">
-                    <div class="student_info">
-                        <p style="--year: '2'">Patty Cake</p>
-                        <p>1234567A@student.tp.edu.sg</p>
-                        <p>Diploma in Information Technology</p>
-                    </div>
-                    <div class="request_info">
-                        <p>Mobile Application Development (MBAP)</p>
-                        <p>Monday | 1600 - 1700</p>
-                    </div>
-                    <div class="request_button sent">
-                        <button>Edit</button>
-                        <button>Withdraw</button>
-                    </div>
-                </div>
+                <div class="spinner"></div>
             </div>
         </div>
     </main>
-
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </body>
-
 </html>
