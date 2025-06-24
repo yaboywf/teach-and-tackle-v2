@@ -48,10 +48,36 @@ body > main {
     padding: 10px 15px;
     animation: errorAnimation 5s ease-in-out forwards;
 }
+.success {
+    background: green !important;
+}
 .error::before {
     font: var(--fa-font-solid);
     content: "\f06a";
     color: white;
+}
+.spinner {
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.spinner::before {
+    content: "";
+    height: 60px;
+    width: 60px;
+    border-radius: 50%;
+    border-top: 5px solid black !important;
+    border: 5px solid transparent;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 @keyframes errorAnimation {
     0% {
