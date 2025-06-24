@@ -6,13 +6,15 @@
     overflow: auto;
     flex: 1;
 }
-.profile_container > div {
+.profile_container > div, .profile_container > form {
     border: 1px solid black;
     border-radius: 20px;
+    display: flex;
+    flex-direction: column;
     padding: 15px;
     transition: box-shadow 0.2s ease;
 }
-.profile_container > div:hover {
+.profile_container > div:hover, .profile_container > form:hover {
     box-shadow: 1px 1px 10px black;
 }
 .profile_container h2 {
@@ -24,13 +26,13 @@
 .profile_container h3 {
     font-size: 17px;
 }
-.profile_container > div > div {
+.profile_container > div > div:not(.profile_proficiency), .profile_container > form > div {
     display: grid;
     grid-template-columns: max-content max-content;
     gap: 10px;
     align-items: center;
 }
-.profile_container > div p:nth-child(odd), .profile_container > div > div > label {
+.profile_container > div p:nth-child(odd), .profile_container > div > div > label, .profile_container > form > div > label, .profile_container > form p {
     font-weight: bold;
 }
 .profile_container input {
@@ -56,8 +58,54 @@
 .profile_container button {
     padding: 5px 10px;
     margin-left: auto;
+    margin-top: 10px;
     border-radius: 10px;
     cursor: pointer;
     border: 1px solid black;
-    width: 100px;
+    min-width: 100px;
+}
+.profile_container button#delete {
+    background-color: rgb(235, 0, 0);
+    color: white;
+    margin-top: 0;
+}
+.profile_container .profile_proficiency {
+    padding: 10px 0;
+    font-size: 13px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.profile_container .profile_proficiency span {
+    padding: 5px 8px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    width: max-content;
+    background: lightgrey;
+    border-radius: 20px;
+}
+.profile_container .profile_proficiency span::after {
+    font: var(--fa-font-solid);
+    content: "\f00d";
+    cursor: pointer;
+    font-size: 16px;
+}
+.profile_container .profile_proficiency input {
+    width: 180px;
+    padding: 5px 8px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    width: max-content;
+    border: none;
+    background: lightgrey;
+    border-radius: 20px;
+}
+.profile_container #delete_container {
+    display: flex;
+    align-items: center;
+}
+.profile_container #delete_container p {
+    font-weight: normal;
 }

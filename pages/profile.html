@@ -12,10 +12,15 @@
     <link rel="stylesheet" href="../styles/icons.css">
     <link rel="stylesheet" href="../styles/profile.css">
 
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1076.0.min.js"></script>
+    <script src="../js/general.js"></script>
     <script src="../js/aside.js" defer></script>
+    <script src="../js/profile.js" defer></script>
 </head>
-
 <body>
+    <div class="error_container"></div>
+
     <aside>
         <img src="../images/logo.webp" alt="Logo">
         <div>
@@ -24,23 +29,17 @@
                     <div id="strength">Mentor Others</div>
                     <i class="fa-solid fa-edit" tabindex="0"></i>
                 </div>
-                <ul>
-                    <li title="Logic and Mathematics (LOMA)">Logic and Mathematics (LOMA)</li>
-                    <li title="Database Application Development (DBAV)">Database Application Development (DBAV)</li>
-                </ul>
+                <ul id="strength_content"></ul>
             </div>
             <div class="category">
                 <div>
                     <div id="weakness">Knowledge Wishlist</div>
                     <i class="fa-solid fa-edit" tabindex="0"></i>
                 </div>
-                <ul id="weakness_content">
-                    <li title="Mobile Application Development (MBAP)">Mobile Application Development (MBAP)</li>
-                    <li title="Network and Cloud Technology (NECT)">Network and Cloud Technology (NECT)</li>
-                </ul>
+                <ul id="weakness_content"></ul>
             </div>
         </div>
-        <a href="profile.html" class="user">Geng Yue</a>
+        <a href="profile.html" class="user"></a>
     </aside>
 
     <main>
@@ -50,56 +49,76 @@
             <a href="pairing.html" title="Pairing Page">Pairing</a>
         </nav>
 
-        <form class="profile_container">
+        <div class="profile_container">
             <div>
                 <h2>User Profile</h2>
                 <div>
                     <p>Name:</p>
-                    <p>Geng Yue</p>
+                    <p id="name"></p>
                     <p>Admission Number:</p>
-                    <p>1234567A</p>
+                    <p id="admission_number"></p>
                 </div>
             </div>
 
-            <div>
+            <form id="general_form" novalidate>
                 <h2>General</h2>
                 <div>
                     <label for="diploma">Diploma</label>
-                    <input type="text" name="diploma" id="diploma" placeholder="Enter Your Diploma" value="Diploma in Information Technology">
+                    <input type="text" name="diploma" id="diploma" placeholder="Enter Your Diploma" autocomplete="off" required>
                     <p>Year of Study</p>
                     <div>
-                        <input type="radio" name="year" id="y1" checked>
+                        <input type="radio" name="year" id="y1" required>
                         <label for="y1">Year 1</label>
-                        <input type="radio" name="year" id="y2">
+                        <input type="radio" name="year" id="y2" required>
                         <label for="y2">Year 2</label>
-                        <input type="radio" name="year" id="y3">
+                        <input type="radio" name="year" id="y3" required>
                         <label for="y3">Year 3</label>
                     </div>
                 </div>
-            </div>
+                <button type="submit">Save</button>
+            </form>
 
             <div>
                 <h2>Modules Proficiency</h2>
                 <h3>Mentor Others</h3>
-                <div></div>
+                <div class="profile_proficiency">
+                    <input class="profile_proficiency_input" type="text" name="new_strength" id="new_strength" placeholder="Enter Module" autocomplete="off">
+                </div>
 
                 <h3>Knowledge Wishlist</h3>
-                <div></div>
-            </div>
-
-            <div>
-                <h2>Change Password</h2>
-                <div>
-                    <label for="new_password">New Password</label>
-                    <input type="password" name="new_password" id="new_password" placeholder="Enter New Password">
-                    <label for="confirm_password">Confirm Password</label>
-                    <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm New Password">
+                <div class="profile_proficiency">
+                    <input class="profile_proficiency_input" type="text" name="new_weakness" id="new_weakness" placeholder="Enter Module" autocomplete="off">
                 </div>
             </div>
 
-            <button type="submit">Save</button>
-        </form>
+            <form id="password_form">
+                <h2>Change Password</h2>
+                <div>
+                    <input type="text" name="username" id="username" hidden autocomplete="username">
+                    <label for="current_password">Current Password</label>
+                    <input type="password" name="current_password" id="current_password" placeholder="Enter Current Password" autocomplete="current-password">
+                    <label for="new_password">New Password</label>
+                    <input type="password" name="new_password" id="new_password" placeholder="Enter New Password" autocomplete="new-password">
+                    <label for="confirm_password">Confirm Password</label>
+                    <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm New Password" autocomplete="off">
+                </div>
+
+                <button type="submit">Save</button>
+            </form>
+
+            <div>
+                <h2>Account</h2>
+                <button id="logout">Logout</button>
+            </div>
+
+            <div>
+                <h2>Danger Zone</h2>
+                <div id="delete_container">
+                    <p>This will permanently delete your account</p>
+                    <button type="button" id="delete">Delete Account</button>
+                </div>
+            </div>
+        </div>
     </main>
 </body>
-
 </html>
