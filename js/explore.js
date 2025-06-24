@@ -11,9 +11,7 @@ const exploreStudentTemplate = `
             <i class="fa-solid fa-link"></i>
         </div>
     </div>
-`
-
-if (!isAuthenticated()) window.location.href = "/pages/login.html";
+`;
 
 exploreContainer.addEventListener("click", (e) => {
     const target = e.target;
