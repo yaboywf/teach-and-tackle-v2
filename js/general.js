@@ -4,13 +4,14 @@
  * @param {string} message - The error message to show
  * @returns {void}
  */
-function showError(message) {
+function showError(message, type="error") {
     const errorContainer = document.querySelector(".error_container");
     if (!errorContainer) return console.error("Error container not found");
     if (!message) return console.error("Error message not provided");
     
     const error = document.createElement("div");
     error.classList.add("error");
+    if (type === "success") error.classList.add("success");
     error.textContent = message;
     errorContainer.appendChild(error);
 
