@@ -68,11 +68,7 @@ const getUser = async (adminNum) => {
 
 (async () => {
     try {
-        const resp = await axios.get("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/pairs/users-pairs", {
-            headers: {
-                "authorization": `Bearer ${getCookie("id_token")}`
-            }
-        });
+        const resp = await axios.get("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/pairs/user-pairs", { headers: { "authorization": `Bearer ${getCookie("id_token")}` }});
 
         // extract module short form from module name
         const extractModuleName = (moduleName) => {
@@ -110,6 +106,11 @@ const getUser = async (adminNum) => {
 
         const currentUsername = decodeToken["cognito:username"].toUpperCase();
         document.querySelector(".pairing_container").innerHTML = '';
+
+        if (resp.data.length === 0) {
+            const emptyText = `<p>No current pairings</p>`;
+            document.querySelector(".pairing_container").insertAdjacentHTML("beforeend", emptyText);
+        }
 
         for (const pair of resp.data) {
             const otherUser = pair.receiver_id.toUpperCase() === currentUsername ? pair.sender_id : pair.receiver_id;
