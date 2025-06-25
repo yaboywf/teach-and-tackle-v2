@@ -38,7 +38,7 @@ checkSwipeGesture();
 window.addEventListener("resize", checkSwipeGesture);
 
 // Add event listeners for editing user proficiency
-aside.querySelectorAll(".fa-edit").forEach(icon => icon.addEventListener("click", () => window.location.href = "profile.html"));
+aside.querySelectorAll(".fa-edit").forEach(icon => icon.addEventListener("click", () => window.location.href = "profile.html#modules_proficiency"));
 
 // check if user is authenticated
 if (!isAuthenticated()) window.location.href = "../pages/login.html";
@@ -61,6 +61,9 @@ axios.get("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/proficienc
         const formattedHTML = (moduleName) => {
             return `<li title='${moduleName}'>${moduleName}</li>`;
         }
+
+        if (strength.length === 0) document.getElementById("strength_content").textContent = "No strength modules";
+        if (weakness.length === 0) document.getElementById("weakness_content").textContent = "No weakness modules";
 
         strength.map(proficiency => {
             const format = formattedHTML(proficiency.module);
