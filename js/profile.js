@@ -1,6 +1,8 @@
 const profileContainer = document.querySelector(".profile_container");
 let inputFocused = false;
 let isFormDirty = false;
+let strength = [];
+let weakness = [];
 
 // Logout by clearing cookies
 document.getElementById("logout").addEventListener("click", () => {
@@ -15,21 +17,39 @@ document.getElementById("logout").addEventListener("click", () => {
  * @param {*} module - event
  * @returns {string}
  */
-async function addNewModule(e) {
+async function addNewModule(e, type) {
     const value = e.target.value;
     const moduleName = value.trim();
 
     if (!moduleName.includes("(") && !moduleName.includes(")")) return showMessage("Invalid module format");
 
     const words = await axios.get("https://raw.githubusercontent.com/zacanger/profane-words/master/words.json");
-    console.log(words);
-    const isProfane = words.data.some(badWord => moduleName.toLowerCase().includes(badWord));
+    const isProfane = words.data.some(badWord => {
+        const regex = new RegExp(`\\b${badWord.toLowerCase()}\\b`, 'i');
+        return regex.test(moduleName.toLowerCase());
+    });
 
     if (isProfane) return showMessage("Module name is profane");
-    
-    const newHTML = `<span>${moduleName}</span>`;
-    e.target.insertAdjacentHTML("beforebegin", newHTML);
-    e.target.value = "";
+
+    fetch(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/proficiency/new?type=${encodeURIComponent(type)}&name=${encodeURIComponent(moduleName)}`, {
+        method: "POST",
+        headers: {
+            "authorization": `Bearer ${getCookie("id_token")}`
+        }
+    })
+    .then(resp => resp.json())
+    .then(resp => {
+        console.log(resp);
+        showMessage(resp?.message || "Module added", "success");
+        isFormDirty = false;
+        const newHTML = `<span id="${resp.id}">${moduleName}</span>`;
+        e.target.insertAdjacentHTML("beforebegin", newHTML);
+        e.target.value = "";
+    })
+    .catch(err => {
+        console.error(err);
+        showMessage("Failed to add module");
+    })
 }
 
 // Display user information
@@ -47,31 +67,31 @@ axios.get(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/account/ac
 .catch(err => {
     showMessage("Failed to fetch user information");
     console.error(err);
-})  
+})
 
 // Fetch user proficiency
 axios.get("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/proficiency/user-proficiency", { headers: { "authorization": `Bearer ${getCookie("id_token")}` } })
 .then(resp => {
-    const strength = resp.data.filter(record => record.type === 1);
-    const weakness = resp.data.filter(record => record.type === 2);
+    strength = resp.data.filter(record => record.type === 1);
+    weakness = resp.data.filter(record => record.type === 2);
 
-    const formattedHTML = (moduleName) => {
-        return `<span>${moduleName}</span>`;
+    const formattedHTML = (moduleName, moduleId) => {
+        return `<span id="${moduleId}">${moduleName}</span>`;
     }
 
     strength.map(proficiency => {
-        const format = formattedHTML(proficiency.module);
+        const format = formattedHTML(proficiency.module, proficiency.proficiency_id);
         document.getElementById("new_strength").insertAdjacentHTML("beforebegin", format)
     })
 
     weakness.map(proficiency => {
-        const format = formattedHTML(proficiency.module);
+        const format = formattedHTML(proficiency.module, proficiency.proficiency_id);
         document.getElementById("new_weakness").insertAdjacentHTML("beforebegin", format)
     })
 })
 .catch(err => {
     showMessage("Failed to fetch user information");
-    console.error(err)
+    console.error(err);
 })
 
 // Add new module on frontend on enter key
@@ -79,7 +99,12 @@ profileContainer.addEventListener("keydown", (e) => {
     const key = e.key;
 
     if (key === "Enter" && inputFocused && e.target.value !== "") {
-        addNewModule(e);
+        const type = e.target.getAttribute("id").split("_")[1];
+        const array = type === "strength" ? strength : weakness;
+        const otherArray = type === "strength" ? weakness : strength;
+        if (array.find(record => record.module === e.target.value)) return showMessage("Module already exists");
+        if (otherArray.find(record => record.module === e.target.value)) return showMessage("Module already exists in the other proficiency");
+        addNewModule(e, type === "strength" ? 1 : 2);
     }
 })
 
@@ -97,6 +122,22 @@ document.querySelectorAll(".profile_proficiency_input").forEach(input => {
 profileContainer.addEventListener("input", () => {
     isFormDirty = true;
 });
+
+profileContainer.addEventListener("click", (e) => {
+    if (e.target.tagName.toLowerCase() === "span") {
+        const moduleId = e.target.getAttribute("id");
+        axios.delete(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/proficiency/remove?id=${encodeURIComponent(moduleId)}`, { headers: { "authorization": `Bearer ${getCookie("id_token")}` }})
+        .then(() => {
+            e.target.remove();
+            showMessage("Module removed", "success");
+            isFormDirty = false;
+        })
+        .catch(err => {
+            console.error(err);
+            showMessage("Failed to remove module");
+        })
+    }
+})
 
 // Check if form is dirty (there is input)
 window.addEventListener("beforeunload", (event) => {

@@ -28,7 +28,7 @@
 }
 .profile_container > div > div:not(.profile_proficiency), .profile_container > form > div {
     display: grid;
-    grid-template-columns: max-content max-content;
+    grid-template-columns: max-content 1fr;
     gap: 10px;
     align-items: center;
 }
@@ -40,7 +40,6 @@
     border-bottom: 1px solid black;
     padding: 8px 0;
     outline: none;
-    width: 500px;
 }
 .profile_container input[type='radio'] {
     display: none;
@@ -80,6 +79,7 @@
     padding: 5px 8px;
     display: flex;
     gap: 15px;
+    cursor: pointer;
     align-items: center;
     width: max-content;
     background: lightgrey;
@@ -88,7 +88,6 @@
 .profile_container .profile_proficiency span::after {
     font: var(--fa-font-solid);
     content: "\f00d";
-    cursor: pointer;
     font-size: 16px;
 }
 .profile_container .profile_proficiency input {
