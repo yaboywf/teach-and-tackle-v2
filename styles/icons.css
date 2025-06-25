@@ -58,3 +58,12 @@
 .fa-plus::before {
     content: "\f067"
 }
+.fa-graduation-cap::before {
+    content: "\f19d"
+}
+.fa-id-card::before {
+    content: "\f2c2"
+}
+.fa-key::before {
+    content: "\f084"
+}
