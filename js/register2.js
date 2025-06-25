@@ -12,7 +12,7 @@ async function confirmEmail(confirmationCode) {
         const params = {
             ClientId: "2lave0d420lofl9ead9h87mi41",
             SecretHash: secretHash,
-            Username: admin_number,
+            Username: admin_number.toUpperCase(),
             ConfirmationCode: confirmationCode
         };
 

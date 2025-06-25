@@ -8,11 +8,12 @@ async function signUp(adminNumber, name, password, yearOfStudy, diploma) {
         const params = {
             ClientId: "2lave0d420lofl9ead9h87mi41",
             SecretHash: secretHash,
-            Username: adminNumber,
+            Username: adminNumber.toUpperCase(),
             Password: password,
             UserAttributes: [
                 { Name: 'name', Value: name },
-                { Name: 'email', Value: "dylanyeowf@gmail.com" }
+                { Name: 'email', Value: "dylanyeowf@gmail.com" },
+                { Name: 'email', Value: `${adminNumber.toUpperCase()}@student.tp.edu.sg` }
             ]
         };
 

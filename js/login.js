@@ -102,7 +102,3 @@ loginContainer.addEventListener("click", (e) => {
 })
 
 if (isAuthenticated()) window.location.href = "./explore.html";
-
-// login
-// username: dylanyeowf@gmail.com
-// password: Yousuck1!
