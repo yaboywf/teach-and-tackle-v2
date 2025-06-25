@@ -30,6 +30,10 @@ async function signInUser(username, password) {
                 }
             });
         })
+        .catch(err => {
+            console.error('Error calculating SECRET_HASH:', err);
+            showMessage('Error calculating secret hash');
+        });
 };
 
 // After initial login attempt, check if the challenge is NEW_PASSWORD_REQUIRED
@@ -60,8 +64,7 @@ function handleNewPasswordChallenge(session, username, newPassword) {
         })
         .catch(err => {
             console.error('Error calculating SECRET_HASH:', err);
-            document.getElementById('errorMessage').style.display = 'block';
-            document.getElementById('errorMessage').textContent = 'Error calculating secret hash';
+            showMessage('Error calculating secret hash');
         });
 }
 

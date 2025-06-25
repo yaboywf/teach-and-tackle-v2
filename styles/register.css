@@ -1,0 +1,111 @@
+.register {
+    display: flex;
+}
+.register .bg {
+    background: url(../images/register.webp) center/cover no-repeat;
+    width: 60%;
+    flex-shrink: 0;
+    padding: 10px;
+    mask-image: linear-gradient(to right, rgba(0,0,0,1) 93%, rgba(0,0,0,0));
+    -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,1) 93%, rgba(0,0,0,0));
+}
+.register form {
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+    padding: 40px;
+    gap: 10px;
+}
+.register input {
+    flex: 1;
+    width: 100%;
+    padding: 5px 0;
+    border: none;
+    font-size: 14px;
+    background: transparent;
+    outline: none;
+}
+.register form div {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    border-bottom: 1px solid black;
+}
+.register form > label, .register p {
+    font-size: 16px;
+    font-weight: bold;
+}
+.register img {
+    user-select: none;
+    height: 130px;
+    object-fit: contain;
+    user-select: none;
+    padding-bottom: 10px;
+    margin-bottom: 50px;
+}
+.register button {
+    padding: 8px 30px;
+    border-radius: 10px;
+    border: 1px solid #d3d3d3;
+    background: #ececec;
+    font-size: 14px;
+    cursor: pointer;
+    width: max-content;
+    margin-left: auto;
+}
+.register a {
+    color: black;
+    font-size: 13px;
+    text-align: center;
+    gap: 5px;
+}
+.register form div:has(input[type="radio"]) {
+    border-bottom: none;
+}
+.register form input[type="number"]::-webkit-inner-spin-button,
+.register form input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+}
+.register input[type="radio"] {
+    display: none;
+}
+.register input[type="radio"]:checked + label {
+    background: lightgrey;
+}
+.register input[type="radio"] + label {
+    background: transparent;
+    text-align: center;
+    padding: 3px 8px;
+    border-radius: 10px;
+    border: 1px solid black;
+    cursor: pointer;
+    font-size: 13px;
+}
+.fa-eye-slash, .fa-eye {
+    cursor: pointer;
+    width: 30px;
+    display: flex !important;
+    justify-content: center;
+}
+@media screen and (max-width: 800px) {
+    .register form {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 80%;
+        border-radius: 20px;
+        transform: translate(-50%, -50%);
+        background: rgba(255, 255, 255, 0.8);
+        padding: 30px;
+    }
+    .register .bg {
+        width: 100%;
+        padding: 0 !important;
+        mask-image: none;
+        -webkit-mask-image: none;
+    }
+    .register img {
+        margin-bottom: 30px;
+    }
+}
