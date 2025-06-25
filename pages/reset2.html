@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Teach & Tackle">
+    <title>Teach & Tackle | Forget Password</title>
+    <link rel="stylesheet" href="../styles/register.css">
+    <link rel="stylesheet" href="../styles/general.css">
+    <link rel="stylesheet" href="../styles/icons.css">
+    <link rel="shortcut icon" href="../images/favicon.ico" type="image/x-icon">
+    
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1076.0.min.js"></script>
+    <script src="../js/general.js"></script>
+    <script src="../js/reset2.js" defer></script>
+</head>
+<body class="register">
+    <div class="error_container"></div>
+    <div class="bg"></div>
+    <form id="signupForm" novalidate>
+        <img src="../images/logo.webp" alt="Logo" id="image">
+        <input type="text" id="username" autocomplete="username" hidden>
+
+        <label for="code">A code was sent to your email</label>
+        <div>
+            <i class="fa-solid fa-key"></i>
+            <input type="number" id="code" placeholder="Enter Code" autocomplete="off" required min="0" max="999999" minlength="6" maxlength="6">
+        </div>
+
+        <label for="new_password">New Password</label>
+        <div>
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="new_password" placeholder="Enter Password" autocomplete="new-password" required>
+            <i class="fa-solid fa-eye-slash" id="eyeIcon"></i>
+        </div>
+
+        <label for="confirm_password">Confirm Password</label>
+        <div>
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="confirm_password" placeholder="Enter Password" autocomplete="off" required>
+        </div>
+
+        <button type="submit">Next</button>
+    </form>
+</body>
+</body>
+</html>
