@@ -3,62 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <meta name="description" content="Teach & Tackle">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>Teach & Tackle | Explore</title>
+    <link rel="shortcut icon" href="../images/favicon.ico" type="image/x-icon">
+    <link rel="manifest" href="../manifest.json">
+    <link rel="stylesheet" href="../styles/aside.css">
+    <link rel="stylesheet" href="../styles/nav.css">
+    <link rel="stylesheet" href="../styles/icons.css">
+    <link rel="stylesheet" href="../styles/general.css">
+	<link rel="stylesheet" href="../styles/session.css">
+
+	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+	<script src="../js/general.js"></script>
+	<script src="../js/aside.js" defer></script>
+	<script src="../js/session.js" defer></script>
 </head>
 <body>
-    <div class="request_container">
-		<form action="" id="request_form" class="request_form" method="post" novalidate> <!-- Link to backend to request to student (client) -->
-			<i class="fa-solid fa-xmark"></i>
-			<p>Request Pair</p>
-	
-			<strong><p>Basic Information (Mentor)</p></strong>
-			<label for="request_name">Name</label>
-			<input type="text" name="name" id="request_name" required readonly autocomplete="off">
-	
-			<label for="request_email">Email</label>
-			<input type="email" name="email" id="request_email" required readonly autocomplete="off">
-	
-			<strong><p>Basic Information (Mentee)</p></strong>
-			<label for="request_name1">Name</label>
-			<input type="text" name="name1" id="request_name1" required readonly value="Geng Yue">
-	
-			<label for="request_email1">Email</label>
-			<input type="email" name="email1" id="request_email1" required readonly value="Geng_Yue@student.tp.edu.sg">
-	
-			<strong><p>Time Slot</p></strong>
-			<select id="request_day" required>
-				<option value="Monday">Monday</option>
-				<option value="Tuesday">Tuesday</option>
-				<option value="Wednesday">Wednesday</option>
-				<option value="Thursday">Thursday</option>
-				<option value="Friday">Friday</option>
-				<option value="Saturday">Saturday</option>
-				<option value="Sunday">Sunday</option>
-			</select>
-			<div>
-				<input type="time" id="request_time_start" value="08:00" min="08:00" max="22:30" step="1800">
-				<p>to</p>
-				<input type="time" id="request_time_end" value="09:00" min="08:00" max="22:30" step="1800">
+	<div class="error_container"></div>
+	<aside>
+        <img src="../images/logo.webp" alt="Logo">
+        <div>
+            <div class="category">
+                <div>
+                    <div id="strength">Mentor Others</div>
+                    <i class="fa-solid fa-edit" tabindex="0"></i>
+                </div>
+                <ul id="strength_content"></ul>
+            </div>
+            <div class="category">
+                <div>
+                    <div id="weakness">Knowledge Wishlist</div>
+                    <i class="fa-solid fa-edit" tabindex="0"></i>
+                </div>
+                <ul id="weakness_content"></ul>
+            </div>
+        </div>
+        <a href="profile.html" class="user"></a>
+    </aside>
+
+    <main>
+		<nav>
+            <a href="explore.html" title="Explore Page">Explore</a>
+            <a href="pending.html" title="Pending Page">Pending</a>
+            <a href="pairing.html" title="Pairing Page">Pairing</a>
+        </nav>
+
+		<form id="request_form" class="request_form" novalidate>
+			<h2>Student Information</h2>
+			<div class="student_info">
+				<p>Name</p>
+				<p id="name"></p>
+				<p>Admission Number</p>
+				<p id="admission_number"></p>
+				<p>Diploma</p>
+				<p id="diploma"></p>
 			</div>
-			<p class="form_error fr3"></p>
-	
-			<strong><p>I Want to Mentor</p></strong>
-	
-			<div id="module_strength_checkboxes">
-				<input type="checkbox" id="nil" checked>
-				<label for="nil">None</label>
+
+			<h2>Module</h2>
+			<div class="module">
+				<input type="radio" id="module_a" value="module_a" name="module">
+				<label for="module_a">module a</label>
+				<input type="radio" id="module_b" value="module_b" name="module">
+				<label for="module_b">module b</label>
+				<input type="radio" id="module_c" value="module_c" name="module" disabled>
+				<label for="module_c">module c</label>
 			</div>
-			<p class="form_error fr1"></p>
-	
-			<strong><p>I Want to Learn</p></strong>
-			<div id="module_weakness_checkboxes">
-				<input type="checkbox" id="nil1" checked>
-				<label for="nil1">None</label>
+			
+			<h2>Session Day</h2>
+			<div class="day">
+				<input type="radio" id="monday" value="1" name="day" required>
+				<label for="monday">Monday</label>
+				<input type="radio" id="tuesday" value="2" name="day">
+				<label for="tuesday">Tuesday</label>
+				<input type="radio" id="wednesday" value="3" name="day">
+				<label for="wednesday">Wednesday</label>
+				<input type="radio" id="thursday" value="4" name="day">
+				<label for="thursday">Thursday</label>
+				<input type="radio" id="friday" value="5" name="day">
+				<label for="friday">Friday</label>
+				<input type="radio" id="saturday" value="6" name="day">
+				<label for="saturday">Saturday</label>
+				<input type="radio" id="sunday" value="7" name="day">
+				<label for="sunday">Sunday</label>
 			</div>
-			<p class="form_error fr2"></p>
 	
+			<h2>Session Time</h2>
+			<div class="time">
+				<p>From</p>
+				<input type="time" id="request_time_start" required>
+				<p>To</p>
+				<input type="time" id="request_time_end" required>
+			</div>
+
 			<button type="submit">Request</button>
 		</form>
-	</div>
+	</main>
 </body>
 </html>

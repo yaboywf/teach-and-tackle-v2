@@ -1,88 +1,114 @@
-function validate_time(time) {
-    const [hours, minutes] = time.split(":").map(Number);
-    return (hours >= 8 && hours <= 22) && (minutes === 0 || minutes === 30);
+const queryParams = new URLSearchParams(window.location.search);
+const pairId = queryParams.get("pairId");
+const adminNum = queryParams.get("adminNum");
+
+if ((!adminNum && !pairId) || (adminNum && adminNum === decodeToken["cognito:username"].toUpperCase())) {
+    window.location.href = "/pages/explore.html";
 }
 
-document.querySelector("#request_form").addEventListener("submit", (event) => {
-    event.preventDefault();
-    let pass_check = true;
+async function getData() {
+    if (adminNum) {
+        document.querySelector("button[type='submit']").textContent = "Request";
 
-    const show_error = (id, message) => {
-        const error = document.querySelector(id);
-        error.textContent = message;
-        error.style.display = "block";
-    }
+        axios.get(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/account/account-information?id=${encodeURIComponent(adminNum.toUpperCase())}`)
+        .then(resp => {
+            console.log(resp.data);
+            document.getElementById("name").textContent = resp.data.name;
+            document.getElementById("admission_number").textContent = resp.data.student_id.toUpperCase();
+            document.getElementById("diploma").textContent = resp.data.diploma;
+        })
+        .catch(err => {
+            console.error(err);
+            showMessage("Failed to fetch user information");
+        })
 
-    const strength = event.target.querySelectorAll("div:nth-of-type(2) > input[type='checkbox']:not(#nil)");
-    const weakness = event.target.querySelectorAll("div:nth-of-type(3) > input[type='checkbox']:not(#nil1)");
-    const start = document.getElementById("request_time_start").value;
-    const end = document.getElementById("request_time_end").value;
+        document.getElementById("request_form").addEventListener("submit", (e) => {
+            e.preventDefault();
 
-    if (!document.getElementById("nil").checked && !Array.from(strength).some(checkbox => checkbox.checked)) {
-        show_error(".fr1", "Please select at least one option");
-        pass_check = false;
-    }
+            const module = document.querySelector('input[name="module"]:checked');
+            const day = document.querySelector('input[name="day"]:checked');
+            const startTime = document.getElementById('request_time_start').value;
+            const endTime = document.getElementById('request_time_end').value;
 
-    if (!document.getElementById("nil1").checked && !Array.from(weakness).some(checkbox => checkbox.checked)) {
-        show_error(".fr2", "Please select at least one option");
-        pass_check = false;
-    }
+            if (!module) return showMessage("Please select a module");
+            if (!day) return showMessage("Please select a day");
+            if (startTime === "") return showMessage("Please select a start time");
+            if (endTime === "") return showMessage("Please select an end time");
+            if (!e.target.checkValidity()) return;
 
-    if (!validate_time(start) || !validate_time(end)) {
-        show_error(".fr3", "Time must be between 08:00 and 22:30 and in 30 minute intervals");
-        pass_check = false;
-    }
+            const data = {
+                receiver_id: adminNum.toUpperCase(),
+                module: module.value,
+                day: day.value,
+                start_time: startTime,
+                end_time: endTime
+            };
 
-    if (start >= end) {
-        show_error(".fr3", "Invalid time range");
-        pass_check = false;
-    }
-
-    if (document.getElementById("nil").checked && document.getElementById("nil1").checked) {
-        show_error(".fr1", "Select at least one module from strength or weakness");
-        show_error(".fr2", "Select at least one module from strength or weakness");
-        pass_check = false;
-    }
-
-    if (pass_check) {
-        const get_value = (id) => document.getElementById(id).value;
-        const [name, email, day] = ["request_name", "request_email", "request_day"].map(get_value);
-        const mentor = Array.from(document.querySelectorAll("#module_strength_checkboxes > input:not(#nil):checked")).map(checkbox => checkbox.id);
-        const mentee = Array.from(document.querySelectorAll("#module_weakness_checkboxes > input:not(#nil1):checked")).map(checkbox => checkbox.id);
-        const clone = document.importNode(document.getElementById("pending_template").content, true).querySelector(".student2");;
-        clone.querySelector("p:nth-of-type(1)").textContent = name;
-        clone.querySelector("p:nth-of-type(2)").textContent = email;
-        clone.querySelector("p:nth-of-type(3)").innerHTML = request_diploma;
-        clone.querySelector("div:nth-of-type(2) > div:nth-of-type(1)").textContent = `${day}, ${start} - ${end}`;
-        const modules = (type, class_name) => {
-            type.forEach(module => {
-                const div = document.createElement("div");
-                div.classList.add(class_name);
-                div.textContent = module;
-                clone.querySelector("div:nth-of-type(2) > div:nth-of-type(2)").appendChild(div);
+            axios.post("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/request/new-request", data, { headers: { "authorization": `Bearer ${getCookie("id_token")}` } })
+            .then(resp => {
+                showMessage(resp.data?.message, "success");
+                window.location.href = "/pages/pending.html";
             })
+            .catch(err => {
+                console.error(err);
+                showMessage("Failed to create new request");
+            })
+        })
+    } else if (pairId) {
+        try {
+            document.querySelector("button[type='submit']").textContent = "Update";
+
+            const requests = await axios.get("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/request/user-requests", { headers: { "authorization": `Bearer ${getCookie("id_token")}` }, params: { id: pairId }})
+            const pair = requests.data.find(pair => pair.pair_id == Number(pairId))
+            if (!pair) window.location.href = "/pages/pending.html";
+            const user = await axios.get(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/account/account-information?id=${encodeURIComponent(pair.receiver_id.toUpperCase())}`, { headers: { "authorization": `Bearer ${getCookie("id_token")}` } });
+            if (user) {
+                document.getElementById("name").textContent = user.data.name;
+                document.getElementById("admission_number").textContent = pair.receiver_id.toUpperCase();
+                document.getElementById("diploma").textContent = user.data.diploma;
+            }
+            document.querySelector(`.day input[value='${pair.day}']`).checked = true;
+            document.querySelector(`.module input[value='${pair.module}']`).checked = true;
+            document.getElementById("request_time_start").value = pair.start_time;
+            document.getElementById("request_time_end").value = pair.end_time;
+        } catch(err) {
+            console.error(err);
+            showMessage("Failed to fetch pair information");
         }
-        modules(mentor, "student_strength");
-        modules(mentee, "student_weakness");
-        const container = document.querySelector(".request_container");
-        document.querySelector("#pending_container > div:nth-of-type(2)").appendChild(clone);
-        container.style.opacity = "0";
-        container.addEventListener("transitionend", () => { container.style.display = "none"; }, { once: true })
+
+        document.getElementById("request_form").addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            const module = document.querySelector('input[name="module"]:checked');
+            const day = document.querySelector('input[name="day"]:checked');
+            const startTime = document.getElementById('request_time_start').value;
+            const endTime = document.getElementById('request_time_end').value;
+
+            if (!module) return showMessage("Please select a module");
+            if (!day) return showMessage("Please select a day");
+            if (startTime === "") return showMessage("Please select a start time");
+            if (endTime === "") return showMessage("Please select an end time");
+            if (!e.target.checkValidity()) return;
+
+            const data = {
+                pair_id: pairId,
+                module: module.value,
+                day: day.value,
+                start_time: startTime,
+                end_time: endTime
+            };
+
+            axios.put("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/request/update-request-details", data, { headers: { "authorization": `Bearer ${getCookie("id_token")}` } })
+            .then(resp => {
+                showMessage(resp.data?.message, "success");
+                setTimeout(() => window.location.href = "/pages/pending.html", 3000);
+            })
+            .catch(err => {
+                console.error(err);
+                showMessage("Failed to update request");
+            })
+        })
     }
-})
+}
 
-document.querySelector(".request_form > div:nth-of-type(1) > input").addEventListener("change", () => {
-    document.querySelector(".request_form > .form_error.fr3").style.display = "none";
-})
-
-document.querySelector("#request_form > .fa-xmark").addEventListener("click", () => {
-    const container = document.querySelector(".request_container");
-    const errors = document.querySelectorAll(".form_error");
-    const checkboxesHTML = "<input type='checkbox' id='{id}' checked><label for='{id}'>None</label>";
-    container.style.opacity = "0";
-    document.getElementById("module_weakness_checkboxes").innerHTML = checkboxesHTML.replace(/{id}/g, "nil1");
-    document.getElementById("module_strength_checkboxes").innerHTML = checkboxesHTML.replace(/{id}/g, "nil");
-    ["request_time_start", "request_time_end"].forEach(id => document.getElementById(id).value = "08:00");
-    errors.forEach(error => error.style.display = "none");
-    container.addEventListener("transitionend", () => container.style.display = "none", { once: true });
-})
+getData();

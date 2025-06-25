@@ -1,0 +1,123 @@
+.request_form {
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: auto;
+}
+.request_form h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+.request_form h2:not(:first-of-type) {
+    margin-top: 20px;
+}
+.request_form .student_info {
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+    gap: 5px 20px;
+    align-items: center;
+}
+.request_form .student_info p:nth-of-type(odd) {
+    font-weight: bold;
+}
+.request_form .day, .request_form .time {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.request_form .day input {
+    display: none;
+}
+.request_form .day input + label {
+    border: 1px solid black;
+    border-radius: 20px;
+    padding: 5px 8px;
+    cursor: pointer;
+    min-width: 100px;
+    text-align: center;
+    font-size: 14px;
+}
+.request_form .day input:checked + label {
+    background: lightgrey;
+}
+.request_form input[type='time'] {
+    border: none;
+    outline: none;
+    border-bottom: 1px solid black;
+    padding: 5px 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+.request_form button {
+    padding: 5px 10px;
+    margin-left: auto;
+    margin-top: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 1px solid black;
+    min-width: 100px;
+}
+.request_form .module {
+    display: flex;
+    gap: 5px;
+}
+.request_form .module input {
+    display: none;
+}
+.request_form .module input + label {
+    border: 1px solid black;
+    border-radius: 20px;
+    padding: 5px 8px;
+    cursor: pointer;
+    flex-direction: column;
+    min-width: 200px;
+    min-height: 120px;
+    text-align: center;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: box-shadow 0.3s ease-in-out;
+}
+.request_form .module input + label:hover {
+    box-shadow: 1px 1px 10px black;
+}
+.request_form .module input:disabled + label {
+    cursor: not-allowed;
+}
+.request_form .module input:disabled + label::after {
+    margin-top: 5px;
+    content: "Module not in proficiency list";
+    font-size: 12px;
+    color: red;
+}
+.request_form .module input:disabled + label::after {
+    margin-top: 5px;
+    content: "Module not in proficiency list";
+    font-size: 12px;
+    color: red;
+}
+.request_form .module input:checked + label {
+    background: lightgrey;
+}
+@media screen and (max-width: 550px) {
+    .request_form .student_info {
+        grid-template-columns: 1fr !important;
+    }
+    .request_form .time {
+        flex-direction: column;
+        align-items: start;
+        gap: 5px;
+    }
+    .request_form .time p {
+        font-weight: bold;
+    }
+    .request_form .time p:nth-of-type(2) {
+        margin-top: 10px;
+    }
+    .request_form .time input {
+        width: 100%;
+    }
+}

@@ -53,7 +53,7 @@ if (decodeToken.name) {
 }
 
 // show the user's proficiency
-axios.get("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/proficiency/user-proficiency", { headers: { "authorization": `Bearer ${idToken}` } })
+axios.get(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/proficiency/user-proficiency?id=${decodeToken["cognito:username"].toUpperCase()}`)
     .then(resp => {
         const strength = resp.data.filter(record => record.type === 1);
         const weakness = resp.data.filter(record => record.type === 2);

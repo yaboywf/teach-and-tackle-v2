@@ -146,7 +146,7 @@ pendingContainer.addEventListener("click", (e) => {
 
             break;
         case "edit":
-            window.location.href = `session.html?id=${encodeURIComponent(pairId)}`;
+            window.location.href = `session.html?pairId=${encodeURIComponent(pairId)}`;
             break;
         default:
             break;
