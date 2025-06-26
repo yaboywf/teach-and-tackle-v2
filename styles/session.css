@@ -72,8 +72,8 @@
     padding: 5px 8px;
     cursor: pointer;
     flex-direction: column;
-    min-width: 200px;
-    min-height: 120px;
+    width: 200px;
+    height: 120px;
     text-align: center;
     font-size: 16px;
     display: flex;

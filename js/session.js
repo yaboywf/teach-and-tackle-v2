@@ -11,16 +11,50 @@ async function getData() {
         document.querySelector("button[type='submit']").textContent = "Request";
 
         axios.get(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/account/account-information?id=${encodeURIComponent(adminNum.toUpperCase())}`)
-        .then(resp => {
-            console.log(resp.data);
-            document.getElementById("name").textContent = resp.data.name;
-            document.getElementById("admission_number").textContent = resp.data.student_id.toUpperCase();
-            document.getElementById("diploma").textContent = resp.data.diploma;
-        })
-        .catch(err => {
+            .then(resp => {
+                document.getElementById("name").textContent = resp.data.name;
+                document.getElementById("admission_number").textContent = resp.data.student_id.toUpperCase();
+                document.getElementById("diploma").textContent = resp.data.diploma;
+            })
+            .catch(err => {
+                console.error(err);
+                showMessage("Failed to fetch user information");
+            })
+
+        try {
+            let otherUserProficiency = await axios.get(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/proficiency/user-proficiency?id=${encodeURIComponent(adminNum.toUpperCase())}`)
+            let currentUserProficiency = await axios.get(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/proficiency/user-proficiency?id=${encodeURIComponent(decodeToken["cognito:username"].toUpperCase())}`);
+            
+            otherUserProficiency = otherUserProficiency.data.map(proficiency => {
+                return {
+                    module: proficiency.module,
+                    type: proficiency.type
+                }
+            })
+
+            currentUserProficiency = currentUserProficiency.data.map(proficiency => {
+                return {
+                    module: proficiency.module,
+                    type: proficiency.type
+                }
+            })
+
+            otherUserProficiency.map(proficiency => {
+                let failed = false;
+                const currentModule = currentUserProficiency.find(p => p.module === proficiency.module);
+                if (!currentModule || currentModule.type === proficiency.type) failed = true;
+
+                const newModule = `
+                    <input type="radio" id="${proficiency.module}" value="${proficiency.module}" name="module" ${failed ? "disabled" : ""}>
+                    <label for="${proficiency.module}">${proficiency.module}</label>
+                `;
+                document.querySelector(".module").insertAdjacentHTML("beforeend", newModule);
+            })
+
+        } catch (err) {
             console.error(err);
-            showMessage("Failed to fetch user information");
-        })
+            showMessage("Failed to fetch user proficiency");
+        }
 
         document.getElementById("request_form").addEventListener("submit", (e) => {
             e.preventDefault();
@@ -45,20 +79,20 @@ async function getData() {
             };
 
             axios.post("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/request/new-request", data, { headers: { "authorization": `Bearer ${getCookie("id_token")}` } })
-            .then(resp => {
-                showMessage(resp.data?.message, "success");
-                window.location.href = "/pages/pending.html";
-            })
-            .catch(err => {
-                console.error(err);
-                showMessage("Failed to create new request");
-            })
+                .then(resp => {
+                    showMessage(resp.data?.message, "success");
+                    window.location.href = "/pages/pending.html";
+                })
+                .catch(err => {
+                    console.error(err);
+                    showMessage("Failed to create new request");
+                })
         })
     } else if (pairId) {
         try {
             document.querySelector("button[type='submit']").textContent = "Update";
 
-            const requests = await axios.get("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/request/user-requests", { headers: { "authorization": `Bearer ${getCookie("id_token")}` }, params: { id: pairId }})
+            const requests = await axios.get("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/request/user-requests", { headers: { "authorization": `Bearer ${getCookie("id_token")}` }, params: { id: pairId } })
             const pair = requests.data.find(pair => pair.pair_id == Number(pairId))
             if (!pair) window.location.href = "/pages/pending.html";
             const user = await axios.get(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/account/account-information?id=${encodeURIComponent(pair.receiver_id.toUpperCase())}`, { headers: { "authorization": `Bearer ${getCookie("id_token")}` } });
@@ -67,11 +101,41 @@ async function getData() {
                 document.getElementById("admission_number").textContent = pair.receiver_id.toUpperCase();
                 document.getElementById("diploma").textContent = user.data.diploma;
             }
+
+            let otherUserProficiency = await axios.get(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/proficiency/user-proficiency?id=${encodeURIComponent(pair.receiver_id.toUpperCase())}`)
+            let currentUserProficiency = await axios.get(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/proficiency/user-proficiency?id=${encodeURIComponent(decodeToken["cognito:username"].toUpperCase())}`);
+            
+            otherUserProficiency = otherUserProficiency.data.map(proficiency => {
+                return {
+                    module: proficiency.module,
+                    type: proficiency.type
+                }
+            })
+
+            currentUserProficiency = currentUserProficiency.data.map(proficiency => {
+                return {
+                    module: proficiency.module,
+                    type: proficiency.type
+                }
+            })
+
+            otherUserProficiency.map(proficiency => {
+                let failed = false;
+                const currentModule = currentUserProficiency.find(p => p.module === proficiency.module);
+                if (!currentModule || currentModule.type === proficiency.type) failed = true;
+
+                const newModule = `
+                    <input type="radio" id="${proficiency.module}" value="${proficiency.module}" name="module" ${failed ? "disabled" : ""}>
+                    <label for="${proficiency.module}">${proficiency.module}</label>
+                `;
+                document.querySelector(".module").insertAdjacentHTML("beforeend", newModule);
+            })
+
             document.querySelector(`.day input[value='${pair.day}']`).checked = true;
             document.querySelector(`.module input[value='${pair.module}']`).checked = true;
             document.getElementById("request_time_start").value = pair.start_time;
             document.getElementById("request_time_end").value = pair.end_time;
-        } catch(err) {
+        } catch (err) {
             console.error(err);
             showMessage("Failed to fetch pair information");
         }
@@ -99,14 +163,14 @@ async function getData() {
             };
 
             axios.put("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/request/update-request-details", data, { headers: { "authorization": `Bearer ${getCookie("id_token")}` } })
-            .then(resp => {
-                showMessage(resp.data?.message, "success");
-                setTimeout(() => window.location.href = "/pages/pending.html", 3000);
-            })
-            .catch(err => {
-                console.error(err);
-                showMessage("Failed to update request");
-            })
+                .then(resp => {
+                    showMessage(resp.data?.message, "success");
+                    setTimeout(() => window.location.href = "/pages/pending.html", 3000);
+                })
+                .catch(err => {
+                    console.error(err);
+                    showMessage("Failed to update request");
+                })
         })
     }
 }
