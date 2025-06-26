@@ -178,6 +178,99 @@ async function changePassword(currentPassword, newPassword, accessToken, callbac
     }
 }
 
+/**
+ * Function to register in AWS Cognito
+ * @param {*} adminNumber 
+ * @param {*} name 
+ * @param {*} password 
+ */
+async function signUp(adminNumber, name, password, callback) {
+    try {
+        const secretHash = await calculateSecretHash(adminNumber);
+        const params = {
+            ClientId: "2lave0d420lofl9ead9h87mi41",
+            SecretHash: secretHash,
+            Username: adminNumber.toUpperCase(),
+            Password: password,
+            UserAttributes: [
+                { Name: 'name', Value: name },
+                { Name: 'email', Value: "dylanyeowf@gmail.com" },
+                // Uncomment in production
+                // { Name: 'email', Value: `${adminNumber.toUpperCase()}@student.tp.edu.sg` }
+            ]
+        };
+
+
+        await cognito.signUp(params).promise();
+        callback(null, {
+            statusCode: 200,
+            body: JSON.stringify({ "message": "User successfully registered" })
+        });
+    } catch (err) {
+        callback(null, {
+            statusCode: 500,
+            body: JSON.stringify(err)
+        });
+    };
+}
+
+/**
+ * Function to confirm email
+ * @param {*} confirmationCode 
+ */
+async function confirmEmail(adminNumber, confirmationCode, callback) {
+    try {
+        const secretHash = await calculateSecretHash(adminNumber);
+        const params = {
+            ClientId: "2lave0d420lofl9ead9h87mi41",
+            SecretHash: secretHash,
+            Username: adminNumber.toUpperCase(),
+            ConfirmationCode: confirmationCode
+        };
+
+        await cognito.confirmSignUp(params).promise();
+        callback(null, {
+            statusCode: 200,
+            body: JSON.stringify({ "message": "Email Confirmed" })
+        });
+    } catch (err) {
+        callback(null, {
+            statusCode: 500,
+            body: JSON.stringify(err)
+        });
+    }
+}
+
+/**
+ * Function to create a new password during the forget password flow
+ * @param {*} verificationCode 
+ * @param {*} newPassword 
+ * @param {*} adminNumber
+ */
+async function confirmForgotPassword(verificationCode, adminNumber, newPassword, callback) {
+    const secretHash = await calculateSecretHash(adminNumber);
+    const params = {
+        ClientId: '2lave0d420lofl9ead9h87mi41',
+        SecretHash: secretHash,
+        Username: adminNumber,
+        ConfirmationCode: verificationCode,
+        Password: newPassword,
+    };
+
+    try {
+        await cognito.confirmForgotPassword(params).promise();
+        callback(null, {
+            statusCode: 200,
+            body: JSON.stringify({ "message": "Password Reset" })
+        });
+    } catch (err) {
+        callback(null, {
+            statusCode: 500,
+            body: JSON.stringify(err)
+        });
+    }
+}
+
 exports.handler = (event, context, callback) => {
     let body;
     let jwt;
@@ -340,7 +433,7 @@ exports.handler = (event, context, callback) => {
 
                     cognito.initiateAuth(params, (err, data) => {
                         if (err) throw new Error("Error initiating auth:", err);
-                        
+
                         if (data.ChallengeName === 'NEW_PASSWORD_REQUIRED') {
                             handleNewPasswordChallenge(data.Session, body.username, body.password, callback);
                         } else {
@@ -365,7 +458,7 @@ exports.handler = (event, context, callback) => {
 
                 if (typeof body === "string") body = JSON.parse(body);
 
-                checkRequiredKeys(body, ["student_id", "name", "diploma", "year_of_study"], callback);
+                checkRequiredKeys(body, ["student_id", "name", "diploma", "year_of_study", "password"], callback);
 
                 var getParams = {
                     TableName: "users",
@@ -397,10 +490,8 @@ exports.handler = (event, context, callback) => {
 
                     dynamo.put(postParams, (err, data) => {
                         if (err) throw new Error(err)
-                        callback(null, {
-                            statusCode: 200,
-                            body: JSON.stringify({ message: "User successfully registered" })
-                        });
+
+                        signUp(body.student_id, body.name, body.password, callback);
                     });
                 });
             } catch (e) {
@@ -444,8 +535,44 @@ exports.handler = (event, context, callback) => {
                     body: JSON.stringify(err)
                 });
             }
-            
-            break; 
+
+            break;
+        case "POST /api/account/confirm-email":
+            try {
+                body = event.body;
+
+                if (typeof body === "string") body = JSON.parse(body);
+
+                checkRequiredKeys(body, ["username", "code"], callback);
+
+                confirmEmail(body.username, body.code, callback);
+
+                break;
+            } catch (err) {
+                callback(null, {
+                    statusCode: 500,
+                    body: JSON.stringify(err)
+                });
+            }
+
+            break;
+        case "POST /api/account/confirm-password":
+            try {
+                body = event.body;
+
+                if (typeof body === "string") body = JSON.parse(body);
+
+                checkRequiredKeys(body, ["username", "code", "password"], callback);
+
+                confirmForgotPassword(body.code, body.username, body.password, callback);
+            } catch (err) {
+                callback(null, {
+                    statusCode: 500,
+                    body: JSON.stringify(err)
+                });
+            }
+
+            break;
         default:
             if (!event.routeKey) {
                 callback(null, {
