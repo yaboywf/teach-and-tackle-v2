@@ -13,7 +13,8 @@ async function signUp(adminNumber, name, password, yearOfStudy, diploma) {
             UserAttributes: [
                 { Name: 'name', Value: name },
                 { Name: 'email', Value: "dylanyeowf@gmail.com" },
-                { Name: 'email', Value: `${adminNumber.toUpperCase()}@student.tp.edu.sg` }
+                // Uncomment in production
+                // { Name: 'email', Value: `${adminNumber.toUpperCase()}@student.tp.edu.sg` }
             ]
         };
 
