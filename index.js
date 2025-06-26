@@ -1,6 +1,152 @@
 const aws = require("aws-sdk");
 const dynamo = new aws.DynamoDB.DocumentClient();
 
+const ses = new aws.SES({
+    accessKeyId: 'AKIAR3ONUFZZAPO6S4FE',
+    secretAccessKey: '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',
+    region: 'ap-southeast-2'
+});
+
+const formatUnlinkEmail = (data) => {
+    return `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Pair Unlinked</title>
+        </head>
+        <body>
+            <style>
+                p, div {
+                    font-family: sans-serif;
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+                p {
+                    margin: 10px 0;
+                }
+                div > p {
+                    margin: 0;
+                    border-top: 1px solid black;
+                    border-left: 1px solid black;
+                    padding: 5px 20px;
+                }
+                div > p:nth-child(even) {
+                    border-right: 1px solid black;
+                }
+                div > p:nth-last-child(-n+2) {
+                    border-bottom: 1px solid black;
+                }
+                img {
+                    width: 170px;
+                }
+                div {
+                    display: grid;
+                    grid-template-columns: repeat(2, max-content);
+                    margin-bottom: 20px;
+                }
+            </style>
+        
+            <img src="https://i.ibb.co/YB2wsB5N/logo.webp" alt="logo">
+        
+            <p>Dear student,</p>
+        
+            <p>A pair was recently unlinked. Please check the details below:</p>
+        
+            <p style="font-weight: bold; margin-top: 20px;">Details</p>
+            <div>
+                <p>Pair ID</p>
+                <p>${data.pair_id}</p>
+        
+                <p>Users</p>
+                <p>${data.receiver_id} &amp; ${data.sender_id}</p>
+        
+                <p>Day</p>
+                <p>${data.day}</p>
+        
+                <p>Time</p>
+                <p>${data.start_time} - ${data.end_time}</p>
+            </div>
+        
+            <p>Best Regards,</p>
+            <p>Teach &amp; Tackle Team</p>
+        </body>
+        </html>
+    `;
+}
+
+const formatRequestAcceptedEmail = (data) => {
+    return `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Pair Request Accepted</title>
+        </head>
+        <body>
+            <style>
+                p, div {
+                    font-family: sans-serif;
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+                p {
+                    margin: 10px 0;
+                }
+                div > p {
+                    margin: 0;
+                    border-top: 1px solid black;
+                    border-left: 1px solid black;
+                    padding: 5px 20px;
+                }
+                div > p:nth-child(even) {
+                    border-right: 1px solid black;
+                }
+                div > p:nth-last-child(-n+2) {
+                    border-bottom: 1px solid black;
+                }
+                img {
+                    width: 170px;
+                }
+                div {
+                    display: grid;
+                    grid-template-columns: repeat(2, max-content);
+                    margin-bottom: 20px;
+                }
+            </style>
+
+            <img src="https://i.ibb.co/YB2wsB5N/logo.webp" alt="logo">
+
+            <p>Dear student,</p>
+
+            <p>A pair request was recently accepted. Please check the details below:</p>
+
+            <p style="font-weight: bold; margin-top: 20px;">Details</p>
+            <div>
+                <p>Pair ID</p>
+                <p>${data.pair_id}</p>
+
+                <p>Sent To</p>
+                <p>${data.receiver_id}</p>
+
+                <p>Day</p>
+                <p>${data.day}</p>
+
+                <p>Time</p>
+                <p>${data.start_time} - ${data.end_time}</p>
+            </div>
+
+            <p>Best Regards,</p>
+            <p>Teach &amp; Tackle Team</p>
+        </body>
+        </html>
+    `;
+}
+
 /**
  * Check required keys
  * 
@@ -77,7 +223,7 @@ exports.handler = (event, context, callback) => {
                         "#status": "status",
                     },
                     ExpressionAttributeValues: {
-                        ":user_id": userId,
+                        ":user_id": userId || "",
                         ":status": 2
                     }
                 };
@@ -101,7 +247,7 @@ exports.handler = (event, context, callback) => {
             } catch (err) {
                 callback(null, {
                     statusCode: 500,
-                    body: JSON.stringify(err.message)
+                    body: JSON.stringify({ error: err })
                 });
             }
 
@@ -147,6 +293,12 @@ exports.handler = (event, context, callback) => {
                         return;
                     }
 
+                    var deletingPair = data.Items[0];
+                    const sender = 'teachandtackle@gmail.com';
+                    // uncomment during production
+                    // const receipient = [`${data.Items[0].sender_id}@student.tp.edu.sg`, `${data.Items[0].receiver_id}@student.tp.edu.sg`];
+                    const receipient = ["dylanyeo918@gmail.com"];
+
                     var deleteParams = {
                         TableName: "pairs",
                         Key: {
@@ -157,52 +309,31 @@ exports.handler = (event, context, callback) => {
 
                     dynamo.delete(deleteParams, (err, data) => {
                         if (err) throw new Error(err);
-                        callback(null, {
-                            statusCode: 200,
-                            body: JSON.stringify({ message: "Pair successfully deleted" })
+
+                        const params = {
+                            Source: sender,
+                            Destination: {
+                                ToAddresses: receipient,
+                            },
+                            Message: {
+                                Subject: {
+                                    Data: "Pair Unlinked",
+                                },
+                                Body: {
+                                    Html: {
+                                        Data: formatUnlinkEmail(deletingPair),
+                                    }
+                                },
+                            },
+                        };
+
+                        ses.sendEmail(params, (err, data) => {
+                            if (err) throw new Error(err);
+                            callback(null, {
+                                statusCode: 200,
+                                body: JSON.stringify({ message: "Pair successfully deleted" })
+                            });
                         });
-                    });
-                });
-            } catch (err) {
-                callback(null, {
-                    statusCode: 500,
-                    body: JSON.stringify(err.message)
-                });
-            }
-
-            break;
-        case "POST /api/request/new-request":
-            try {
-                body = event.body;
-
-                if (typeof body === "string") body = JSON.parse(body);
-
-                checkRequiredKeys(body, ["receiver_id", "module", "day", "start_time", "end_time"], callback);
-                checkRequiredKeys(auth, ["authorization"], callback);
-
-                jwt = auth.authorization.split(" ")[1];
-                decoded = decodeJWT(jwt, callback);
-                userId = decoded["cognito:username"].toUpperCase();
-
-                var postParams = {
-                    TableName: "pairs",
-                    Item: {
-                        pair_id: Date.now(),
-                        sender_id: userId || "",
-                        receiver_id: body.receiver_id || "",
-                        module: body.module || "",
-                        day: Number(body.day) || 0,
-                        start_time: body.start_time || "",
-                        end_time: body.end_time || "",
-                        status: 1
-                    }
-                };
-
-                dynamo.put(postParams, (err, data) => {
-                    if (err) throw new Error(err);
-                    callback(null, {
-                        statusCode: 200,
-                        body: JSON.stringify({ message: "Request successfully created" })
                     });
                 });
             } catch (err) {
@@ -363,6 +494,12 @@ exports.handler = (event, context, callback) => {
                         return;
                     }
 
+                    var acceptingPair = data.Items[0];
+                    const sender = 'teachandtackle@gmail.com';
+                    // uncomment during production
+                    // const receipient = [`${data.Items[0].sender_id}@student.tp.edu.sg`];
+                    const receipient = ["dylanyeo918@gmail.com"];
+
                     var params = {
                         TableName: "pairs",
                         Key: {
@@ -380,10 +517,79 @@ exports.handler = (event, context, callback) => {
 
                     dynamo.update(params, (err, data) => {
                         if (err) throw new Error(err);
+
+                        const params = {
+                            Source: sender,
+                            Destination: {
+                                ToAddresses: receipient,
+                            },
+                            Message: {
+                                Subject: {
+                                    Data: "Pair Request Accepted",
+                                },
+                                Body: {
+                                    Html: {
+                                        Data: formatRequestAcceptedEmail(acceptingPair),
+                                    }
+                                },
+                            },
+                        };
+
                         callback(null, {
                             statusCode: 200,
-                            body: JSON.stringify({ message: "Pair status successfully updated" })
+                            body: JSON.stringify(formatRequestAcceptedEmail(acceptingPair))
                         });
+                        return;
+
+                        ses.sendEmail(params, (err, data) => {
+                            if (err) throw new Error(err);
+                            callback(null, {
+                                statusCode: 200,
+                                body: JSON.stringify({ message: "Pair status successfully updated" })
+                            });
+                        });
+                    });
+                });
+            } catch (err) {
+                callback(null, {
+                    statusCode: 500,
+                    body: JSON.stringify(err.message)
+                });
+            }
+
+            break;
+        case "POST /api/request/new-request":
+            try {
+                body = event.body;
+
+                if (typeof body === "string") body = JSON.parse(body);
+
+                checkRequiredKeys(body, ["receiver_id", "module", "day", "start_time", "end_time"], callback);
+                checkRequiredKeys(auth, ["authorization"], callback);
+
+                jwt = auth.authorization.split(" ")[1];
+                decoded = decodeJWT(jwt, callback);
+                userId = decoded["cognito:username"].toUpperCase();
+
+                var postParams = {
+                    TableName: "pairs",
+                    Item: {
+                        pair_id: Date.now(),
+                        sender_id: userId || "",
+                        receiver_id: body.receiver_id || "",
+                        module: body.module || "",
+                        day: Number(body.day) || 0,
+                        start_time: body.start_time || "",
+                        end_time: body.end_time || "",
+                        status: 1
+                    }
+                };
+
+                dynamo.put(postParams, (err, data) => {
+                    if (err) throw new Error(err);
+                    callback(null, {
+                        statusCode: 200,
+                        body: JSON.stringify({ message: "Request successfully created" })
                     });
                 });
             } catch (err) {
