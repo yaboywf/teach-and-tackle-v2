@@ -9,6 +9,20 @@ exploreContainer.addEventListener("click", (e) => {
     }
 })
 
+document.getElementById("searchBar").addEventListener("input", (e) => {
+    const value = e.target.value;
+    const students = Array.from(document.getElementsByClassName("explore_student"));
+
+    for (const student of students) {
+        const name = student.querySelector("p").textContent;
+        if (name.toLowerCase().includes(value.toLowerCase())) {
+            student.style.display = "block";
+        } else {
+            student.style.display = "none";
+        }
+    }
+})
+
 async function getData() {
     try {
         const proficiencies = await axios.get(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/proficiency/user-proficiency?id=${decodeToken["cognito:username"].toUpperCase()}`);
@@ -39,7 +53,7 @@ async function getData() {
                 });
 
                 const exploreStudentTemplate = `
-                    <div id='explore_student' adminNum="${userInfo.data.student_id}">
+                    <div id='explore_student' class="explore_student" adminNum="${userInfo.data.student_id}">
                         <div class="student_info">
                             <p style="--year: '${userInfo.data.year_of_study}'">${userInfo.data.name}</p>
                             <p>${userInfo.data.student_id}@student.tp.edu.sg</p>
