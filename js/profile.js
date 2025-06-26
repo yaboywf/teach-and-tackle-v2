@@ -39,7 +39,6 @@ async function addNewModule(e, type) {
     })
         .then(resp => resp.json())
         .then(resp => {
-            console.log(resp);
             showMessage(resp?.message || "Module added", "success");
             isFormDirty = false;
             const newHTML = `<span id="${resp.id}">${moduleName}</span>`;

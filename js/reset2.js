@@ -17,7 +17,6 @@ async function confirmForgotPassword(verificationCode, newPassword) {
 
     try {
         await cognito.confirmForgotPassword(params).promise();
-        console.log("Password successfully reset.");
         sessionStorage.removeItem("admin_number");
         showMessage("Password reset successfully. You will be redirected shortly", "success");
         setTimeout(() => window.location.href = "/pages/login.html", 3000);
