@@ -1,25 +1,6 @@
-AWS.config.update({ region: 'us-east-1' });
-const cognito = new AWS.CognitoIdentityServiceProvider();
-
 async function signUp(adminNumber, name, password, yearOfStudy, diploma) {
     try {
-        await axios.post("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/account/register", { student_id: adminNumber, diploma: diploma, name, year_of_study: yearOfStudy });
-        const secretHash = await calculateSecretHash(adminNumber);
-        const params = {
-            ClientId: "2lave0d420lofl9ead9h87mi41",
-            SecretHash: secretHash,
-            Username: adminNumber.toUpperCase(),
-            Password: password,
-            UserAttributes: [
-                { Name: 'name', Value: name },
-                { Name: 'email', Value: "dylanyeowf@gmail.com" },
-                // Uncomment in production
-                // { Name: 'email', Value: `${adminNumber.toUpperCase()}@student.tp.edu.sg` }
-            ]
-        };
-
-        
-        await cognito.signUp(params).promise();
+        await axios.post("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/account/register", { student_id: adminNumber, diploma, password, name, year_of_study: yearOfStudy });
         window.location.href = '/pages/register2.html';
     } catch(err) {
         console.error(err);
