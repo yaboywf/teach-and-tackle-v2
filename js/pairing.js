@@ -96,9 +96,9 @@ const getUser = async (adminNum) => {
                     </div>
 
                     <div class="student_info">
-                        <p style="--year: '${otherUserData?.year_of_study}'">${otherUserData?.name}</p>
-                        <p>${otherUserData?.student_id}@student.tp.edu.sg</p>
-                        <p>${otherUserData?.diploma}</p>
+                        <p style="--year: '${otherUserData?.year_of_study || "?"}'">${otherUserData?.name || "Deleted User"}</p>
+                        <p>${otherUserData?.student_id || "????????"}@student.tp.edu.sg</p>
+                        <p>${otherUserData?.diploma || "Diploma Unknown"}</p>
                     </div>
                 </div>
             `;
@@ -114,11 +114,16 @@ const getUser = async (adminNum) => {
 
         for (const pair of resp.data) {
             const otherUser = pair.receiver_id.toUpperCase() === currentUsername ? pair.sender_id : pair.receiver_id;
-            const currentUserData = await getUser(currentUsername);
-            const otherUserData = await getUser(otherUser);
+            const [currentUserData, otherUserData] = await Promise.allSettled([
+                getUser(currentUsername),
+                getUser(otherUser)
+            ]);
 
-            if (currentUserData && otherUserData) {
-                const html = showPair(currentUserData, otherUserData, pair);
+            const current = currentUserData.status === "fulfilled" ? currentUserData.value : null;
+            const other = otherUserData.status === "fulfilled" ? otherUserData.value : null;
+
+            if (current) {
+                const html = showPair(current, other, pair);
                 document.querySelector(".pairing_container").innerHTML += html;
             }
         }

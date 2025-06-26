@@ -9,11 +9,11 @@ let profile = {};
 async function getUser(adminNum) {
     try {
         const resp = await axios.get(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/account/account-information?id=${encodeURIComponent(adminNum.toUpperCase())}`, { headers: { "authorization": `Bearer ${getCookie("id_token")}` } });
-        return resp.data;
+        return resp.data || {};
     } catch (err) {
         console.error(err);
         showMessage("Failed to fetch user information");
-        return null;
+        return {};
     }
 }
 
@@ -30,9 +30,9 @@ axios.get("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/request/us
         return `
             <div class="request" id="${request.pair_id}">
                 <div class="student_info">
-                    <p style="--year: '${otherUser?.year_of_study}'">${otherUser?.name}</p>
-                    <p>${otherUser?.student_id}@student.tp.edu.sg</p>
-                    <p>${otherUser?.diploma}</p>
+                    <p style="--year: '${otherUser.year_of_study || "?"}'">${otherUser?.name || "Deleted User"}</p>
+                    <p>${otherUser.student_id || "????????"}@student.tp.edu.sg</p>
+                    <p>${otherUser.diploma || "Diploma Unknown"}</p>
                 </div>
                 <div class="request_info">
                     <p>${request.module}</p>
@@ -51,9 +51,9 @@ axios.get("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/request/us
         return `
             <div class="request" id="${request.pair_id}">
                 <div class="student_info">
-                    <p style="--year: '${otherUser?.year_of_study}'">${otherUser?.name}</p>
-                    <p>${otherUser?.student_id}@student.tp.edu.sg</p>
-                    <p>${otherUser?.diploma}</p>
+                    <p style="--year: '${otherUser.year_of_study || "?"}'">${otherUser?.name || "Deleted User"}</p>
+                    <p>${otherUser.student_id || "????????"}@student.tp.edu.sg</p>
+                    <p>${otherUser.diploma || "Diploma Unknown"}</p>
                 </div>
                 <div class="request_info">
                     <p>${request.module}</p>

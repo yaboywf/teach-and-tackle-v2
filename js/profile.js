@@ -37,19 +37,19 @@ async function addNewModule(e, type) {
             "authorization": `Bearer ${getCookie("id_token")}`
         }
     })
-    .then(resp => resp.json())
-    .then(resp => {
-        console.log(resp);
-        showMessage(resp?.message || "Module added", "success");
-        isFormDirty = false;
-        const newHTML = `<span id="${resp.id}">${moduleName}</span>`;
-        e.target.insertAdjacentHTML("beforebegin", newHTML);
-        e.target.value = "";
-    })
-    .catch(err => {
-        console.error(err);
-        showMessage("Failed to add module");
-    })
+        .then(resp => resp.json())
+        .then(resp => {
+            console.log(resp);
+            showMessage(resp?.message || "Module added", "success");
+            isFormDirty = false;
+            const newHTML = `<span id="${resp.id}">${moduleName}</span>`;
+            e.target.insertAdjacentHTML("beforebegin", newHTML);
+            e.target.value = "";
+        })
+        .catch(err => {
+            console.error(err);
+            showMessage("Failed to add module");
+        })
 }
 
 // Display user information
@@ -60,39 +60,39 @@ if (decodeToken) {
 
 // Fetch user information
 axios.get(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/account/account-information?id=${decodeToken["cognito:username"].toUpperCase()}`, { headers: { "authorization": `Bearer ${getCookie("id_token")}` } })
-.then(resp => {
-    document.getElementById("diploma").value = resp.data.diploma;
-    document.getElementById(`y${resp.data.year_of_study}`).checked = true;
-})
-.catch(err => {
-    showMessage("Failed to fetch user information");
-    console.error(err);
-})
+    .then(resp => {
+        document.getElementById("diploma").value = resp.data.diploma;
+        document.getElementById(`y${resp.data.year_of_study}`).checked = true;
+    })
+    .catch(err => {
+        showMessage("Failed to fetch user information");
+        console.error(err);
+    })
 
 // Fetch user proficiency
-axios.get("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/proficiency/user-proficiency", { headers: { "authorization": `Bearer ${getCookie("id_token")}` } })
-.then(resp => {
-    strength = resp.data.filter(record => record.type === 1);
-    weakness = resp.data.filter(record => record.type === 2);
+axios.get(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/proficiency/user-proficiency?id=${decodeToken["cognito:username"].toUpperCase()}`)
+    .then(resp => {
+        strength = resp.data.filter(record => record.type === 1);
+        weakness = resp.data.filter(record => record.type === 2);
 
-    const formattedHTML = (moduleName, moduleId) => {
-        return `<span id="${moduleId}">${moduleName}</span>`;
-    }
+        const formattedHTML = (moduleName, moduleId) => {
+            return `<span id="${moduleId}">${moduleName}</span>`;
+        }
 
-    strength.map(proficiency => {
-        const format = formattedHTML(proficiency.module, proficiency.proficiency_id);
-        document.getElementById("new_strength").insertAdjacentHTML("beforebegin", format)
+        strength.map(proficiency => {
+            const format = formattedHTML(proficiency.module, proficiency.proficiency_id);
+            document.getElementById("new_strength").insertAdjacentHTML("beforebegin", format)
+        })
+
+        weakness.map(proficiency => {
+            const format = formattedHTML(proficiency.module, proficiency.proficiency_id);
+            document.getElementById("new_weakness").insertAdjacentHTML("beforebegin", format)
+        })
     })
-
-    weakness.map(proficiency => {
-        const format = formattedHTML(proficiency.module, proficiency.proficiency_id);
-        document.getElementById("new_weakness").insertAdjacentHTML("beforebegin", format)
+    .catch(err => {
+        showMessage("Failed to fetch user information");
+        console.error(err);
     })
-})
-.catch(err => {
-    showMessage("Failed to fetch user information");
-    console.error(err);
-})
 
 // Add new module on frontend on enter key
 profileContainer.addEventListener("keydown", (e) => {
@@ -126,16 +126,16 @@ profileContainer.addEventListener("input", () => {
 profileContainer.addEventListener("click", (e) => {
     if (e.target.tagName.toLowerCase() === "span") {
         const moduleId = e.target.getAttribute("id");
-        axios.delete(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/proficiency/remove?id=${encodeURIComponent(moduleId)}`, { headers: { "authorization": `Bearer ${getCookie("id_token")}` }})
-        .then(() => {
-            e.target.remove();
-            showMessage("Module removed", "success");
-            isFormDirty = false;
-        })
-        .catch(err => {
-            console.error(err);
-            showMessage("Failed to remove module");
-        })
+        axios.delete(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/proficiency/remove?id=${encodeURIComponent(moduleId)}`, { headers: { "authorization": `Bearer ${getCookie("id_token")}` } })
+            .then(() => {
+                e.target.remove();
+                showMessage("Module removed", "success");
+                isFormDirty = false;
+            })
+            .catch(err => {
+                console.error(err);
+                showMessage("Failed to remove module");
+            })
     }
 })
 
@@ -159,14 +159,14 @@ document.getElementById("general_form").addEventListener("submit", (e) => {
     if (!e.target.checkValidity()) return;
 
     axios.put("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/account/update-account", { diploma, year_of_study }, { headers: { "authorization": `Bearer ${getCookie("id_token")}` } })
-    .then(() => {
-        showMessage("Profile updated", "success");
-        isFormDirty = false;
-    })
-    .catch(err => {
-        console.error(err);
-        showMessage("Failed to update profile");
-    })
+        .then(() => {
+            showMessage("Profile updated", "success");
+            isFormDirty = false;
+        })
+        .catch(err => {
+            console.error(err);
+            showMessage("Failed to update profile");
+        })
 })
 
 // AWS Cognito Service
@@ -201,4 +201,21 @@ document.getElementById("password_form").addEventListener("submit", (e) => {
     if (newPassword !== confirmPassword) return showMessage("Passwords do not match");
 
     changePassword(currentPassword, newPassword);
+})
+
+document.getElementById("delete_form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (!e.target.checkValidity()) return;
+    if (!confirm("Are you sure you want to delete your account?")) return;
+    
+    axios.delete("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/account/delete-account", { headers: { "authorization": `Bearer ${getCookie("id_token")}` } })
+        .then(() => {
+            isFormDirty = false;
+            showMessage("Account deleted", "success");
+            setTimeout(() => window.location.href = "./pages/login.html", 2000)
+        })
+        .catch(err => {
+            console.error(err);
+            showMessage("Failed to delete account");
+        })
 })

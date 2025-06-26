@@ -113,13 +113,16 @@
                 <button id="logout">Logout</button>
             </div>
 
-            <div>
+            <form id="delete_form" novalidate>
                 <h2>Danger Zone</h2>
                 <div id="delete_container">
-                    <p>This will permanently delete your account</p>
-                    <button type="button" id="delete">Delete Account</button>
+                    <div>
+                        <input type="checkbox" id="check" required>
+                        <label for="check">By deleting your account, you acknowledge that your personal data (e.g., proficiency, requests, and pairs) may remain in our system but will be anonymized. From other users' perspective, your account will appear as deleted.</label>
+                    </div>
+                    <button type="submit" id="delete">Delete Account</button>
                 </div>
-            </div>
+            </form>
         </div>
     </main>
 </body>
