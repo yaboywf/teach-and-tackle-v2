@@ -1,5 +1,6 @@
 const aws = require("aws-sdk");
 const dynamo = new aws.DynamoDB.DocumentClient();
+const cognito = new aws.CognitoIdentityServiceProvider();
 
 /**
  * Check required keys
@@ -144,22 +145,55 @@ exports.handler = (event, context, callback) => {
 
             break;
         case 'DELETE /api/account/delete-account':
-            if (!checkRequiredKeys(body, ["id"], callback)) return;
+            try {
+                checkRequiredKeys(auth, ["authorization"], callback);
 
-            var params = {
-                TableName: "users",
-                Key: {
-                    student_id: body.id
-                }
-            };
+                jwt = auth.authorization.split(" ")[1];
+                decoded = decodeJWT(jwt, callback);
+                userId = decoded["cognito:username"].toUpperCase();
 
-            dynamo.delete(params, (err, data) => {
-                if (err) throw err;
-                callback(null, {
-                    statusCode: 200,
-                    body: JSON.stringify({ message: "User successfully deleted" })
+                var deleteParams = {
+                    TableName: "users",
+                    Key: {
+                        student_id: userId || ""
+                    }
+                };
+
+                dynamo.delete(deleteParams, (err, data) => {
+                    if (err) {
+                        console.error("DynamoDB delete error:", err);
+                        return callback(null, {
+                            statusCode: 500,
+                            body: JSON.stringify({ message: "Failed to delete user data" })
+                        });
+                    }
+
+                    const params = {
+                        UserPoolId: "us-east-1_RP5a0BedE",
+                        Username: userId.toUpperCase(),
+                    };
+
+                    cognito.adminDeleteUser(params).promise()
+                        .then(() => {
+                            callback(null, {
+                                statusCode: 200,
+                                body: JSON.stringify({ message: `User ${userId} deleted` }),
+                            });
+                        })
+                        .catch(err => {
+                            console.error("Cognito delete error:", err);
+                            callback(null, {
+                                statusCode: err.statusCode || 500,
+                                body: JSON.stringify({ message: err.message || "Failed to delete user" }),
+                            });
+                        });
                 });
-            });
+            } catch (err) {
+                callback(null, {
+                    statusCode: 500,
+                    body: JSON.stringify(err)
+                });
+            }
 
             break;
         case "POST /api/account/register":
@@ -168,7 +202,7 @@ exports.handler = (event, context, callback) => {
 
                 if (typeof body === "string") body = JSON.parse(body);
 
-                checkRequiredKeys(body, ["student_id", "name", "email", "password"], callback);
+                checkRequiredKeys(body, ["student_id", "name", "diploma", "year_of_study"], callback);
 
                 var getParams = {
                     TableName: "users",
@@ -176,7 +210,7 @@ exports.handler = (event, context, callback) => {
                         student_id: body.student_id
                     }
                 };
-                
+
                 dynamo.get(getParams, (err, data) => {
                     if (err) throw new Error(err);
 
@@ -199,7 +233,7 @@ exports.handler = (event, context, callback) => {
                     };
 
                     dynamo.put(postParams, (err, data) => {
-                        if (err) throw new Error(err);
+                        if (err) throw new Error(err)
                         callback(null, {
                             statusCode: 200,
                             body: JSON.stringify({ message: "User successfully registered" })
@@ -209,7 +243,7 @@ exports.handler = (event, context, callback) => {
             } catch (e) {
                 callback(null, {
                     statusCode: 500,
-                    body: JSON.stringify(e.message)
+                    body: JSON.stringify({ error: e })
                 });
             }
 
