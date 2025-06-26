@@ -1,74 +1,3 @@
-AWS.config.update({ region: 'us-east-1' });
-const cognitoidentityserviceprovider = new AWS.CognitoIdentityServiceProvider();
-
-// Initial call to attempt user sign-in
-async function signInUser(username, password) {
-    calculateSecretHash(username)
-        .then(secretHash => {
-            const params = {
-                AuthFlow: 'USER_PASSWORD_AUTH',
-                ClientId: '2lave0d420lofl9ead9h87mi41',  // Your App Client ID
-                AuthParameters: {
-                    USERNAME: username,
-                    PASSWORD: password,
-                    SECRET_HASH: secretHash
-                }
-            };
-
-            cognitoidentityserviceprovider.initiateAuth(params, (err, data) => {
-                if (err) {
-                    showMessage('Error: ' + err.message);
-                } else {
-                    if (data.ChallengeName === 'NEW_PASSWORD_REQUIRED') {
-                        handleNewPasswordChallenge(data.Session, username, password);
-                    } else {
-                        document.cookie = `id_token=${data.AuthenticationResult.IdToken}; path=/; max-age=3600`;
-                        document.cookie = `access_token=${data.AuthenticationResult.AccessToken}; path=/; max-age=3600`;
-                        document.cookie = `refresh_token=${data.AuthenticationResult.RefreshToken}; path=/; max-age=86400`;
-                        window.location.href = '/pages/explore.html';
-                    }
-                }
-            });
-        })
-        .catch(err => {
-            console.error('Error calculating SECRET_HASH:', err);
-            showMessage('Error calculating secret hash');
-        });
-};
-
-// After initial login attempt, check if the challenge is NEW_PASSWORD_REQUIRED
-function handleNewPasswordChallenge(session, username, newPassword) {
-    calculateSecretHash(username)
-        .then(secretHash => {
-            const params = {
-                ChallengeName: 'NEW_PASSWORD_REQUIRED',
-                ClientId: '2lave0d420lofl9ead9h87mi41',  // Your App Client ID
-                ChallengeResponses: {
-                    USERNAME: username,
-                    NEW_PASSWORD: newPassword,
-                    SECRET_HASH: secretHash
-                },
-                Session: session,
-            };
-
-            cognitoidentityserviceprovider.respondToAuthChallenge(params, function (err, data) {
-                if (err) console.error("Error responding to password change challenge:", err);
-
-                if (data.AuthenticationResult) {
-                    document.cookie = `id_token=${data.AuthenticationResult.IdToken}; path=/; max-age=3600`;
-                    document.cookie = `access_token=${data.AuthenticationResult.AccessToken}; path=/; max-age=3600`;
-                    document.cookie = `refresh_token=${data.AuthenticationResult.RefreshToken}; path=/; max-age=86400`;
-                    window.location.href = '/pages/explore.html';
-                }
-            });
-        })
-        .catch(err => {
-            console.error('Error calculating SECRET_HASH:', err);
-            showMessage('Error calculating secret hash');
-        });
-}
-
-
 // Sign-in form handling
 document.getElementById('signInForm').addEventListener('submit', function (event) {
     event.preventDefault();
@@ -81,7 +10,17 @@ document.getElementById('signInForm').addEventListener('submit', function (event
     if (!password) return showMessage('Please enter your password.');
     if (!username.match(regex)) return showMessage('Please enter a valid admission number.');
 
-    signInUser(username, password);
+    axios.post("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/account/authenticate", { username, password })
+        .then(resp => {
+            document.cookie = `id_token=${resp.data.IdToken}; path=/; max-age=3600`;
+            document.cookie = `access_token=${resp.data.AccessToken}; path=/; max-age=3600`;
+            document.cookie = `refresh_token=${resp.data.RefreshToken}; path=/; max-age=86400`;
+            window.location.href = '/pages/explore.html';
+        })
+        .catch(err => {
+            console.error(err);
+            showMessage('Error signing in');
+        });
 });
 
 const loginContainer = document.querySelector('.login');

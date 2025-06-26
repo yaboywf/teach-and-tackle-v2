@@ -169,27 +169,6 @@ document.getElementById("general_form").addEventListener("submit", (e) => {
         })
 })
 
-// AWS Cognito Service
-AWS.config.update({ region: 'us-east-1' });
-const cognito = new AWS.CognitoIdentityServiceProvider();
-
-// Change password on AWS Cognito
-async function changePassword(currentPassword, newPassword) {
-    const params = {
-        AccessToken: getCookie("access_token"),
-        PreviousPassword: currentPassword,
-        ProposedPassword: newPassword
-    };
-
-    try {
-        await cognito.changePassword(params).promise();
-        showMessage("Password changed successfully", "success");
-        isFormDirty = false;
-    } catch (error) {
-        console.error('Error changing password', error);
-    }
-}
-
 // Trigger change password flow
 document.getElementById("password_form").addEventListener("submit", (e) => {
     e.preventDefault();
@@ -200,7 +179,15 @@ document.getElementById("password_form").addEventListener("submit", (e) => {
 
     if (newPassword !== confirmPassword) return showMessage("Passwords do not match");
 
-    changePassword(currentPassword, newPassword);
+    axios.post("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/account/reset-password", { current_password: currentPassword, new_password: newPassword }, { headers: { "authorization": getCookie("access_token") }})
+        .then(() => {
+            showMessage("Password updated", "success");
+            isFormDirty = false;
+        })
+        .catch(err => {
+            console.error(err);
+            showMessage("Failed to update password");
+        })
 })
 
 document.getElementById("delete_form").addEventListener("submit", (e) => {
