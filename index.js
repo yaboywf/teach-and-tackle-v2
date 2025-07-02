@@ -12,9 +12,8 @@ class HttpError extends Error {
 /**
  * Check required keys
  * 
- * @param {object} body - The request
+ * @param {object} data - The request
  * @param {string[]} keys - An array of strings representing the required keys
- * @param {function} callback - The callback function
 */
 const checkRequiredKeys = (data, keys) => {
     if (!data) throw new HttpError(400, "Data is empty");
@@ -103,11 +102,11 @@ exports.handler = async (event, context, callback) => {
             break;
         case "POST /api/proficiency/new":
             try {
-                checkRequiredKeys(query, ["type", "name"], callback);
-                checkRequiredKeys(auth, ["authorization"], callback);
+                checkRequiredKeys(query, ["type", "name"]);
+                checkRequiredKeys(auth, ["authorization"]);
 
                 jwt = auth.authorization.split(" ")[1];
-                decoded = decodeJWT(jwt, callback);
+                decoded = decodeJWT(jwt);
                 userId = decoded["cognito:username"].toUpperCase();
 
                 var postParams = {
@@ -133,11 +132,11 @@ exports.handler = async (event, context, callback) => {
             break;
         case "DELETE /api/proficiency/remove":
             try {
-                checkRequiredKeys(query, ["id"], callback);
-                checkRequiredKeys(auth, ["authorization"], callback);
+                checkRequiredKeys(query, ["id"]);
+                checkRequiredKeys(auth, ["authorization"]);
 
                 jwt = auth.authorization.split(" ")[1];
-                decoded = decodeJWT(jwt, callback);
+                decoded = decodeJWT(jwt);
                 userId = decoded["cognito:username"].toUpperCase();
 
                 var queryParams = {
@@ -175,7 +174,7 @@ exports.handler = async (event, context, callback) => {
             break;
         case "GET /api/proficiency/matchable-accounts":
             try {
-                checkRequiredKeys(query, ["strength", "weakness"], callback);
+                checkRequiredKeys(query, ["strength", "weakness"]);
 
                 const strengths = query.strength.split(',') || [];
                 const weaknesses = query.weakness.split(',') || [];
