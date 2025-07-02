@@ -44,6 +44,9 @@ async function addNewModule(e, type) {
             const newHTML = `<span id="${resp.id}">${moduleName}</span>`;
             e.target.insertAdjacentHTML("beforebegin", newHTML);
             e.target.value = "";
+
+            const asideId = type === 1 ? "strength_content" : "weakness_content";
+            document.getElementById(asideId).insertAdjacentHTML("beforeend", `<li id="aside-${resp.id}" title="${moduleName}">${moduleName}</li>`);
         })
         .catch(err => {
             console.error(err);
@@ -130,6 +133,8 @@ profileContainer.addEventListener("click", (e) => {
                 e.target.remove();
                 showMessage("Module removed", "success");
                 isFormDirty = false;
+
+                document.getElementById(`aside-${moduleId}`).remove();
             })
             .catch(err => {
                 console.error(err);
