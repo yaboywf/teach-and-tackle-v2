@@ -31,13 +31,19 @@ const checkRequiredKeys = (data, keys) => {
  * @param {*} token - The token to decode
  * @returns {object}
  */
-const decodeJWT = (token, callback) => {
-    if (!token) return null;
+const decodeJWT = (token) => {
+    if (!token) throw new HttpError(401, "No token provided");
 
     const payload = token.split('.')[1];
     const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
-    return JSON.parse(decoded);
+    const data = JSON.parse(decoded);
+    const now = Math.floor(Date.now() / 1000);
+
+    if (!data || !data.exp) throw new HttpError(401, "Invalid token");
+    if (data.exp < now) throw new HttpError(401, "Token expired");
+    return data;
 }
+
 
 /**
  * Function to parse JSON
@@ -62,7 +68,7 @@ const handleError = (err, callback) => {
 
     callback(null, {
         statusCode: err instanceof HttpError ? err.statusCode : 500,
-        body: JSON.stringify({ error: `Internal Server Error - ${err.message}` }),
+        body: JSON.stringify({ error: `Error - ${err.message}`, stack: err?.stack }),
     });
 }
 
@@ -91,37 +97,33 @@ async function calculateSecretHash(username) {
  * @param {*} newPassword 
  * @param {*} callback
  */
-function handleNewPasswordChallenge(session, username, newPassword, callback) {
-    calculateSecretHash(username)
-        .then(secretHash => {
-            const params = {
-                ChallengeName: 'NEW_PASSWORD_REQUIRED',
-                ClientId: '2lave0d420lofl9ead9h87mi41',  // Your App Client ID
-                ChallengeResponses: {
-                    USERNAME: username,
-                    NEW_PASSWORD: newPassword,
-                    SECRET_HASH: secretHash
-                },
-                Session: session,
-            };
+async function handleNewPasswordChallenge(session, username, newPassword, callback) {
+    try {
+        const secretHash = await calculateSecretHash(username);
 
-            cognito.respondToAuthChallenge(params, function (err, data) {
-                if (err) throw new Error("Error responding to password change challenge:", err);
+        const params = {
+            ChallengeName: 'NEW_PASSWORD_REQUIRED',
+            ClientId: '2lave0d420lofl9ead9h87mi41',
+            ChallengeResponses: {
+                USERNAME: username,
+                NEW_PASSWORD: newPassword,
+                SECRET_HASH: secretHash
+            },
+            Session: session,
+        };
 
-                if (data.AuthenticationResult) {
-                    callback(null, {
-                        statusCode: 200,
-                        body: JSON.stringify(data.AuthenticationResult),
-                    });
-                }
-            });
-        })
-        .catch(err => {
+        const data = await cognito.respondToAuthChallenge(params).promise();
+
+        if (data.AuthenticationResult) {
             callback(null, {
-                statusCode: 500,
-                body: JSON.stringify(err),
+                statusCode: 200,
+                body: JSON.stringify(data.AuthenticationResult),
             });
-        });
+            return;
+        }
+    } catch (err) {
+        throw new HttpError(500, err);
+    }
 }
 
 /**
@@ -161,7 +163,7 @@ exports.handler = async (event, context, callback) => {
                 var params = {
                     TableName: "users",
                     Key: {
-                        student_id: body.id
+                        student_id: query.id
                     }
                 };
 
@@ -195,7 +197,7 @@ exports.handler = async (event, context, callback) => {
                 checkRequiredKeys(auth, ["authorization"]);
 
                 jwt = auth.authorization.split(" ")[1];
-                decoded = decodeJWT(jwt, callback);
+                decoded = decodeJWT(jwt);
                 userId = decoded["cognito:username"].toUpperCase();
 
                 var params = {
@@ -230,7 +232,7 @@ exports.handler = async (event, context, callback) => {
                 checkRequiredKeys(auth, ["authorization"], callback);
 
                 jwt = auth.authorization.split(" ")[1];
-                decoded = decodeJWT(jwt, callback);
+                decoded = decodeJWT(jwt);
                 userId = decoded["cognito:username"].toUpperCase();
 
                 var getParams = {
