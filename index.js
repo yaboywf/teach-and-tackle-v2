@@ -1,73 +1,47 @@
 const aws = require("aws-sdk");
 const dynamo = new aws.DynamoDB.DocumentClient();
-
 const ses = new aws.SES({
     accessKeyId: 'AKIAR3ONUFZZAPO6S4FE',
     secretAccessKey: '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',
     region: 'ap-southeast-2'
 });
 
+class HttpError extends Error {
+    constructor(statusCode, message) {
+        super(message);
+        this.statusCode = statusCode;
+        this.name = this.constructor.name;
+    }
+}
+
 const formatUnlinkEmail = (data) => {
     return `
         <!DOCTYPE html>
         <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Pair Unlinked</title>
-        </head>
         <body>
-            <style>
-                p, div {
-                    font-family: sans-serif;
-                    margin: 0;
-                    padding: 0;
-                    box-sizing: border-box;
-                }
-                p {
-                    margin: 10px 0;
-                }
-                div > p {
-                    margin: 0;
-                    border-top: 1px solid black;
-                    border-left: 1px solid black;
-                    padding: 5px 20px;
-                }
-                div > p:nth-child(even) {
-                    border-right: 1px solid black;
-                }
-                div > p:nth-last-child(-n+2) {
-                    border-bottom: 1px solid black;
-                }
-                img {
-                    width: 170px;
-                }
-                div {
-                    display: grid;
-                    grid-template-columns: repeat(2, max-content);
-                    margin-bottom: 20px;
-                }
-            </style>
-        
-            <img src="https://i.ibb.co/YB2wsB5N/logo.webp" alt="logo">
+            <img style="width: 170px" src="https://i.ibb.co/xKZddhnQ/logo.jpg" alt="logo">
         
             <p>Dear student,</p>
-        
             <p>A pair was recently unlinked. Please check the details below:</p>
-        
             <p style="font-weight: bold; margin-top: 20px;">Details</p>
-            <div>
-                <p>Pair ID</p>
-                <p>${data.pair_id}</p>
-        
-                <p>Users</p>
-                <p>${data.receiver_id} &amp; ${data.sender_id}</p>
-        
-                <p>Day</p>
-                <p>${data.day}</p>
-        
-                <p>Time</p>
-                <p>${data.start_time} - ${data.end_time}</p>
+
+            <table style="margin-bottom: 20px; border-collapse: collapse; border: 1px solid black" cellpadding="10">
+                <tr>
+                    <td style="border: 1px solid black">Pair ID</td>
+                    <td style="border: 1px solid black">${data.pair_id}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid black">Users</td>
+                    <td style="border: 1px solid black">${data.receiver_id} &amp; ${data.sender_id}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid black">Day</td>
+                    <td style="border: 1px solid black">${data.day}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid black">Time</td>
+                    <td style="border: 1px solid black">${data.start_time} - ${data.end_time}</td>
+                </tr>
             </div>
         
             <p>Best Regards,</p>
@@ -81,63 +55,30 @@ const formatRequestAcceptedEmail = (data) => {
     return `
         <!DOCTYPE html>
         <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Pair Request Accepted</title>
-        </head>
         <body>
-            <style>
-                p, div {
-                    font-family: sans-serif;
-                    margin: 0;
-                    padding: 0;
-                    box-sizing: border-box;
-                }
-                p {
-                    margin: 10px 0;
-                }
-                div > p {
-                    margin: 0;
-                    border-top: 1px solid black;
-                    border-left: 1px solid black;
-                    padding: 5px 20px;
-                }
-                div > p:nth-child(even) {
-                    border-right: 1px solid black;
-                }
-                div > p:nth-last-child(-n+2) {
-                    border-bottom: 1px solid black;
-                }
-                img {
-                    width: 170px;
-                }
-                div {
-                    display: grid;
-                    grid-template-columns: repeat(2, max-content);
-                    margin-bottom: 20px;
-                }
-            </style>
-
-            <img src="https://i.ibb.co/YB2wsB5N/logo.webp" alt="logo">
+            <img style="width: 170px" src="https://i.ibb.co/xKZddhnQ/logo.jpg" alt="logo">
 
             <p>Dear student,</p>
-
             <p>A pair request was recently accepted. Please check the details below:</p>
-
             <p style="font-weight: bold; margin-top: 20px;">Details</p>
-            <div>
-                <p>Pair ID</p>
-                <p>${data.pair_id}</p>
-
-                <p>Sent To</p>
-                <p>${data.receiver_id}</p>
-
-                <p>Day</p>
-                <p>${data.day}</p>
-
-                <p>Time</p>
-                <p>${data.start_time} - ${data.end_time}</p>
+            
+            <table style="margin-bottom: 20px; border-collapse: collapse; border: 1px solid black" cellpadding="10">
+                <tr>
+                    <td style="border: 1px solid black">Pair ID</td>
+                    <td style="border: 1px solid black">${data.pair_id}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid black">Sent To</td>
+                    <td style="border: 1px solid black">${data.receiver_id}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid black">Day</td>
+                    <td style="border: 1px solid black">${data.day}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid black">Time</td>
+                    <td style="border: 1px solid black">${data.start_time} - ${data.end_time}</td>
+                </tr>
             </div>
 
             <p>Best Regards,</p>
@@ -150,33 +91,15 @@ const formatRequestAcceptedEmail = (data) => {
 /**
  * Check required keys
  * 
- * @param {object} body - The request
+ * @param {object} data - The request
  * @param {string[]} keys - An array of strings representing the required keys
- * @param {function} callback - The callback function
 */
-const checkRequiredKeys = (body, keys, callback) => {
-    try {
-        if (!body) {
-            throw new Error("Body is empty");
-        }
+const checkRequiredKeys = (data, keys) => {
+    if (!data) throw new HttpError(400, "Data is empty");
+    if (typeof data !== 'object') throw new HttpError(400, `Data not an object. It is a ${typeof data}`);
 
-        if (typeof body !== 'object') {
-            throw new Error(`Body not an object. It is a ${typeof body}`);
-        }
-
-        let missingKeys = keys.filter(key => !body.hasOwnProperty(key));
-        if (missingKeys.length > 0) {
-            callback(null, {
-                statusCode: 400,
-                body: JSON.stringify({ error: "Missing required keys: " + missingKeys.join(", ") })
-            });
-        }
-    } catch (e) {
-        callback(null, {
-            statusCode: 500,
-            body: JSON.stringify({ error: `Failed to check required keys: ${e.message}` })
-        });
-    }
+    let missingKeys = keys.filter(key => !data.hasOwnProperty(key));
+    if (missingKeys.length > 0) throw new HttpError(400, "Missing required keys: " + missingKeys.join(", "));
 }
 
 /**
@@ -184,38 +107,63 @@ const checkRequiredKeys = (body, keys, callback) => {
  * @param {*} token - The token to decode
  * @returns {object}
  */
-const decodeJWT = (token, callback) => {
-    if (!token) return null;
+const decodeJWT = (token) => {
+    if (!token) throw new HttpError(401, "No token provided");
 
-    try {
-        const payload = token.split('.')[1];
-        const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
-        return JSON.parse(decoded);
-    } catch (e) {
-        callback(null, {
-            statusCode: 500,
-            body: JSON.stringify({ error: `Failed to decode JWT: ${e.message}` })
-        });
-        return null;
-    }
+    const payload = token.split('.')[1];
+    const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+    const data = JSON.parse(decoded);
+    const now = Math.floor(Date.now() / 1000);
+
+    if (!data || !data.exp) throw new HttpError(401, "Invalid token");
+    if (data.exp < now) throw new HttpError(401, "Token expired");
+    return data;
 }
 
-exports.handler = (event, context, callback) => {
-    let body;
+/**
+ * Function to parse JSON
+ * @param {*} data 
+ * @returns {object}
+ */
+const parseJsonSafe = (data) => {
+    try {
+        return data && typeof data === 'string' ? JSON.parse(data) : data || {};
+    } catch (err) {
+        return {};
+    }
+};
+
+/**
+ * Function to handle errors
+ * @param {*} err 
+ * @param {*} callback 
+ */
+const handleError = (err, callback) => {
+    console.error(err.message)
+
+    callback(null, {
+        statusCode: err instanceof HttpError ? err.statusCode : 500,
+        body: JSON.stringify({ error: `Error - ${err.message}`, stack: err?.stack }),
+    });
+}
+
+exports.handler = async (event, context, callback) => {
     let jwt;
     let decoded;
     let userId;
-    const auth = event.headers;
+    const body = parseJsonSafe(event.body)
+    const query = parseJsonSafe(event.queryStringParameters);
+    const auth = parseJsonSafe(event.headers);
 
     switch (event.routeKey) {
         case 'GET /api/pairs/user-pairs':
             try {
-                checkRequiredKeys(auth, ["authorization"], callback);
+                checkRequiredKeys(auth, ["authorization"]);
 
                 jwt = auth.authorization.split(" ")[1];
-                decoded = decodeJWT(jwt, callback);
+                decoded = decodeJWT(jwt);
                 userId = decoded["cognito:username"].toUpperCase();
-
+                
                 var params = {
                     TableName: "pairs",
                     FilterExpression: "(sender_id = :user_id OR receiver_id = :user_id) AND #status = :status",
@@ -228,128 +176,92 @@ exports.handler = (event, context, callback) => {
                     }
                 };
 
-                dynamo.scan(params, (err, data) => {
-                    if (err) throw new Error(err);
+                var data = await dynamo.scan(params).promise();
+                    
+                if (!data.Items) throw new HttpError(404, "Student not found");
 
-                    if (!data.Items) {
-                        callback(null, {
-                            statusCode: 404,
-                            body: JSON.stringify({ error: "Student not found" })
-                        });
-                        return;
-                    }
-
-                    callback(null, {
-                        statusCode: 200,
-                        body: JSON.stringify(data.Items)
-                    });
+                callback(null, {
+                    statusCode: 200,
+                    body: JSON.stringify(data.Items)
                 });
             } catch (err) {
-                callback(null, {
-                    statusCode: 500,
-                    body: JSON.stringify({ error: err })
-                });
+                handleError(err, callback);
             }
 
             break;
         case 'DELETE /api/pairs/delete-pair':
             try {
-                body = event.queryStringParameters;
-
-                if (typeof body === "string") body = JSON.parse(body);
-
-                checkRequiredKeys(body, ["id"], callback);
-                checkRequiredKeys(auth, ["authorization"], callback);
+                checkRequiredKeys(query, ["id"]);
+                checkRequiredKeys(auth, ["authorization"]);
 
                 jwt = auth.authorization.split(" ")[1];
-                decoded = decodeJWT(jwt, callback);
+                decoded = decodeJWT(jwt);
                 userId = decoded["cognito:username"].toUpperCase();
 
                 var queryParams = {
                     TableName: "pairs",
                     KeyConditionExpression: 'pair_id = :pair_id',
                     ExpressionAttributeValues: {
-                        ':pair_id': Number(body.id)
+                        ':pair_id': Number(query.id)
                     },
                     Limit: 1
                 };
 
-                dynamo.query(queryParams, (err, data) => {
-                    if (err) throw new Error(err);
+                var data = await dynamo.query(queryParams).promise();
+                    
+                if (!data.Items || data.Items.length === 0) throw new HttpError(404, "Pair not found");
+                if (data.Items[0]?.receiver_id !== userId && data.Items[0]?.sender_id !== userId) throw new HttpError(401, "You are not part of this pair. Hence, you are unable to delete it");
 
-                    if (!data.Items || data.Items.length === 0) {
-                        callback(null, {
-                            statusCode: 404,
-                            body: JSON.stringify({ error: "Pair not found" })
-                        });
-                        return;
-                    }
+                var deletingPair = data.Items[0];
+                var sender = 'teachandtackle@gmail.com';
+                // uncomment during production
+                // var receipient = [`${data.Items[0].sender_id}@student.tp.edu.sg`, `${data.Items[0].receiver_id}@student.tp.edu.sg`];
+                var receipient = ["dylanyeo918@gmail.com"];
 
-                    if (data.Items[0]?.receiver_id !== userId && data.Items[0]?.sender_id !== userId) {
-                        callback(null, {
-                            statusCode: 401,
-                            body: JSON.stringify({ error: "You are not part of this pair. Hence, you are unable to delete it" })
-                        });
-                        return;
-                    }
+                var deleteParams = {
+                    TableName: "pairs",
+                    Key: {
+                        pair_id: Number(query.id),
+                        sender_id: data.Items[0]?.sender_id || "",
+                    },
+                };
 
-                    var deletingPair = data.Items[0];
-                    const sender = 'teachandtackle@gmail.com';
-                    // uncomment during production
-                    // const receipient = [`${data.Items[0].sender_id}@student.tp.edu.sg`, `${data.Items[0].receiver_id}@student.tp.edu.sg`];
-                    const receipient = ["dylanyeo918@gmail.com"];
+                await dynamo.delete(deleteParams).promise();
 
-                    var deleteParams = {
-                        TableName: "pairs",
-                        Key: {
-                            pair_id: Number(body.id),
-                            sender_id: data.Items[0]?.sender_id || "",
+                var params = {
+                    Source: sender,
+                    Destination: {
+                        ToAddresses: receipient,
+                    },
+                    Message: {
+                        Subject: {
+                            Data: "Pair Unlinked",
                         },
-                    };
+                        Body: {
+                            Html: {
+                                Data: formatUnlinkEmail(deletingPair),
+                            }
+                        },
+                    },
+                };
 
-                    dynamo.delete(deleteParams, (err, data) => {
-                        if (err) throw new Error(err);
-
-                        const params = {
-                            Source: sender,
-                            Destination: {
-                                ToAddresses: receipient,
-                            },
-                            Message: {
-                                Subject: {
-                                    Data: "Pair Unlinked",
-                                },
-                                Body: {
-                                    Html: {
-                                        Data: formatUnlinkEmail(deletingPair),
-                                    }
-                                },
-                            },
-                        };
-
-                        ses.sendEmail(params, (err, data) => {
-                            if (err) throw new Error(err);
-                            callback(null, {
-                                statusCode: 200,
-                                body: JSON.stringify({ message: "Pair successfully deleted" })
-                            });
-                        });
-                    });
+                await ses.sendEmail(params).promise();
+                
+                callback(null, {
+                    statusCode: 200,
+                    body: JSON.stringify({ message: "Pair successfully deleted" })
                 });
             } catch (err) {
-                callback(null, {
-                    statusCode: 500,
-                    body: JSON.stringify(err.message)
-                });
+                handleError(err, callback);
             }
 
             break;
         case 'GET /api/request/user-requests':
             try {
-                checkRequiredKeys(auth, ["authorization"], callback);
+                checkRequiredKeys(auth, ["authorization"]);
 
                 jwt = auth.authorization.split(" ")[1];
-                decoded = decodeJWT(jwt, callback);
+                decoded = decodeJWT(jwt);
                 userId = decoded["cognito:username"].toUpperCase();
 
                 var params = {
@@ -364,41 +276,26 @@ exports.handler = (event, context, callback) => {
                     }
                 };
 
-                dynamo.scan(params, (err, data) => {
-                    if (err) throw new Error(err);
+                var data = await dynamo.scan(params).promise();
+                
+                if (!data.Items) throw new HttpError(404, "Student not found");    
 
-                    if (!data.Items) {
-                        callback(null, {
-                            statusCode: 404,
-                            body: JSON.stringify({ error: "Student not found" })
-                        });
-                        return;
-                    }
-
-                    callback(null, {
-                        statusCode: 200,
-                        body: JSON.stringify(data.Items)
-                    })
+                callback(null, {
+                    statusCode: 200,
+                    body: JSON.stringify(data.Items)
                 });
             } catch (err) {
-                callback(null, {
-                    statusCode: 500,
-                    body: JSON.stringify(err.message)
-                });
+                handleError(err, callback);
             }
 
             break;
         case 'DELETE /api/request/delete-request':
             try {
-                body = event.queryStringParameters;
-
-                if (typeof body === "string") body = JSON.parse(body);
-
-                checkRequiredKeys(body, ["id"], callback);
-                checkRequiredKeys(auth, ["authorization"], callback);
+                checkRequiredKeys(body, ["id"]);
+                checkRequiredKeys(auth, ["authorization"]);
 
                 jwt = auth.authorization.split(" ")[1];
-                decoded = decodeJWT(jwt, callback);
+                decoded = decodeJWT(jwt);
                 userId = decoded["cognito:username"].toUpperCase();
 
                 var queryParams = {
@@ -410,165 +307,117 @@ exports.handler = (event, context, callback) => {
                     Limit: 1
                 };
 
-                dynamo.query(queryParams, (err, data) => {
-                    if (err) throw new Error(err);
+                var data = await dynamo.query(queryParams).promise();
+                
+                if (!data.Items || data.Items.length === 0) throw new HttpError(404, "Pair not found");
+                if (data.Items[0]?.receiver_id !== userId && data.Items[0]?.sender_id !== userId) throw new HttpError(401, "You are not part of this pair. Hence, you are unable to delete it");
 
-                    if (!data.Items || data.Items.length === 0) {
-                        callback(null, {
-                            statusCode: 404,
-                            body: JSON.stringify({ error: "Pair not found" })
-                        });
-                        return;
+                var deleteParams = {
+                    TableName: "pairs",
+                    Key: {
+                        pair_id: Number(body.id) || 0,
+                        sender_id: data.Items[0]?.sender_id || ""
                     }
+                };
 
-                    if (data.Items[0]?.receiver_id !== userId && data.Items[0]?.sender_id !== userId) {
-                        callback(null, {
-                            statusCode: 401,
-                            body: JSON.stringify({ error: "You are not part of this pair. Hence, you are unable to delete it" })
-                        });
-                        return;
-                    }
-
-                    var deleteParams = {
-                        TableName: "pairs",
-                        Key: {
-                            pair_id: Number(body.id) || 0,
-                            sender_id: data.Items[0]?.sender_id || ""
-                        }
-                    };
-
-                    dynamo.delete(deleteParams, (err1, data) => {
-                        if (err1) throw new Error(err1);
-                        callback(null, {
-                            statusCode: 200,
-                            body: JSON.stringify({ message: "Pair successfully deleted" })
-                        });
-                    });
-                })
-            } catch (err) {
+                await dynamo.delete(deleteParams).promise();
+                
                 callback(null, {
-                    statusCode: 500,
-                    body: JSON.stringify(err.message)
+                    statusCode: 200,
+                    body: JSON.stringify({ message: "Pair successfully deleted" })
                 });
+            } catch (err) {
+                handleError(err, callback);
             }
 
             break;
         case "PUT /api/request/update-request-status":
             try {
-                body = event.body;
-
-                if (typeof body === "string") body = JSON.parse(body);
-
-                checkRequiredKeys(auth, ["authorization"], callback);
-                checkRequiredKeys(body, ["id"], callback);
+                checkRequiredKeys(auth, ["authorization"]);
+                checkRequiredKeys(body, ["id"]);
 
                 jwt = auth.authorization.split(" ")[1];
-                decoded = decodeJWT(jwt, callback);
+                decoded = decodeJWT(jwt);
                 userId = decoded["cognito:username"].toUpperCase();
 
                 var queryParams = {
                     TableName: "pairs",
                     KeyConditionExpression: "pair_id = :pair_id",
+                    FilterExpression: "#pair_status = :status",
+                    ExpressionAttributeNames: {
+                        "#pair_status": "status"
+                    },
                     ExpressionAttributeValues: {
-                        ":pair_id": Number(body.id) || 0
+                        ":pair_id": Number(body.id) || 0,
+                        ":status": 1
                     },
                     Limit: 1
                 };
 
-                dynamo.query(queryParams, (err, data) => {
-                    if (err) throw new Error(err);
+                var data = await dynamo.query(queryParams).promise();
+                
+                if (!data.Items || data.Items.length === 0) throw new HttpError(404, "Pair not found or pair is not in status pending");
+                if (data.Items[0]?.receiver_id !== userId && data.Items[0]?.sender_id !== userId) throw new HttpError(401, "You are not part of this pair. Hence, you are unable to update it");
+                
+                var acceptingPair = data.Items[0];
 
-                    if (!data.Items || data.Items.length === 0) {
-                        callback(null, {
-                            statusCode: 404,
-                            body: JSON.stringify({ error: "Pair not found" })
-                        });
-                        return;
-                    }
+                var sender = 'teachandtackle@gmail.com';
+                // uncomment during production
+                // var receipient = [`${data.Items[0].sender_id}@student.tp.edu.sg`];
+                var receipient = ["dylanyeo918@gmail.com"];
 
-                    if (data.Items[0]?.receiver_id !== userId && data.Items[0]?.sender_id !== userId) {
-                        callback(null, {
-                            statusCode: 401,
-                            body: JSON.stringify({ error: "You are not part of this pair. Hence, you are unable to update it" })
-                        });
-                        return;
-                    }
+                var params = {
+                    TableName: "pairs",
+                    Key: {
+                        pair_id: Number(body.id) || 0,
+                        sender_id: data.Items[0]?.sender_id || ""
+                    },
+                    UpdateExpression: "set #status = :status",
+                    ExpressionAttributeNames: {
+                        "#status": "status",
+                    },
+                    ExpressionAttributeValues: {
+                        ":status": 2,
+                    },
+                };
 
-                    var acceptingPair = data.Items[0];
-                    const sender = 'teachandtackle@gmail.com';
-                    // uncomment during production
-                    // const receipient = [`${data.Items[0].sender_id}@student.tp.edu.sg`];
-                    const receipient = ["dylanyeo918@gmail.com"];
-
-                    var params = {
-                        TableName: "pairs",
-                        Key: {
-                            pair_id: Number(body.id) || 0,
-                            sender_id: data.Items[0]?.sender_id || ""
+                await dynamo.update(params).promise();
+                        
+                var params = {
+                    Source: sender,
+                    Destination: {
+                        ToAddresses: receipient,
+                    },
+                    Message: {
+                        Subject: {
+                            Data: "Pair Request Accepted",
                         },
-                        UpdateExpression: "set #status = :status",
-                        ExpressionAttributeNames: {
-                            "#status": "status",
+                        Body: {
+                            Html: {
+                                Data: formatRequestAcceptedEmail(acceptingPair),
+                            }
                         },
-                        ExpressionAttributeValues: {
-                            ":status": 2,
-                        },
-                    };
+                    },
+                };
 
-                    dynamo.update(params, (err, data) => {
-                        if (err) throw new Error(err);
-
-                        const params = {
-                            Source: sender,
-                            Destination: {
-                                ToAddresses: receipient,
-                            },
-                            Message: {
-                                Subject: {
-                                    Data: "Pair Request Accepted",
-                                },
-                                Body: {
-                                    Html: {
-                                        Data: formatRequestAcceptedEmail(acceptingPair),
-                                    }
-                                },
-                            },
-                        };
-
-                        callback(null, {
-                            statusCode: 200,
-                            body: JSON.stringify(formatRequestAcceptedEmail(acceptingPair))
-                        });
-                        return;
-
-                        ses.sendEmail(params, (err, data) => {
-                            if (err) throw new Error(err);
-                            callback(null, {
-                                statusCode: 200,
-                                body: JSON.stringify({ message: "Pair status successfully updated" })
-                            });
-                        });
-                    });
+                await ses.sendEmail(params).promise();
+                            
+                callback(null, {
+                    statusCode: 200,
+                    body: JSON.stringify({ message: "Pair status successfully updated" })
                 });
             } catch (err) {
-                callback(null, {
-                    statusCode: 500,
-                    body: JSON.stringify(err.message)
-                });
+                handleError(err, callback);
             }
 
             break;
         case "POST /api/request/new-request":
             try {
-                body = event.body;
-
-                if (typeof body === "string") body = JSON.parse(body);
-
-                checkRequiredKeys(body, ["receiver_id", "module", "day", "start_time", "end_time"], callback);
-                checkRequiredKeys(auth, ["authorization"], callback);
+                checkRequiredKeys(body, ["receiver_id", "module", "day", "start_time", "end_time"]);
+                checkRequiredKeys(auth, ["authorization"]);
 
                 jwt = auth.authorization.split(" ")[1];
-                decoded = decodeJWT(jwt, callback);
+                decoded = decodeJWT(jwt);
                 userId = decoded["cognito:username"].toUpperCase();
 
                 var postParams = {
@@ -585,32 +434,24 @@ exports.handler = (event, context, callback) => {
                     }
                 };
 
-                dynamo.put(postParams, (err, data) => {
-                    if (err) throw new Error(err);
-                    callback(null, {
-                        statusCode: 200,
-                        body: JSON.stringify({ message: "Request successfully created" })
-                    });
+                await dynamo.put(postParams).promise();
+                
+                callback(null, {
+                    statusCode: 200,
+                    body: JSON.stringify({ message: "Request successfully created" })
                 });
             } catch (err) {
-                callback(null, {
-                    statusCode: 500,
-                    body: JSON.stringify(err.message)
-                });
+                handleError(err, callback);
             }
 
             break;
         case "PUT /api/request/update-request-details":
             try {
-                body = event.body;
-
-                if (typeof body === "string") body = JSON.parse(body);
-
-                checkRequiredKeys(body, ["pair_id", "module", "day", "start_time", "end_time"], callback);
-                checkRequiredKeys(auth, ["authorization"], callback);
+                checkRequiredKeys(body, ["pair_id", "module", "day", "start_time", "end_time"]);
+                checkRequiredKeys(auth, ["authorization"]);
 
                 jwt = auth.authorization.split(" ")[1];
-                decoded = decodeJWT(jwt, callback);
+                decoded = decodeJWT(jwt);
                 userId = decoded["cognito:username"].toUpperCase();
 
                 var updateParams = {
@@ -619,12 +460,9 @@ exports.handler = (event, context, callback) => {
                         pair_id: Number(body.pair_id) || 0,
                         sender_id: userId
                     },
-                    UpdateExpression: "set #module = :module, #day = :day, #start_time = :start_time, #end_time = :end_time",
+                    UpdateExpression: "set #module = :module, day = :day, start_time = :start_time, end_time = :end_time",
                     ExpressionAttributeNames: {
                         "#module": "module",
-                        "#day": "day",
-                        "#start_time": "start_time",
-                        "#end_time": "end_time"
                     },
                     ExpressionAttributeValues: {
                         ":module": body.module || "",
@@ -634,41 +472,24 @@ exports.handler = (event, context, callback) => {
                     },
                 };
 
-                dynamo.update(updateParams, (err, data) => {
-                    if (err) throw new Error(err);
-                    callback(null, {
-                        statusCode: 200,
-                        body: JSON.stringify({ message: "Pair details successfully updated" })
-                    });
+                await dynamo.update(updateParams).promise();
+                
+                callback(null, {
+                    statusCode: 200,
+                    body: JSON.stringify({ message: "Pair details successfully updated" })
                 });
             } catch (err) {
-                callback(null, {
-                    statusCode: 500,
-                    body: JSON.stringify(err.message)
-                });
+                handleError(err, callback);
             }
 
             break;
         default:
-            if (!event.routeKey) {
-                callback(null, {
-                    statusCode: 400,
-                    body: JSON.stringify({ error: "Missing routeKey" })
-                });
-                return;
+            try {
+                if (!event.routeKey) throw new HttpError(400, "No routeKey provided");
+                if (!event.routeKey.includes('/api/request') && !event.routeKey.includes('/api/pairs')) throw new HttpError("This function only supports CRUD of accounts, where the routeKey starts with /api/request/* or /api/pairs/* routes")
+                throw new HttpError(404, `Unsupported route: "${event.routeKey}"`);
+            } catch (err) {
+                handleError(err, callback);
             }
-
-            if (!event.routeKey.includes('/api/request') && !event.routeKey.includes('/api/pairs')) {
-                callback(null, {
-                    statusCode: 400,
-                    body: JSON.stringify({ error: "This function only supports CRUD of accounts, where the routeKey starts with /api/request/* or /api/pairs/* routes" })
-                });
-                return;
-            }
-
-            callback(null, {
-                statusCode: 404,
-                body: JSON.stringify({ error: `Unsupported route: "${event.routeKey}"` })
-            });
     }
 }
