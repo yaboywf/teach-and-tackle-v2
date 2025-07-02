@@ -52,26 +52,36 @@ if (decodeToken.name) {
     document.querySelector(".user").textContent = decodeToken.name;
 }
 
+// get user image
+axios.get(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/account/account-information?id=${encodeURIComponent(decodeToken["cognito:username"].toUpperCase())}`)
+.then(resp => {
+    document.querySelector(".user").style.setProperty("--before-background", resp.data.image ? `url(data:image/jpeg;base64,${resp.data.image}) center/cover no-repeat` : "url(/images/favicon.webp) center/cover no-repeat");
+})
+.catch(err => {
+    console.error(err);
+    showMessage("Failed to fetch user image");
+});
+
 // show the user's proficiency
-axios.get(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/proficiency/user-proficiency?id=${decodeToken["cognito:username"].toUpperCase()}`)
+axios.get(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/proficiency/user-proficiency?id=${encodeURIComponent(decodeToken["cognito:username"].toUpperCase())}`)
     .then(resp => {
         const strength = resp.data.filter(record => record.type === 1);
         const weakness = resp.data.filter(record => record.type === 2);
 
-        const formattedHTML = (moduleName) => {
-            return `<li title='${moduleName}'>${moduleName}</li>`;
+        const formattedHTML = (moduleName, id) => {
+            return `<li id='aside-${id}' title='${moduleName}'>${moduleName}</li>`;
         }
 
         if (strength.length === 0) document.getElementById("strength_content").textContent = "No strength modules";
         if (weakness.length === 0) document.getElementById("weakness_content").textContent = "No weakness modules";
 
         strength.map(proficiency => {
-            const format = formattedHTML(proficiency.module);
+            const format = formattedHTML(proficiency.module, proficiency.proficiency_id);
             document.getElementById("strength_content").insertAdjacentHTML("beforeend", format)
         })
 
         weakness.map(proficiency => {
-            const format = formattedHTML(proficiency.module);
+            const format = formattedHTML(proficiency.module, proficiency.proficiency_id);
             document.getElementById("weakness_content").insertAdjacentHTML("beforeend", format)
         })
     })

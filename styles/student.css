@@ -1,9 +1,26 @@
 .student_info {
     display: flex;
-    flex-direction: column;
-    gap: 5px;
+    gap: 15px;
     user-select: none;
     overflow: hidden;
+    align-items: center;
+}
+.student_info img {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+    object-fit: cover;
+    border: 1px solid black;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.student_info div {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 5px;
 }
 .student_info p:nth-of-type(1) {
     font-size: 20px;

@@ -41,6 +41,9 @@ aside > .user {
     border-radius: 10px;
     user-select: none;
     color: black;
+    display: flex;
+    gap: 10px;
+    align-items: center;
     text-decoration: none;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -48,6 +51,15 @@ aside > .user {
 }
 aside .user:hover {
     background-color: #c4c4c4;
+}
+aside .user::before {
+    content: "";
+    width: 20px;
+    display: block;
+    height: 20px;
+    border: 1px solid black;
+    border-radius: 50%;
+    background: var(--before-background);
 }
 aside .category {
     display: flex;

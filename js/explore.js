@@ -55,9 +55,12 @@ async function getData() {
                 const exploreStudentTemplate = `
                     <div id='explore_student' class="explore_student" adminNum="${userInfo.data.student_id}">
                         <div class="student_info">
-                            <p style="--year: '${userInfo.data.year_of_study}'">${userInfo.data.name}</p>
-                            <p>${userInfo.data.student_id}@student.tp.edu.sg</p>
-                            <p>${userInfo.data.diploma}</p>
+                            <img src="${userInfo.data.image ? `data:image/png;base64,${userInfo.data.image}` : "../images/favicon.webp"}">
+                            <div>
+                                <p style="--year: '${userInfo.data.year_of_study}'">${userInfo.data.name}</p>
+                                <p>${userInfo.data.student_id}@student.tp.edu.sg</p>
+                                <p>${userInfo.data.diploma}</p>
+                            </div>
                         </div>
                         <div class="student_skills">
                             ${strengthString}

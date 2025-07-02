@@ -30,9 +30,12 @@ axios.get("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/request/us
         return `
             <div class="request" id="${request.pair_id}">
                 <div class="student_info">
-                    <p style="--year: '${otherUser.year_of_study || "?"}'">${otherUser?.name || "Deleted User"}</p>
-                    <p>${otherUser.student_id || "????????"}@student.tp.edu.sg</p>
-                    <p>${otherUser.diploma || "Diploma Unknown"}</p>
+                    <img src="${otherUser.image ? `data:image/png;base64,${otherUser.image}` : "../images/favicon.webp"}" alt="Profile Picture">
+                    <div>
+                        <p style="--year: '${otherUser.year_of_study || "?"}'">${otherUser?.name || "Deleted User"}</p>
+                        <p>${otherUser.student_id || "????????"}@student.tp.edu.sg</p>
+                        <p>${otherUser.diploma || "Diploma Unknown"}</p>
+                    </div>
                 </div>
                 <div class="request_info">
                     <p>${request.module}</p>
@@ -51,9 +54,12 @@ axios.get("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/request/us
         return `
             <div class="request" id="${request.pair_id}">
                 <div class="student_info">
-                    <p style="--year: '${otherUser.year_of_study || "?"}'">${otherUser?.name || "Deleted User"}</p>
-                    <p>${otherUser.student_id || "????????"}@student.tp.edu.sg</p>
-                    <p>${otherUser.diploma || "Diploma Unknown"}</p>
+                    <img src="data:image/png;base64,${otherUser.image}" alt="Profile Picture">
+                    <div>
+                        <p style="--year: '${otherUser.year_of_study || "?"}'">${otherUser?.name || "Deleted User"}</p>
+                        <p>${otherUser.student_id || "????????"}@student.tp.edu.sg</p>
+                        <p>${otherUser.diploma || "Diploma Unknown"}</p>
+                    </div>
                 </div>
                 <div class="request_info">
                     <p>${request.module}</p>
