@@ -2,37 +2,28 @@ const aws = require("aws-sdk");
 const crypto = require('crypto');
 const dynamo = new aws.DynamoDB.DocumentClient();
 const cognito = new aws.CognitoIdentityServiceProvider();
+const s3 = new aws.S3();
+
+class HttpError extends Error {
+    constructor(statusCode, message) {
+        super(message);
+        this.statusCode = statusCode;
+        this.name = this.constructor.name;
+    }
+}
 
 /**
  * Check required keys
  * 
  * @param {object} body - The request
  * @param {string[]} keys - An array of strings representing the required keys
- * @param {function} callback - The callback function
 */
-const checkRequiredKeys = (body, keys, callback) => {
-    try {
-        if (!body) {
-            throw new Error("Body is empty");
-        }
+const checkRequiredKeys = (data, keys) => {
+    if (!data) throw new HttpError(400, "Data is empty");
+    if (typeof data !== 'object') throw new HttpError(400, `Data not an object. It is a ${typeof data}`);
 
-        if (typeof body !== 'object') {
-            throw new Error(`Body not an object. It is a ${typeof body}`);
-        }
-
-        let missingKeys = keys.filter(key => !body.hasOwnProperty(key));
-        if (missingKeys.length > 0) {
-            callback(null, {
-                statusCode: 400,
-                body: JSON.stringify({ error: "Missing required keys: " + missingKeys.join(", ") })
-            });
-        }
-    } catch (e) {
-        callback(null, {
-            statusCode: 500,
-            body: JSON.stringify({ error: `Failed to check required keys: ${e.message}` })
-        });
-    }
+    let missingKeys = keys.filter(key => !data.hasOwnProperty(key));
+    if (missingKeys.length > 0) throw new HttpError(400, "Missing required keys: " + missingKeys.join(", "));
 }
 
 /**
@@ -43,46 +34,54 @@ const checkRequiredKeys = (body, keys, callback) => {
 const decodeJWT = (token, callback) => {
     if (!token) return null;
 
+    const payload = token.split('.')[1];
+    const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+    return JSON.parse(decoded);
+}
+
+/**
+ * Function to parse JSON
+ * @param {*} data 
+ * @returns {object}
+ */
+const parseJsonSafe = (data) => {
     try {
-        const payload = token.split('.')[1];
-        const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
-        return JSON.parse(decoded);
-    } catch (e) {
-        callback(null, {
-            statusCode: 500,
-            body: JSON.stringify({ error: `Failed to decode JWT: ${e.message}` })
-        });
-        return null;
+        return data && typeof data === 'string' ? JSON.parse(data) : data || {};
+    } catch (err) {
+        return {};
     }
+};
+
+/**
+ * Function to handle errors
+ * @param {*} err 
+ * @param {*} callback 
+ */
+const handleError = (err, callback) => {
+    console.error(err.message)
+
+    callback(null, {
+        statusCode: err instanceof HttpError ? err.statusCode : 500,
+        body: JSON.stringify({ error: `Internal Server Error - ${err.message}` }),
+    });
 }
 
 /**
  * Calculates the secret hash to be passed into AWS Cognito
  * 
  * @param {*} username - The username
- * @returns 
+ * @returns {string}
  */
-function calculateSecretHash(username) {
+async function calculateSecretHash(username) {
     const encoder = new TextEncoder();
     const data = `${username}2lave0d420lofl9ead9h87mi41`;
     const keyData = encoder.encode('kr3a1i8868lhcmmlain7jh10trjofrt4f2f4en2orh6oorbkp3t');
     const dataToSign = encoder.encode(data);
 
-    return crypto.subtle.importKey(
-        "raw",
-        keyData,
-        { name: "HMAC", hash: { name: "SHA-256" } },
-        false,
-        ["sign"]
-    )
-        .then(function (key) {
-            return crypto.subtle.sign("HMAC", key, dataToSign)
-                .then(function (signature) {
-                    // Convert signature to base64 format
-                    const byteArray = new Uint8Array(signature);
-                    return btoa(String.fromCharCode.apply(null, byteArray));
-                });
-        });
+    const key = await crypto.subtle.importKey("raw", keyData, { name: "HMAC", hash: { name: "SHA-256" } }, false, ["sign"]);
+    const signature = await crypto.subtle.sign("HMAC", key, dataToSign);
+    const byteArray = new Uint8Array(signature);
+    return btoa(String.fromCharCode.apply(null, byteArray));
 }
 
 /**
@@ -126,164 +125,38 @@ function handleNewPasswordChallenge(session, username, newPassword, callback) {
 }
 
 /**
- * Function to trigger the forget password flow
- * @param {*} username 
+ * Generic function to handle Cognito actions (signUp, forgotPassword, changePassword, etc.)
+ * @param {*} action - The Cognito action to perform (signUp, forgotPassword, etc.)
+ * @param {*} params - The parameters for the Cognito action
+ * @param {*} callback - The callback function to return the response
  */
-async function forgotPassword(username, callback) {
-    const secretHash = await calculateSecretHash(username);
-    const params = {
-        ClientId: '2lave0d420lofl9ead9h87mi41',
-        SecretHash: secretHash,
-        Username: username,
-    };
-
+async function cognitoAction(action, params, callback, successMessage, needSecretHash = false, needClientId = false) {
     try {
-        await cognito.forgotPassword(params).promise();
+        if (needSecretHash) params.SecretHash = await calculateSecretHash(params.Username);
+        if (needClientId) params.ClientId = "2lave0d420lofl9ead9h87mi41";
+
+        await cognito[action](params).promise();
         callback(null, {
             statusCode: 200,
-            body: JSON.stringify({ message: "Password reset code sent successfully" })
+            body: JSON.stringify({ message: successMessage })
         });
     } catch (err) {
-        callback(null, {
-            statusCode: 500,
-            body: JSON.stringify(err)
-        });
+        throw new HttpError(500, err);
     }
 }
 
-/**
- * Function to change password
- * @param {*} currentPassword 
- * @param {*} newPassword 
- */
-async function changePassword(currentPassword, newPassword, accessToken, callback) {
-    const params = {
-        AccessToken: accessToken,
-        PreviousPassword: currentPassword,
-        ProposedPassword: newPassword
-    };
-
-    try {
-        await cognito.changePassword(params).promise();
-        callback(null, {
-            statusCode: 200,
-            body: JSON.stringify({ "message": "Password changed successfully" })
-        });
-        isFormDirty = false;
-    } catch (error) {
-        callback(null, {
-            statusCode: 500,
-            body: JSON.stringify(error)
-        });
-    }
-}
-
-/**
- * Function to register in AWS Cognito
- * @param {*} adminNumber 
- * @param {*} name 
- * @param {*} password 
- */
-async function signUp(adminNumber, name, password, callback) {
-    try {
-        const secretHash = await calculateSecretHash(adminNumber);
-        const params = {
-            ClientId: "2lave0d420lofl9ead9h87mi41",
-            SecretHash: secretHash,
-            Username: adminNumber.toUpperCase(),
-            Password: password,
-            UserAttributes: [
-                { Name: 'name', Value: name },
-                { Name: 'email', Value: "dylanyeowf@gmail.com" },
-                // Uncomment in production
-                // { Name: 'email', Value: `${adminNumber.toUpperCase()}@student.tp.edu.sg` }
-            ]
-        };
-
-
-        await cognito.signUp(params).promise();
-        callback(null, {
-            statusCode: 200,
-            body: JSON.stringify({ "message": "User successfully registered" })
-        });
-    } catch (err) {
-        callback(null, {
-            statusCode: 500,
-            body: JSON.stringify(err)
-        });
-    };
-}
-
-/**
- * Function to confirm email
- * @param {*} confirmationCode 
- */
-async function confirmEmail(adminNumber, confirmationCode, callback) {
-    try {
-        const secretHash = await calculateSecretHash(adminNumber);
-        const params = {
-            ClientId: "2lave0d420lofl9ead9h87mi41",
-            SecretHash: secretHash,
-            Username: adminNumber.toUpperCase(),
-            ConfirmationCode: confirmationCode
-        };
-
-        await cognito.confirmSignUp(params).promise();
-        callback(null, {
-            statusCode: 200,
-            body: JSON.stringify({ "message": "Email Confirmed" })
-        });
-    } catch (err) {
-        callback(null, {
-            statusCode: 500,
-            body: JSON.stringify(err)
-        });
-    }
-}
-
-/**
- * Function to create a new password during the forget password flow
- * @param {*} verificationCode 
- * @param {*} newPassword 
- * @param {*} adminNumber
- */
-async function confirmForgotPassword(verificationCode, adminNumber, newPassword, callback) {
-    const secretHash = await calculateSecretHash(adminNumber);
-    const params = {
-        ClientId: '2lave0d420lofl9ead9h87mi41',
-        SecretHash: secretHash,
-        Username: adminNumber,
-        ConfirmationCode: verificationCode,
-        Password: newPassword,
-    };
-
-    try {
-        await cognito.confirmForgotPassword(params).promise();
-        callback(null, {
-            statusCode: 200,
-            body: JSON.stringify({ "message": "Password Reset" })
-        });
-    } catch (err) {
-        callback(null, {
-            statusCode: 500,
-            body: JSON.stringify(err)
-        });
-    }
-}
-
-exports.handler = (event, context, callback) => {
-    let body;
+exports.handler = async (event, context, callback) => {
     let jwt;
     let decoded;
     let userId;
-    const auth = event.headers;
+    const body = parseJsonSafe(event.body)
+    const query = parseJsonSafe(event.queryStringParameters);
+    const auth = parseJsonSafe(event.headers);
 
     switch (event.routeKey) {
         case 'GET /api/account/account-information':
             try {
-                body = event.queryStringParameters;
-
-                checkRequiredKeys(body, ["id"], callback);
+                checkRequiredKeys(query, ["id"]);
 
                 var params = {
                     TableName: "users",
@@ -292,38 +165,34 @@ exports.handler = (event, context, callback) => {
                     }
                 };
 
-                dynamo.get(params, (err, data) => {
-                    if (err) throw new Error(err);
+                var data = await dynamo.get(params).promise();
 
-                    if (!data.Item) {
-                        callback(null, {
-                            statusCode: 404,
-                            body: JSON.stringify({ error: "Student not found" })
-                        });
-                        return;
-                    }
+                if (!data.Item) throw new HttpError(404, "Student not found");
 
-                    callback(null, {
-                        statusCode: 200,
-                        body: JSON.stringify(data.Item)
-                    });
+                if (data.Item.image_key) {
+                    var getImageParams = {
+                        Bucket: "teach-and-tackle-images",
+                        Key: data.Item.image_key || ""
+                    };
+
+                    var imageData = await s3.getObject(getImageParams).promise();
+                    var base64Image = imageData.Body.toString('base64');
+                    data.Item.image = base64Image;
+                }
+
+                callback(null, {
+                    statusCode: 200,
+                    body: JSON.stringify(data.Item)
                 });
             } catch (err) {
-                callback(null, {
-                    statusCode: 500,
-                    body: JSON.stringify(err.message)
-                });
+                handleError(err, callback);
             }
 
             break;
         case 'PUT /api/account/update-account':
             try {
-                body = event.body;
-
-                if (typeof body === "string") body = JSON.parse(body);
-
-                checkRequiredKeys(body, ["diploma", "year_of_study"], callback);
-                checkRequiredKeys(auth, ["authorization"], callback);
+                checkRequiredKeys(body, ["diploma", "year_of_study"]);
+                checkRequiredKeys(auth, ["authorization"]);
 
                 jwt = auth.authorization.split(" ")[1];
                 decoded = decodeJWT(jwt, callback);
@@ -345,18 +214,14 @@ exports.handler = (event, context, callback) => {
                     },
                 };
 
-                dynamo.update(params, (err, data) => {
-                    if (err) throw new Error(err);
-                    callback(null, {
-                        statusCode: 200,
-                        body: JSON.stringify({ message: "User Information successfully updated" })
-                    });
+                await dynamo.update(params).promise();
+
+                callback(null, {
+                    statusCode: 200,
+                    body: JSON.stringify({ message: "User Information successfully updated" })
                 });
             } catch (err) {
-                callback(null, {
-                    statusCode: 500,
-                    body: JSON.stringify(err.message)
-                });
+                handleError(err, callback);
             }
 
             break;
@@ -368,6 +233,26 @@ exports.handler = (event, context, callback) => {
                 decoded = decodeJWT(jwt, callback);
                 userId = decoded["cognito:username"].toUpperCase();
 
+                var getParams = {
+                    TableName: "users",
+                    Key: {
+                        student_id: userId || ""
+                    }
+                };
+
+                const data = await dynamo.get(getParams).promise();
+
+                if (!data.Item) throw new HttpError(404, "User not found");
+
+                if (data.Item.image_key) {
+                    var getImageParams = {
+                        Bucket: "teach-and-tackle-images",
+                        Key: data.Item.image_key || ""
+                    };
+
+                    await s3.deleteObject(getImageParams).promise();
+                }
+
                 var deleteParams = {
                     TableName: "users",
                     Key: {
@@ -375,90 +260,58 @@ exports.handler = (event, context, callback) => {
                     }
                 };
 
-                dynamo.delete(deleteParams, (err, data) => {
-                    if (err) {
-                        console.error("DynamoDB delete error:", err);
-                        return callback(null, {
-                            statusCode: 500,
-                            body: JSON.stringify({ message: "Failed to delete user data" })
-                        });
-                    }
+                await dynamo.delete(deleteParams).promise();
 
-                    const params = {
-                        UserPoolId: "us-east-1_RP5a0BedE",
-                        Username: userId.toUpperCase(),
-                    };
+                var cognitoDeleteParams = {
+                    UserPoolId: "us-east-1_RP5a0BedE",
+                    Username: userId.toUpperCase(),
+                };
 
-                    cognito.adminDeleteUser(params).promise()
-                        .then(() => {
-                            callback(null, {
-                                statusCode: 200,
-                                body: JSON.stringify({ message: `User ${userId} deleted` }),
-                            });
-                        })
-                        .catch(err => {
-                            console.error("Cognito delete error:", err);
-                            callback(null, {
-                                statusCode: err.statusCode || 500,
-                                body: JSON.stringify({ message: err.message || "Failed to delete user" }),
-                            });
-                        });
+                await cognito.adminDeleteUser(cognitoDeleteParams).promise();
+
+                callback(null, {
+                    statusCode: 200,
+                    body: JSON.stringify({ message: `User ${userId} deleted` }),
                 });
             } catch (err) {
-                callback(null, {
-                    statusCode: 500,
-                    body: JSON.stringify(err)
-                });
+                handleError(err, callback);
             }
 
             break;
         case "POST /api/account/authenticate":
-            body = event.body;
+            try {
+                checkRequiredKeys(body, ["username", "password"]);
 
-            if (typeof body === "string") body = JSON.parse(body);
+                var secretHash = calculateSecretHash(body.username)
 
-            checkRequiredKeys(body, ["username", "password"], callback);
+                var loginParams = {
+                    AuthFlow: 'USER_PASSWORD_AUTH',
+                    ClientId: '2lave0d420lofl9ead9h87mi41',
+                    AuthParameters: {
+                        USERNAME: body.username,
+                        PASSWORD: body.password,
+                        SECRET_HASH: secretHash
+                    }
+                };
 
-            calculateSecretHash(body.username)
-                .then(secretHash => {
-                    const params = {
-                        AuthFlow: 'USER_PASSWORD_AUTH',
-                        ClientId: '2lave0d420lofl9ead9h87mi41',  // Your App Client ID
-                        AuthParameters: {
-                            USERNAME: body.username,
-                            PASSWORD: body.password,
-                            SECRET_HASH: secretHash
-                        }
-                    };
+                var loginData = await cognito.initiateAuth(loginParams).promise();
 
-                    cognito.initiateAuth(params, (err, data) => {
-                        if (err) throw new Error("Error initiating auth:", err);
-
-                        if (data.ChallengeName === 'NEW_PASSWORD_REQUIRED') {
-                            handleNewPasswordChallenge(data.Session, body.username, body.password, callback);
-                        } else {
-                            callback(null, {
-                                statusCode: 200,
-                                body: JSON.stringify(data.AuthenticationResult),
-                            });
-                        }
-                    });
-                })
-                .catch(err => {
+                if (loginData.ChallengeName === 'NEW_PASSWORD_REQUIRED') {
+                    handleNewPasswordChallenge(loginData.Session, body.username, body.password, callback);
+                } else {
                     callback(null, {
-                        statusCode: 500,
-                        body: JSON.stringify(err),
+                        statusCode: 200,
+                        body: JSON.stringify(loginData.AuthenticationResult),
                     });
-                });
+                }
+            } catch (err) {
+                handleError(err, callback);
+            }
 
             break;
         case "POST /api/account/register":
             try {
-                body = event.body;
-
-                if (typeof body === "string") body = JSON.parse(body);
-
-                checkRequiredKeys(body, ["student_id", "name", "diploma", "year_of_study", "password"], callback);
+                checkRequiredKeys(body, ["student_id", "name", "diploma", "year_of_study", "password"]);
 
                 var getParams = {
                     TableName: "users",
@@ -467,132 +320,83 @@ exports.handler = (event, context, callback) => {
                     }
                 };
 
-                dynamo.get(getParams, (err, data) => {
-                    if (err) throw new Error(err);
+                var data = await dynamo.get(getParams).promise();
 
-                    if (data.Item) {
-                        callback(null, {
-                            statusCode: 400,
-                            body: JSON.stringify({ error: "User already exists" })
-                        });
-                        return;
+                if (data.Item) throw new HttpError(400, "User already exists");
+
+                var postParams = {
+                    TableName: "users",
+                    Item: {
+                        student_id: body.student_id || "",
+                        name: body.name || "",
+                        year_of_study: Number(body.year_of_study) || 0,
+                        diploma: body.diploma || "",
                     }
+                };
 
-                    var postParams = {
-                        TableName: "users",
-                        Item: {
-                            student_id: body.student_id || "",
-                            name: body.name || "",
-                            year_of_study: Number(body.year_of_study) || 0,
-                            diploma: body.diploma || "",
-                        }
-                    };
+                await dynamo.put(postParams).promise();
 
-                    dynamo.put(postParams, (err, data) => {
-                        if (err) throw new Error(err)
+                var cognitoSignUpParams = {
+                    Username: body.student_id.toUpperCase(),
+                    Password: body.password,
+                    UserAttributes: [
+                        { Name: 'name', Value: body.name },
+                        { Name: 'email', Value: "dylanyeowf@gmail.com" },
+                        // Uncomment in production
+                        // { Name: 'email', Value: `${body.student_id.toUpperCase()}@student.tp.edu.sg` }
+                    ]
+                };
 
-                        signUp(body.student_id, body.name, body.password, callback);
-                    });
-                });
+                await cognitoAction("signUp", cognitoSignUpParams, callback, "User successfully registered", true, true);
             } catch (e) {
-                callback(null, {
-                    statusCode: 500,
-                    body: JSON.stringify({ error: e })
-                });
+                handleError(e, callback);
             }
 
             break;
         case "POST /api/account/forget-password":
             try {
-                body = event.body;
-
-                if (typeof body === "string") body = JSON.parse(body);
-
-                checkRequiredKeys(body, ["username"], callback);
-
-                forgotPassword(body.username, callback);
+                checkRequiredKeys(body, ["username"]);
+                await cognitoAction("forgotPassword", { Username: body.username }, callback, "Password reset code sent successfully", true, true);
             } catch (err) {
-                callback(null, {
-                    statusCode: 500,
-                    body: JSON.stringify(err)
-                });
+                handleError(err, callback);
             }
 
             break;
         case "POST /api/account/reset-password":
             try {
-                body = event.body;
-
-                if (typeof body === "string") body = JSON.parse(body);
-
-                checkRequiredKeys(body, ["current_password", "new_password"], callback);
-                checkRequiredKeys(auth, ["authorization"], callback);
-
-                changePassword(body.current_password, body.new_password, auth.authorization, callback);
+                checkRequiredKeys(body, ["current_password", "new_password"]);
+                checkRequiredKeys(auth, ["authorization"]);
+                await cognitoAction("changePassword", { AccessToken: auth.authorization, PreviousPassword: body.current_password, ProposedPassword: body.new_password }, callback, "Password changed successfully");
             } catch (err) {
-                callback(null, {
-                    statusCode: 500,
-                    body: JSON.stringify(err)
-                });
+                handleError(err, callback);
             }
 
             break;
         case "POST /api/account/confirm-email":
             try {
-                body = event.body;
-
-                if (typeof body === "string") body = JSON.parse(body);
-
-                checkRequiredKeys(body, ["username", "code"], callback);
-
-                confirmEmail(body.username, body.code, callback);
-
-                break;
+                checkRequiredKeys(body, ["username", "code"]);
+                await cognitoAction("confirmSignUp", { Username: body.username.toUpperCase(), ConfirmationCode: body.code }, callback, "Email Confirmed", true, true);
             } catch (err) {
-                callback(null, {
-                    statusCode: 500,
-                    body: JSON.stringify(err)
-                });
+                handleError(err, callback);
             }
 
             break;
         case "POST /api/account/confirm-password":
             try {
-                body = event.body;
-
-                if (typeof body === "string") body = JSON.parse(body);
-
-                checkRequiredKeys(body, ["username", "code", "password"], callback);
-
-                confirmForgotPassword(body.code, body.username, body.password, callback);
+                checkRequiredKeys(body, ["username", "code", "password"]);
+                await cognitoAction("confirmForgotPassword", { Username: body.username, ConfirmationCode: body.code, Password: body.password }, callback, "Password Reset", true, true);
             } catch (err) {
-                callback(null, {
-                    statusCode: 500,
-                    body: JSON.stringify(err)
-                });
+                handleError(err, callback);
             }
 
             break;
         default:
-            if (!event.routeKey) {
-                callback(null, {
-                    statusCode: 400,
-                    body: JSON.stringify({ error: "Missing routeKey" })
-                });
-                return;
+            try {
+                if (!event.routeKey) throw new HttpError(400, "No routeKey provided");
+                if (!event.routeKey.includes('/api/account')) throw new HttpError("This function only supports CRUD of accounts, where the routeKey starts with /api/account/* routes")
+                throw new HttpError(404, `Unsupported route: "${event.routeKey}"`);
+            } catch (err) {
+                handleError(err, callback);
             }
-
-            if (!event.routeKey.includes('/api/account')) {
-                callback(null, {
-                    statusCode: 400,
-                    body: JSON.stringify({ error: "This function only supports CRUD of accounts, where the routeKey starts with /api/account/* routes" })
-                });
-                return;
-            }
-
-            callback(null, {
-                statusCode: 404,
-                body: JSON.stringify({ error: `Unsupported route: "${event.routeKey}"` })
-            });
     }
 }
