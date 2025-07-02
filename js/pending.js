@@ -8,7 +8,7 @@ let profile = {};
  */
 async function getUser(adminNum) {
     try {
-        const resp = await axios.get(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/account/account-information?id=${encodeURIComponent(adminNum.toUpperCase())}`, { headers: { "authorization": `Bearer ${getCookie("id_token")}` } });
+        const resp = await axios.get(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/account/account-information?id=${encodeURIComponent(adminNum.toUpperCase())}`);
         return resp.data || {};
     } catch (err) {
         console.error(err);
