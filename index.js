@@ -282,7 +282,7 @@ exports.handler = async (event, context, callback) => {
             try {
                 checkRequiredKeys(body, ["username", "password"]);
 
-                var secretHash = calculateSecretHash(body.username)
+                var secretHash = await calculateSecretHash(body.username)
 
                 var loginParams = {
                     AuthFlow: 'USER_PASSWORD_AUTH',
