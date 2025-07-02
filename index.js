@@ -1,6 +1,14 @@
 const aws = require("aws-sdk");
 const dynamo = new aws.DynamoDB.DocumentClient();
 
+class HttpError extends Error {
+    constructor(statusCode, message) {
+        super(message);
+        this.statusCode = statusCode;
+        this.name = this.constructor.name;
+    }
+}
+
 /**
  * Check required keys
  * 
@@ -8,29 +16,12 @@ const dynamo = new aws.DynamoDB.DocumentClient();
  * @param {string[]} keys - An array of strings representing the required keys
  * @param {function} callback - The callback function
 */
-const checkRequiredKeys = (body, keys, callback) => {
-    try {
-        if (!body) {
-            throw new Error("Body is empty");
-        }
+const checkRequiredKeys = (data, keys) => {
+    if (!data) throw new HttpError(400, "Data is empty");
+    if (typeof data !== 'object') throw new HttpError(400, `Data not an object. It is a ${typeof data}`);
 
-        if (typeof body !== 'object') {
-            throw new Error(`Body not an object. It is a ${typeof body}`);
-        }
-
-        let missingKeys = keys.filter(key => !body.hasOwnProperty(key));
-        if (missingKeys.length > 0) {
-            callback(null, {
-                statusCode: 400,
-                body: JSON.stringify({ error: "Missing required keys: " + missingKeys.join(", ") })
-            });
-        }
-    } catch (e) {
-        callback(null, {
-            statusCode: 500,
-            body: JSON.stringify({ error: `Failed to check required keys: ${e}` })
-        });
-    }
+    let missingKeys = keys.filter(key => !data.hasOwnProperty(key));
+    if (missingKeys.length > 0) throw new HttpError(400, "Missing required keys: " + missingKeys.join(", "));
 }
 
 /**
@@ -39,67 +30,80 @@ const checkRequiredKeys = (body, keys, callback) => {
  * @returns {object}
  */
 const decodeJWT = (token) => {
-    if (!token) return null;
+    if (!token) throw new HttpError(401, "No token provided");
 
-    try {
-        const payload = token.split('.')[1];
-        const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
-        return JSON.parse(decoded);
-    } catch (e) {
-        callback(null, {
-            statusCode: 500,
-            body: JSON.stringify({ error: `Failed to decode JWT: ${e}` })
-        });
-        return null;
-    }
+    const payload = token.split('.')[1];
+    const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+    const data = JSON.parse(decoded);
+    const now = Math.floor(Date.now() / 1000);
+
+    if (!data || !data.exp) throw new HttpError(401, "Invalid token");
+    if (data.exp < now) throw new HttpError(401, "Token expired");
+    return data;
 }
 
-exports.handler = (event, context, callback) => {
-    let body;
+/**
+ * Function to parse JSON
+ * @param {*} data 
+ * @returns {object}
+ */
+const parseJsonSafe = (data) => {
+    try {
+        return data && typeof data === 'string' ? JSON.parse(data) : data || {};
+    } catch (err) {
+        return {};
+    }
+};
+
+/**
+ * Function to handle errors
+ * @param {*} err 
+ * @param {*} callback 
+ */
+const handleError = (err, callback) => {
+    console.error(err.message)
+
+    callback(null, {
+        statusCode: err instanceof HttpError ? err.statusCode : 500,
+        body: JSON.stringify({ error: `Error - ${err.message}`, stack: err?.stack }),
+    });
+}
+
+exports.handler = async (event, context, callback) => {
     let jwt;
     let decoded;
     let userId;
-    const auth = event.headers;
+    const body = parseJsonSafe(event.body)
+    const query = parseJsonSafe(event.queryStringParameters);
+    const auth = parseJsonSafe(event.headers);
 
     switch (event.routeKey) {
         case "GET /api/proficiency/user-proficiency":
             try {
-                body = event.queryStringParameters
-
-                if (typeof body === "string") body = JSON.parse(body);
-
-                checkRequiredKeys(body, ["id"], callback);
+                checkRequiredKeys(query, ["id"]);
 
                 var params = {
                     TableName: "proficiency",
                     FilterExpression: "student_id = :student_id",
                     ExpressionAttributeValues: {
-                        ":student_id": body.id.toUpperCase() || ""
+                        ":student_id": query.id.toUpperCase() || ""
                     }
                 }
 
-                dynamo.scan(params, (err, data) => {
-                    if (err) throw new Error(err);
-                    callback(null, {
-                        statusCode: 200,
-                        body: JSON.stringify(data.Items)
-                    });
-                })
-            } catch (e) {
+                var data = await dynamo.scan(params).promise();
+                
                 callback(null, {
-                    statusCode: 500,
-                    body: JSON.stringify(e.message)
+                    statusCode: 200,
+                    body: JSON.stringify(data.Items)
                 });
+            } catch (e) {
+                handleError(e, callback);
             }
 
             break;
         case "POST /api/proficiency/new":
             try {
-                body = event.queryStringParameters
-
-                if (typeof body === "string") body = JSON.parse(body);
-
-                checkRequiredKeys(body, ["type", "name"], callback);
+                checkRequiredKeys(query, ["type", "name"], callback);
                 checkRequiredKeys(auth, ["authorization"], callback);
 
                 jwt = auth.authorization.split(" ")[1];
@@ -111,33 +115,25 @@ exports.handler = (event, context, callback) => {
                     Item: {
                         proficiency_id: Date.now(),
                         student_id: userId,
-                        type: Number(body.type) || 0,
-                        module: body.name || "",
+                        type: Number(query.type) || 0,
+                        module: query.name || "",
                     }
                 }
 
-                dynamo.put(postParams, (err, data) => {
-                    if (err) throw new Error(err);
-                    callback(null, {
-                        statusCode: 200,
-                        body: JSON.stringify({ "message": "Proficiency added" })
-                    });
-                })
-            } catch (e) {
+                await dynamo.put(postParams).promise();
+
                 callback(null, {
-                    statusCode: 500,
-                    body: JSON.stringify(e.message)
+                    statusCode: 200,
+                    body: JSON.stringify({ "message": "Proficiency added" })
                 });
+            } catch (e) {
+                handleError(e, callback);
             }
 
             break;
         case "DELETE /api/proficiency/remove":
             try {
-                body = event.queryStringParameters;
-
-                if (typeof body === "string") body = JSON.parse(body);
-
-                checkRequiredKeys(body, ["id"], callback);
+                checkRequiredKeys(query, ["id"], callback);
                 checkRequiredKeys(auth, ["authorization"], callback);
 
                 jwt = auth.authorization.split(" ")[1];
@@ -148,64 +144,41 @@ exports.handler = (event, context, callback) => {
                     TableName: "proficiency",
                     KeyConditionExpression: "proficiency_id = :id",
                     ExpressionAttributeValues: {
-                        ':id': Number(body.id) || 0
+                        ':id': Number(query.id) || 0
                     },
                     Limit: 1
                 }
 
-                dynamo.query(queryParams, (err, data) => {
-                    if (err) throw new Error(err);
+                var data = await dynamo.query(queryParams).promise();
+                
+                if (!data.Items || data.Items.length === 0) throw new HttpError(404, "Proficiency not found");
+                if (data.Items[0]?.student_id.toUpperCase() !== userId) throw new HttpError(401, "You are not authorized to delete this proficiency");
 
-                    if (!data.Items || data.Items.length === 0) {
-                        callback(null, {
-                            statusCode: 404,
-                            body: JSON.stringify({ error: "Proficiency not found" })
-                        });
-                        return;
+                var deleteParams = {
+                    TableName: "proficiency",
+                    Key: {
+                        "proficiency_id": Number(query.id) || 0,
+                        "student_id": userId || ""
                     }
+                }
 
-                    if (data.Items[0]?.student_id.toUpperCase() !== userId) {
-                        callback(null, {
-                            statusCode: 401,
-                            body: JSON.stringify({ error: "You are not authorized to delete this proficiency" })
-                        });
-                        return;
-                    }
-
-                    var deleteParams = {
-                        TableName: "proficiency",
-                        Key: {
-                            "proficiency_id": Number(body.id) || 0,
-                            "student_id": userId || ""
-                        }
-                    }
-
-                    dynamo.delete(deleteParams, (err, data) => {
-                        if (err) throw new Error(err);
-                        callback(null, {
-                            statusCode: 200,
-                            body: JSON.stringify({ message: "Proficiency successfully deleted" })
-                        });
-                    })
-                })
-            } catch (e) {
+                await dynamo.delete(deleteParams).promise();
+                
                 callback(null, {
-                    statusCode: 500,
-                    body: JSON.stringify(e.message)
+                    statusCode: 200,
+                    body: JSON.stringify({ message: "Proficiency successfully deleted" })
                 });
+            } catch (e) {
+                handleError(e, callback);
             }
 
             break;
         case "GET /api/proficiency/matchable-accounts":
             try {
-                body = event.queryStringParameters
+                checkRequiredKeys(query, ["strength", "weakness"], callback);
 
-                if (typeof body === "string") body = JSON.parse(body);
-
-                checkRequiredKeys(body, ["strength", "weakness"], callback);
-
-                const strengths = body.strength.split(',') || [];
-                const weaknesses = body.weakness.split(',') || [];
+                const strengths = query.strength.split(',') || [];
+                const weaknesses = query.weakness.split(',') || [];
 
                 const strengthParts = strengths.map((_, i) => `#mod = :mStrength${i}`);
                 const strengthFilterExpression = strengthParts.join(' OR ');
@@ -233,50 +206,31 @@ exports.handler = (event, context, callback) => {
                     ExpressionAttributeValues: expressionAttributeValues
                 };
 
-                dynamo.scan(params, (err, data) => {
-                    if (err) throw new Error(err);
+                var data = await dynamo.scan(params).promise();
+                let uniqueStudents = [];
 
-                    let uniqueStudents = [];
+                data.Items.forEach(item => {
+                    const studentId = item.student_id.toUpperCase();
+            
+                    if (!uniqueStudents.includes(studentId)) uniqueStudents.push(studentId);
+                });
 
-                    data.Items.forEach(item => {
-                        const studentId = item.student_id.toUpperCase();
-                
-                        if (!uniqueStudents.includes(studentId)) uniqueStudents.push(studentId);
-                    });
-
-                    callback(null, {
-                        statusCode: 200,
-                        body: JSON.stringify(uniqueStudents)
-                    });
+                callback(null, {
+                    statusCode: 200,
+                    body: JSON.stringify(uniqueStudents)
                 });
             } catch (e) {
-                callback(null, {
-                    statusCode: 500,
-                    body: JSON.stringify(e)
-                });
+                handleError(e, callback);
             }
 
             break;
         default:
-            if (!event.routeKey) {
-                callback(null, {
-                    statusCode: 400,
-                    body: JSON.stringify({ error: "Missing routeKey" })
-                });
-                return;
+            try {
+                if (!event.routeKey) throw new HttpError(400, "No routeKey provided");
+                if (!event.routeKey.includes('/api/proficiency')) throw new HttpError("This function only supports CRUD of accounts, where the routeKey starts with /api/proficiency/* routes")
+                throw new HttpError(404, `Unsupported route: "${event.routeKey}"`);
+            } catch (err) {
+                handleError(err, callback);
             }
-
-            if (!event.routeKey.includes('/api/proficiency')) {
-                callback(null, {
-                    statusCode: 400,
-                    body: JSON.stringify({ error: "This function only supports CRUD of accounts, where the routeKey starts with /api/proficiency/* routes" })
-                });
-                return;
-            }
-
-            callback(null, {
-                statusCode: 404,
-                body: JSON.stringify({ error: `Unsupported route: "${event.routeKey}"` })
-            });
     }
 }
