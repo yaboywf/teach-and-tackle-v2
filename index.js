@@ -1,5 +1,6 @@
 const aws = require("aws-sdk");
 const crypto = require('crypto');
+const { v4: uuidv4 } = require('uuid');
 const dynamo = new aws.DynamoDB.DocumentClient();
 const cognito = new aws.CognitoIdentityServiceProvider();
 const s3 = new aws.S3();
@@ -200,6 +201,16 @@ exports.handler = async (event, context, callback) => {
                 decoded = decodeJWT(jwt);
                 userId = decoded["cognito:username"].toUpperCase();
 
+                var getUserParams = {
+                    TableName: "users",
+                    Key: {
+                        student_id: userId
+                    }
+                };
+        
+                var userData = await dynamo.get(getUserParams).promise();
+                var existingImageKey = userData.Item ? userData.Item.image_key : null;
+
                 var params = {
                     TableName: "users",
                     Key: {
@@ -217,6 +228,41 @@ exports.handler = async (event, context, callback) => {
                 };
 
                 await dynamo.update(params).promise();
+
+                if (body.image) {
+                    var image = body.image;
+                    var buffer = Buffer.from(image, 'base64');
+                    
+                    let s3Key;
+        
+                    if (!existingImageKey) {
+                        s3Key = uuidv4();
+        
+                        var updateImageKeyParams = {
+                            TableName: "users",
+                            Key: {
+                                student_id: userId
+                            },
+                            UpdateExpression: "set image_key = :image_key",
+                            ExpressionAttributeValues: {
+                                ":image_key": s3Key
+                            }
+                        };
+        
+                        await dynamo.update(updateImageKeyParams).promise();
+                    } else {
+                        s3Key = existingImageKey;
+                    }
+        
+                    var updateImageParams = {
+                        Bucket: "teach-and-tackle-images",
+                        Key: s3Key,
+                        Body: buffer,
+                        ContentType: 'application/octet-stream'
+                    };
+        
+                    await s3.upload(updateImageParams).promise();
+                }
 
                 callback(null, {
                     statusCode: 200,
