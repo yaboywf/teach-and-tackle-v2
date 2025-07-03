@@ -54,6 +54,22 @@ async function addNewModule(e, type) {
         })
 }
 
+function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        
+        reader.onload = (event) => {
+            resolve(event.target.result);
+        };
+
+        reader.onerror = (err) => {
+            reject(err);
+        };
+
+        reader.readAsDataURL(file);
+    });
+}
+
 // Display user information
 if (decodeToken) {
     document.getElementById("name").textContent = decodeToken.name;
@@ -65,6 +81,7 @@ axios.get(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/account/ac
     .then(resp => {
         document.getElementById("diploma").value = resp.data.diploma;
         document.getElementById(`y${resp.data.year_of_study}`).checked = true;
+        document.querySelector("#profile_picture + label").style.background = resp.data.image ? `url(data:image/jpeg;base64,${resp.data.image.split("base64")[1]}) center/cover no-repeat` : "url(/images/favicon.webp) center/cover no-repeat";
     })
     .catch(err => {
         showMessage("Failed to fetch user information");
@@ -151,8 +168,20 @@ window.addEventListener("beforeunload", (event) => {
     }
 });
 
+// Update profile picture after uploading, but not yet saved
+document.getElementById('profile_picture').addEventListener('change', async (e) => {
+    const fileInput = e.target;
+    const preview = document.getElementById('profile_picture_label');
+
+    if (fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
+        const base64File = await readFileAsBase64(file);
+        preview.style.background = `url(${base64File}) center/cover no-repeat`;
+    }
+});
+
 // Update user general information
-document.getElementById("general_form").addEventListener("submit", (e) => {
+document.getElementById("general_form").addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const diploma = document.getElementById("diploma").value;
@@ -162,7 +191,20 @@ document.getElementById("general_form").addEventListener("submit", (e) => {
     if (year_of_study === "") return showMessage("Please select your year of study");
     if (!e.target.checkValidity()) return;
 
-    axios.put("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/account/update-account", { diploma, year_of_study }, { headers: { "authorization": `Bearer ${getCookie("id_token")}` } })
+    const data = {
+        diploma: diploma,
+        year_of_study: year_of_study,
+    };
+
+    const fileInput = document.getElementById('profile_picture');
+
+    if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const base64File = await readFileAsBase64(file);
+        data.image = base64File;
+    }
+
+    axios.put("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/account/update-account", data, { headers: { "authorization": `Bearer ${getCookie("id_token")}` } })
         .then(() => {
             showMessage("Profile updated", "success");
             isFormDirty = false;
@@ -194,6 +236,7 @@ document.getElementById("password_form").addEventListener("submit", (e) => {
         })
 })
 
+// Delete account
 document.getElementById("delete_form").addEventListener("submit", (e) => {
     e.preventDefault();
     if (!e.target.checkValidity()) return;

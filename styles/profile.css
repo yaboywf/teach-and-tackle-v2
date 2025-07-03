@@ -41,6 +41,29 @@
     padding: 8px 0;
     outline: none;
 }
+.profile_container input[type='file'] {
+    display: none;
+}
+.profile_container input[type='file'] + label {
+    border: 1px solid black;
+    border-radius: 50%;
+    width: 150px;
+    aspect-ratio: 1;
+    grid-column: span 2;
+}
+.profile_container input[type='file'] + label:hover::after {
+    background: rgba(211, 211, 211, 0.9);
+    width: 100%;
+    display: flex;
+    height: 100%;
+    border-radius: 50%;
+    content: "\f044";
+    font-size: 50px !important;
+    justify-content: center;
+    align-items: center;
+    font: var(--fa-font-solid);
+    cursor: pointer;
+}
 .profile_container input[type='radio'] {
     display: none;
 }

@@ -83,7 +83,7 @@ const getUser = async (adminNum) => {
                 <div class="pair" id="${pairInfo.pair_id}">
                     <span>Unlink</span>
                     <div class="student_info">
-                        <img src="${currentUserData.image ? `data:image/png;base64,${currentUserData.image}` : "../images/favicon.webp"}" alt="Profile Picture">
+                        <img src="${currentUserData.image ? `data:image/png;base64,${currentUserData.image.split("base64")[1]}` : "../images/favicon.webp"}" alt="Profile Picture">
                         <div>
                             <p style="--year: '${currentUserData?.year_of_study}'">${currentUserData?.name}</p>
                             <p>${currentUserData?.student_id}@student.tp.edu.sg</p>
@@ -99,7 +99,7 @@ const getUser = async (adminNum) => {
                     </div>
 
                     <div class="student_info">
-                        <img src="${otherUserData.image ? `data:image/png;base64,${otherUserData.image}` : "../images/favicon.webp"}" alt="Profile Picture">
+                        <img src="${otherUserData.image ? `data:image/png;base64,${otherUserData.image.split("base64")[1]}` : "../images/favicon.webp"}" alt="Profile Picture">
                         <div>
                             <p style="--year: '${otherUserData?.year_of_study || "?"}'">${otherUserData?.name || "Deleted User"}</p>
                             <p>${otherUserData?.student_id || "????????"}@student.tp.edu.sg</p>

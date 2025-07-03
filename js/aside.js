@@ -55,7 +55,7 @@ if (decodeToken.name) {
 // get user image
 axios.get(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/account/account-information?id=${encodeURIComponent(decodeToken["cognito:username"].toUpperCase())}`)
 .then(resp => {
-    document.querySelector(".user").style.setProperty("--before-background", resp.data.image ? `url(data:image/jpeg;base64,${resp.data.image}) center/cover no-repeat` : "url(/images/favicon.webp) center/cover no-repeat");
+    document.querySelector(".user").style.setProperty("--before-background", resp.data.image ? `url(data:image/jpeg;base64,${resp.data.image.split("base64")[1]}) center/cover no-repeat` : "url(/images/favicon.webp) center/cover no-repeat");
 })
 .catch(err => {
     console.error(err);

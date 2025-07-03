@@ -19,7 +19,7 @@ document.getElementById('signInForm').addEventListener('submit', function (event
         })
         .catch(err => {
             console.error(err);
-            showMessage('Error signing in');
+            showMessage(err.response.data.error);
         });
 });
 

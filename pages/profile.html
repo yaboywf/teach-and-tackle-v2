@@ -52,21 +52,20 @@
         </nav>
 
         <div class="profile_container">
-            <div>
-                <h2>User Profile</h2>
+            <form id="general_form" novalidate>
+                <h2>User Information</h2>
                 <div>
+                    <input type="file" name="profile_picture" id="profile_picture" accept="image/*">
+                    <label for="profile_picture" id="profile_picture_label"></label>
+
                     <p>Name:</p>
                     <p id="name"></p>
                     <p>Admission Number:</p>
                     <p id="admission_number"></p>
-                </div>
-            </div>
 
-            <form id="general_form" novalidate>
-                <h2>General</h2>
-                <div>
                     <label for="diploma">Diploma</label>
                     <input type="text" name="diploma" id="diploma" placeholder="Enter Your Diploma" autocomplete="off" required>
+                    
                     <p>Year of Study</p>
                     <div>
                         <input type="radio" name="year" id="y1" required>
