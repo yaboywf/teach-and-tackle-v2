@@ -113,3 +113,22 @@ function dayNumberToName(dayNumber) {
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     return days[dayNumber] ?? "Invalid day";
 };
+
+/**
+ * Function to show a notification in Chrome
+ * @param {string} message - The message to show
+ * @returns {void}
+ */
+function showNotification(message, title) {
+    if ('Notification' in window) {
+        if (Notification.permission === "granted") {
+            new Notification(title, { body: message, icon: "../images/favicon.webp" });
+        } else if (Notification.permission !== "denied") {
+            Notification.requestPermission().then((permission) => {
+                if (permission === "granted") {
+                    new Notification(title, { body: message, icon: "../images/favicon.webp" });
+                }
+            });
+        }
+    }
+}

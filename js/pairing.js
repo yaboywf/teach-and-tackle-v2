@@ -22,6 +22,7 @@ body.addEventListener("click", (e) => {
             axios.delete(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/pairs/delete-pair?id=${encodeURIComponent(deletingPairId)}`, { headers: { "authorization": `Bearer ${getCookie("id_token")}` } })
                 .then(resp => {
                     showMessage(resp.data.message, "success");
+                    showNotification("The pair has been unlinked", "Pair Unlinked");
                 })
                 .catch(err => {
                     console.error(err);

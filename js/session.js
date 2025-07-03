@@ -81,6 +81,7 @@ async function getData() {
             axios.post("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/request/new-request", data, { headers: { "authorization": `Bearer ${getCookie("id_token")}` } })
                 .then(resp => {
                     showMessage(resp.data?.message, "success");
+                    showNotification("A new request has been sent", "Request Sent");
                     window.location.href = "/pages/pending.html";
                 })
                 .catch(err => {
