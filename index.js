@@ -172,17 +172,6 @@ exports.handler = async (event, context, callback) => {
 
                 if (!data.Item) throw new HttpError(404, "Student not found");
 
-                if (data.Item.image_key) {
-                    var getImageParams = {
-                        Bucket: "teach-and-tackle-images",
-                        Key: data.Item.image_key || ""
-                    };
-
-                    var imageData = await s3.getObject(getImageParams).promise();
-                    var base64Image = imageData.Body.toString('base64');
-                    data.Item.image = base64Image;
-                }
-
                 callback(null, {
                     statusCode: 200,
                     body: JSON.stringify(data.Item)
@@ -230,13 +219,13 @@ exports.handler = async (event, context, callback) => {
                 await dynamo.update(params).promise();
 
                 if (body.image) {
-                    var image = body.image;
+                    var image = body.image.replace(/^data:image\/[a-zA-Z]*;base64,/, '');
                     var buffer = Buffer.from(image, 'base64');
                     
                     let s3Key;
         
                     if (!existingImageKey) {
-                        s3Key = uuidv4();
+                        s3Key = uuidv4() + ".png";
         
                         var updateImageKeyParams = {
                             TableName: "users",
@@ -258,7 +247,7 @@ exports.handler = async (event, context, callback) => {
                         Bucket: "teach-and-tackle-images",
                         Key: s3Key,
                         Body: buffer,
-                        ContentType: 'application/octet-stream'
+                        ContentType: 'image/png'
                     };
         
                     await s3.upload(updateImageParams).promise();
