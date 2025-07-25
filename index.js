@@ -108,11 +108,12 @@ exports.handler = async (event, context, callback) => {
                 jwt = auth.authorization.split(" ")[1];
                 decoded = decodeJWT(jwt);
                 userId = decoded["cognito:username"].toUpperCase();
+                let now = Date.now();
 
                 var postParams = {
                     TableName: "proficiency",
                     Item: {
-                        proficiency_id: Date.now(),
+                        proficiency_id: now,
                         student_id: userId,
                         type: Number(query.type) || 0,
                         module: query.name || "",
@@ -123,7 +124,7 @@ exports.handler = async (event, context, callback) => {
 
                 callback(null, {
                     statusCode: 200,
-                    body: JSON.stringify({ "message": "Proficiency added" })
+                    body: JSON.stringify({ "message": "Proficiency added", id: now })
                 });
             } catch (e) {
                 handleError(e, callback);
@@ -186,10 +187,10 @@ exports.handler = async (event, context, callback) => {
                 const weaknessFilterExpression = weaknessParts.join(' OR ');
 
                 const finalFilterExpression = `(#type = :typeWeakness AND (${strengthFilterExpression})) OR (#type = :typeStrength AND (${weaknessFilterExpression}))`;
-
+                
                 let expressionAttributeValues = {
                     ":typeStrength": 1,
-                    ":typeWeakness": { N: "2" }
+                    ":typeWeakness": 2
                 };
 
                 strengths.forEach((mod, i) => expressionAttributeValues[`:mStrength${i}`] = mod);
