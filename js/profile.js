@@ -81,7 +81,7 @@ axios.get(`https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/account/ac
     .then(resp => {
         document.getElementById("diploma").value = resp.data.diploma;
         document.getElementById(`y${resp.data.year_of_study}`).checked = true;
-        document.querySelector("#profile_picture + label").style.background = resp.data.image ? `url(data:image/jpeg;base64,${resp.data.image.split("base64")[1]}) center/cover no-repeat` : "url(/images/favicon.webp) center/cover no-repeat";
+        document.querySelector("#profile_picture + label").style.background = resp.data.image_key ? `url(https://teach-and-tackle-images.s3.us-east-1.amazonaws.com/${resp.data.image_key}) center/cover no-repeat` : "url(/images/favicon.webp) center/cover no-repeat";
     })
     .catch(err => {
         showMessage("Failed to fetch user information");
