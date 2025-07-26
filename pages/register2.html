@@ -25,10 +25,14 @@
     <form id="signupForm" novalidate>
         <img src="../images/logo.webp" alt="Logo" id="image">
 
-        <label for="code">A code was sent to your email</label>
-        <div>
-            <i class="fa-solid fa-key"></i>
-            <input type="number" id="code" placeholder="Enter Code" autocomplete="off" required min="0" max="999999" minlength="6" maxlength="6">
+        <p>Enter your verification code</p>
+        <div class="code">
+            <input type="number" name="code" min="0" max="9">
+            <input type="number" name="code" min="0" max="9">
+            <input type="number" name="code" min="0" max="9">
+            <input type="number" name="code" min="0" max="9">
+            <input type="number" name="code" min="0" max="9">
+            <input type="number" name="code" min="0" max="9">
         </div>
 
         <button type="submit">Next</button>

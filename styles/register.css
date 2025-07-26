@@ -88,6 +88,20 @@
     display: flex !important;
     justify-content: center;
 }
+input[name="code"] {
+    border: 1px solid black !important;
+    height: 70px;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 22px;
+    text-align: center;
+}
+.code {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    border-bottom: none !important;
+}
 @media screen and (max-width: 800px) {
     .register form {
         position: absolute;
