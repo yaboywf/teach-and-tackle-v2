@@ -6,6 +6,7 @@ document.getElementById("signupForm").addEventListener("submit", (e) => {
     const code = Array.from(inputs).map(input => input.value).join('');
     if (code === "") return showMessage("Please enter the confirmation code");
     if (code.length !== 6) return showMessage("Please enter a valid confirmation code");
+    console.log(code);
 
     axios.post("https://s5y8kqe8x9.execute-api.us-east-1.amazonaws.com/api/account/confirm-email", { username: sessionStorage.getItem("admin_number"), code })
         .then(() => {
@@ -15,7 +16,7 @@ document.getElementById("signupForm").addEventListener("submit", (e) => {
         })
         .catch(err => {
             console.error(err);
-            showMessage("Error confirming account");
+            showMessage("Invalid confirmation code");
         })
 })
 
@@ -27,7 +28,6 @@ inputs.forEach((input, index) => {
 
         if (e.target.value.length > 1) e.target.value = e.target.value.slice(0, 1);
         if (index < inputs.length - 1 && e.target.value !== '') inputs[index + 1].focus();
-        if (Array.from(inputs).every(input => input.value !== '')) document.getElementById("signupForm").submit();
     });
 
     input.addEventListener('keydown', (e) => {
