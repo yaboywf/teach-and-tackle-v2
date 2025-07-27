@@ -134,7 +134,7 @@ pendingContainer.addEventListener("click", (e) => {
             })
             .catch(err => {
                 console.error(err);
-                showMessage("Failed to accept request");
+                showMessage("Failed to decline request");
             });
 
             break;
@@ -147,7 +147,7 @@ pendingContainer.addEventListener("click", (e) => {
             })
             .catch(err => {
                 console.error(err);
-                showMessage("Failed to accept request");
+                showMessage("Failed to withdraw request");
             });
 
             break;
