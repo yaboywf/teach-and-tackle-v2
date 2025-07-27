@@ -85,7 +85,7 @@ const getUser = async (adminNum) => {
                 <div class="pair" id="${pairInfo.pair_id}">
                     <span>Unlink</span>
                     <div class="student_info">
-                        <img src=${currentUserData.image_key ? `https://teach-and-tackle-images.s3.us-east-1.amazonaws.com/${currentUserData.image_key}` : "/images/favicon.webp"} alt="Profile Picture">
+                        <img src=${currentUserData?.image_key ? `https://teach-and-tackle-images.s3.us-east-1.amazonaws.com/${currentUserData.image_key}` : "/images/favicon.webp"} alt="Profile Picture">
                         <div>
                             <p style="--year: '${currentUserData?.year_of_study}'">${currentUserData?.name}</p>
                             <p>${currentUserData?.student_id}@student.tp.edu.sg</p>
@@ -101,7 +101,7 @@ const getUser = async (adminNum) => {
                     </div>
 
                     <div class="student_info">
-                        <img src=${otherUserData.image_key ? `https://teach-and-tackle-images.s3.us-east-1.amazonaws.com/${otherUserData.image_key}` : "/images/favicon.webp"} alt="Profile Picture">
+                        <img src=${otherUserData?.image_key ? `https://teach-and-tackle-images.s3.us-east-1.amazonaws.com/${otherUserData.image_key}` : "/images/favicon.webp"} alt="Profile Picture">
                         <div>
                             <p style="--year: '${otherUserData?.year_of_study || "?"}'">${otherUserData?.name || "Deleted User"}</p>
                             <p>${otherUserData?.student_id || "????????"}@student.tp.edu.sg</p>

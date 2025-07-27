@@ -246,7 +246,10 @@ document.getElementById("delete_form").addEventListener("submit", (e) => {
         .then(() => {
             isFormDirty = false;
             showMessage("Account deleted", "success");
-            setTimeout(() => window.location.href = "./pages/login.html", 2000)
+            document.cookie = "id_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; max-age=0";
+            document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0";
+            document.cookie = "refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0";
+            setTimeout(() => window.location.href = "../pages/login.html", 2000)
         })
         .catch(err => {
             console.error(err);

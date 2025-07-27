@@ -55,7 +55,7 @@ async function getData() {
                 const exploreStudentTemplate = `
                     <div id='explore_student' class="explore_student" adminNum="${userInfo.data.student_id}">
                         <div class="student_info">
-                            <img src="${userInfo.data.image_key ? `https://teach-and-tackle-images.s3.us-east-1.amazonaws.com/${userInfo.data.image_key}` : "../images/favicon.webp"}">
+                            <img src="${userInfo.data?.image_key ? `https://teach-and-tackle-images.s3.us-east-1.amazonaws.com/${userInfo.data.image_key}` : "../images/favicon.webp"}">
                             <div>
                                 <p style="--year: '${userInfo.data.year_of_study}'">${userInfo.data.name}</p>
                                 <p>${userInfo.data.student_id}@student.tp.edu.sg</p>
